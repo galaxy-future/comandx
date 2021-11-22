@@ -77,6 +77,42 @@ export const constantRoutes = [
       component: () => import('@/views/cluster/detail'),
       meta: { title: '集群信息', icon: '' },
       hidden: true
+    }, {
+      path: '/service',
+      component: () => import('@/views/service/index'),
+      // component: Layout,
+      redirect: "serviceList",
+      name: 'serviceManager',
+      meta: { title: '服务部署', icon: '' },
+      children: [{
+        path: '/service/list',
+        name: 'serviceList',
+        component: () => import('@/views/service/list'),
+        meta: { title: '服务列表', icon: '' }
+      }, {
+        path: '/service/create',
+        name: 'serviceCreate',
+        component: () => import('@/views/service/create'),
+        meta: { title: '创建服务', icon: '' }
+      }, {
+        path: '/service/history/:service_cluster_id',
+        name: 'serviceHistory',
+        component: () => import('@/views/service/history'),
+        meta: { title: '扩缩容记录', icon: '' },
+        hidden: true
+      }, {
+        path: '/service/:service_name/:service_cluster_id/template',
+        name: 'templateList',
+        component: () => import('@/views/template/index'),
+        meta: { title: '扩缩容模板列表', icon: '' },
+        hidden: true
+      }, {
+        path: '/service/:service_name/:service_cluster_id/template-create',
+        name: 'templateCreate',
+        component: () => import('@/views/template/create'),
+        meta: { title: '创建扩缩容模板', icon: '' },
+        hidden: true
+      }]
     }]
   },
   {
