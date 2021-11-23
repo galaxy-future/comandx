@@ -10,7 +10,7 @@
       :rules="rules"
       :model="form"
     >
-      <el-form-item label="服务名" prop="service_info.service_name">
+      <el-form-item label="服务名称" prop="service_info.service_name">
         <el-input
           v-model="form.service_info.service_name"
           size="medium"
