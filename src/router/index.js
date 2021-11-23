@@ -103,13 +103,13 @@ export const constantRoutes = [
         path: '/service/:service_name/:service_cluster_id/template',
         name: 'templateList',
         component: () => import('@/views/template/index'),
-        meta: { title: '扩缩容模板列表', icon: '' },
+        meta: { title: '扩缩容流程列表', icon: '' },
         hidden: true
       }, {
         path: '/service/:service_name/:service_cluster_id/template-create',
         name: 'templateCreate',
         component: () => import('@/views/template/create'),
-        meta: { title: '创建扩缩容模板', icon: '' },
+        meta: { title: '创建扩缩容流程', icon: '' },
         hidden: true
       }]
     }]

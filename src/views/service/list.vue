@@ -3,7 +3,7 @@
     <div class="header">
       <div class="search">
         <div class="search-item">
-          <span class="label">服务名</span>
+          <span class="label">服务名称</span>
           <el-input
             v-model="search.service_name"
             size="medium"
@@ -68,7 +68,7 @@
               <span>{{ row.service_id }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="服务名" min-width="60px">
+          <el-table-column label="服务名称" min-width="60px">
             <template slot-scope="{ row }">
               <el-button type="text" @click="goTemplateIndex(row)">{{ row.service_name }}</el-button>
             </template>
@@ -83,7 +83,7 @@
               {{ row.image_url }}
             </template>
           </el-table-column>
-          <el-table-column label="扩缩容模板" width="150px">
+          <el-table-column label="扩缩容流程" width="150px">
             <template slot-scope="{ row }">
               {{ row.tmpl_expand_name }}
             </template>
@@ -151,11 +151,11 @@
       </el-form>
     </el-dialog>
 
-    <el-dialog title="执行扩缩容" :visible="dialogVisible" width="30%" @close="cancelDialog">
+    <el-dialog title="执行扩缩容" :visible="dialogVisible" width="40%" @close="cancelDialog">
       <el-form
         ref="dialogForm"
         :model="dialogForm"
-        label-width="200px"
+        label-width="80px"
         label-position="right"
         :rules="rules"
       >
@@ -184,8 +184,8 @@
           </div>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="submitDialog">立即执行</el-button>
-          <el-button @click="cancelDialog">取消</el-button>
+          <div style="margin-left:20%"><el-button type="primary" @click="submitDialog">立即执行</el-button>
+            <el-button @click="cancelDialog">取消</el-button></div>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -235,7 +235,7 @@ export default {
     return {
       rules: {
         dialogTemplate: [
-          { required: true, message: '请选择扩缩容模板', trigger: 'blur' }
+          { required: true, message: '请选择扩缩容流程', trigger: 'blur' }
         ]
       },
       dialogVisible: false,

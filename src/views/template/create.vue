@@ -11,15 +11,9 @@
         <div v-if="step === 0" class="form">
           <div class="form-container">
             <el-row>
-              <el-col :span="5"><div class="center-text">扩容服务</div></el-col>
+              <el-col :span="5"><div class="center-text">服务名称</div></el-col>
               <el-col :span="19">
-                <el-input
-                  v-model="form.service_name"
-                  size="medium"
-                  maxlength="20"
-                  show-word-limit
-                  disabled
-                />
+                <div>{{ form.service_name }}</div>
               </el-col>
             </el-row>
           </div>
@@ -27,7 +21,7 @@
             <el-row>
               <el-col
                 :span="5"
-              ><div class="center-text">BridgX扩缩容集群</div></el-col>
+              ><div class="center-text">关联模板</div></el-col>
               <el-col :span="19">
                 <el-select v-model="form.tmpl_info.bridgx_clusname" size="medium" placeholder="请选择">
                   <el-option

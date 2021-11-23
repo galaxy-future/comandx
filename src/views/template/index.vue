@@ -6,7 +6,7 @@
     <div class="container">
       <div>
         <el-tabs v-model="activeName">
-          <el-tab-pane label="扩缩容模板" name="first">
+          <el-tab-pane label="扩缩容流程" name="first">
             <div class="content">
               <div class="buttons">
                 <el-button
