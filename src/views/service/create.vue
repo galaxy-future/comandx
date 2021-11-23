@@ -1,19 +1,19 @@
 <template>
   <div class="service-container">
     <el-form
+      ref="form"
+      v-model="form"
       class="form"
       label-position="right"
-      v-model="form"
       size="medium"
       label-width="140px"
       :rules="rules"
       :model="form"
-      ref="form"
     >
       <el-form-item label="服务名" prop="service_info.service_name">
         <el-input
-          size="medium"
           v-model="form.service_info.service_name"
+          size="medium"
           placeholder="请输入服务名称"
           style="width: 400px"
         />
@@ -21,10 +21,10 @@
       </el-form-item>
       <el-form-item label="服务描述" prop="service_info.description">
         <el-input
+          v-model="form.service_info.description"
           type="textarea"
           :rows="3"
           size="medium"
-          v-model="form.service_info.description"
           placeholder="请输入服务描述"
           style="width: 400px"
         />
@@ -72,18 +72,17 @@
           inactive-color="#ff4949"
           active-value="on"
           inactive-value="off"
-        >
-        </el-switch>
+        />
       </el-form-item>
 
       <el-form-item
+        v-if="form.auto_decision === 'on'"
         label="规则名称"
         prop="decision_rule.rule_name"
-        v-if="form.auto_decision === 'on'"
       >
         <el-input
-          size="medium"
           v-model="form.decision_rule.rule_name"
+          size="medium"
           placeholder="请输入规则名称"
           style="width: 400px"
         />
@@ -91,26 +90,26 @@
       </el-form-item>
 
       <el-form-item
+        v-if="form.auto_decision === 'on'"
         label="单机QPS"
         prop="decision_rule.metric_value"
-        v-if="form.auto_decision === 'on'"
       >
         <el-input
-          size="medium"
           v-model="form.decision_rule.metric_value"
+          size="medium"
           placeholder="请输入QPS值"
           style="width: 400px"
         />
       </el-form-item>
 
       <el-form-item
+        v-if="form.auto_decision === 'on'"
         label="冗余度"
         prop="decision_rule.redundancy"
-        v-if="form.auto_decision === 'on'"
       >
         <el-input
-          size="medium"
           v-model="form.decision_rule.redundancy"
+          size="medium"
           placeholder="请输入冗余度"
           style="width: 400px"
         />
@@ -120,13 +119,13 @@
       </el-form-item>
 
       <el-form-item
+        v-if="form.auto_decision === 'on'"
         label="扩容步长"
         prop="decision_rule.expand_size"
-        v-if="form.auto_decision === 'on'"
       >
         <el-input
-          size="medium"
           v-model="form.decision_rule.expand_size"
+          size="medium"
           placeholder="请输入扩容步长"
           style="width: 400px"
         />
@@ -137,9 +136,11 @@
 
       <div style="display: flex; justify-content: right">
         <el-button type="primary" @click="submit">保存</el-button>
-        <el-button type="cancel" style="margin-left: 20px" @click="cancel"
-          >取消</el-button
-        >
+        <el-button
+          type="cancel"
+          style="margin-left: 20px"
+          @click="cancel"
+        >取消</el-button>
       </div>
     </el-form>
 
@@ -158,14 +159,14 @@
             height: 150px;
             margin-left: 25%;
           "
-        />
+        >
       </div>
       <div style="margin-left: 30%">
-        <span>{{ seconds }}</span
-        >s后自动跳转
-        <el-button type="text" @click="goTemplateCreate()"
-          >创建扩容模板</el-button
-        >
+        <span>{{ seconds }}</span>s后自动跳转
+        <el-button
+          type="text"
+          @click="goTemplateCreate()"
+        >创建扩容模板</el-button>
       </div>
       <div style="margin-left: 35%">
         <el-button type="text" @click="goServiceList()">返回服务列表</el-button>
@@ -175,166 +176,167 @@
 </template>
 
 <script>
-import { languages } from "@/config/service";
-import { getTemplateList, serviceCreate } from "@/api/service";
-import createPng from "@/assets/create.png";
+import { languages } from '@/config/service'
+import { getTemplateList, serviceCreate } from '@/api/service'
+import createPng from '@/assets/create.png'
+import _ from 'lodash'
 export default {
-  name: "serviceCreate",
+  name: 'ServiceCreate',
   data() {
     return {
       createPng: createPng,
       form: {
         service_info: {
-          service_name: "",
-          language: "Go",
-          description: "",
+          service_name: '',
+          language: 'Go',
+          description: ''
         },
-        auto_decision: "off",
+        auto_decision: 'off',
         decision_rule: {
-          rule_name: "",
-          metric_value: "",
-          metric_name: "inst_qps",
-          redundancy: "",
-          expand_size: "",
-        },
+          rule_name: '',
+          metric_value: '',
+          metric_name: 'inst_qps',
+          redundancy: '',
+          expand_size: ''
+        }
       },
       languageMap: languages,
       templateList: [],
       tipDialogVisible: false,
-      serviceName: "",
-      serviceClusterId: "",
-      timer: "",
+      serviceName: '',
+      serviceClusterId: '',
+      timer: '',
       seconds: 5,
       rules: {
-        "service_info.service_name": [
+        'service_info.service_name': [
           {
             required: true,
-            message: "请输入服务名称",
-            trigger: ["blur", "change"],
+            message: '请输入服务名称',
+            trigger: ['blur', 'change']
           },
           {
             pattern: /^[0-9a-zA-Z\u4E00-\u9FA5.]{1,32}$/,
-            message: "支持中文、英文、数字，限制32字符",
-            trigger: ["blur", "change"],
-          },
+            message: '支持中文、英文、数字，限制32字符',
+            trigger: ['blur', 'change']
+          }
         ],
-        "service_info.language": [
+        'service_info.language': [
           {
             required: true,
-            message: "请选择服务类型",
-            trigger: ["blur", "change"],
-          },
+            message: '请选择服务类型',
+            trigger: ['blur', 'change']
+          }
         ],
-        "decision_rule.rule_name": [
+        'decision_rule.rule_name': [
           {
             required: true,
-            message: "请输入规则名称",
-            trigger: ["blur", "change"],
+            message: '请输入规则名称',
+            trigger: ['blur', 'change']
           },
           {
             pattern: /^[0-9a-zA-Z\u4E00-\u9FA5.]{1,20}$/,
-            message: "支持中文、英文、数字，限制20字符",
-            trigger: ["blur", "change"],
-          },
+            message: '支持中文、英文、数字，限制20字符',
+            trigger: ['blur', 'change']
+          }
         ],
-        "decision_rule.metric_value": [
+        'decision_rule.metric_value': [
           {
             required: true,
-            message: "请输入QPS值",
-            trigger: ["blur", "change"],
+            message: '请输入QPS值',
+            trigger: ['blur', 'change']
           },
           {
             pattern: /^[0-9]{1,10}$/,
-            message: "仅支持数字",
-            trigger: ["blur", "change"],
-          },
+            message: '仅支持数字',
+            trigger: ['blur', 'change']
+          }
         ],
-        "decision_rule.redundancy": [
-          { required: true, message: "请输入冗余度", trigger: "blur" },
+        'decision_rule.redundancy': [
+          { required: true, message: '请输入冗余度', trigger: 'blur' },
           {
             pattern: /^[0-9]{1,10}$/,
-            message: "仅支持数字",
-            trigger: ["blur", "change"],
-          },
+            message: '仅支持数字',
+            trigger: ['blur', 'change']
+          }
         ],
-        "decision_rule.expand_size": [
-          { required: true, message: "请输入扩容步长", trigger: "blur" },
+        'decision_rule.expand_size': [
+          { required: true, message: '请输入扩容步长', trigger: 'blur' },
           {
             pattern: /^[0-9]{1,10}$/,
-            message: "仅支持数字",
-            trigger: ["blur", "change"],
-          },
-        ],
-      },
-    };
+            message: '仅支持数字',
+            trigger: ['blur', 'change']
+          }
+        ]
+      }
+    }
   },
   mounted() {
-    this.getTemplateList();
+    this.getTemplateList()
   },
   methods: {
     async getTemplateList() {
-      const res = await getTemplateList();
-      this.templateList = _.get(res, "templateList", []);
+      const res = await getTemplateList()
+      this.templateList = _.get(res, 'templateList', [])
     },
     createTemplate() {
-      this.$router.push({ name: "templateCreate" });
+      this.$router.push({ name: 'templateCreate' })
     },
     async submit() {
-      this.$refs["form"].validate(async (valid) => {
+      this.$refs['form'].validate(async(valid) => {
         if (valid) {
           this.form.decision_rule.metric_value = Number(
             this.form.decision_rule.metric_value
-          );
+          )
           this.form.decision_rule.redundancy = Number(
             this.form.decision_rule.redundancy
-          );
+          )
           this.form.decision_rule.expand_size = Number(
             this.form.decision_rule.expand_size
-          );
-          const res = await serviceCreate(this.form);
+          )
+          const res = await serviceCreate(this.form)
           if (res.data.code === 200) {
-            this.$message.success("创建成功");
-            this.serviceClusterId = res.data.data.service_cluster_id;
-            this.tipDialogVisible = true;
-            const _this = this;
-            this.timer = window.setInterval(function () {
-              --_this.seconds;
+            this.$message.success('创建成功')
+            this.serviceClusterId = res.data.data.service_cluster_id
+            this.tipDialogVisible = true
+            const _this = this
+            this.timer = window.setInterval(function() {
+              --_this.seconds
               if (_this.seconds === 0) {
-                window.clearInterval(_this.timer);
-                _this.tipDialogVisible = false;
-                _this.goTemplateCreate();
+                window.clearInterval(_this.timer)
+                _this.tipDialogVisible = false
+                _this.goTemplateCreate()
               }
-            }, 1000);
+            }, 1000)
           } else {
-            this.$message.error("创建失败");
+            this.$message.error('创建失败')
           }
           // this.$router.push({ name: "serviceList" });
         }
-      });
+      })
     },
     cancel() {
-      this.$router.push({ name: "serviceList" });
+      this.$router.push({ name: 'serviceList' })
     },
     goTemplateCreate() {
-      this.clearTimer();
+      this.clearTimer()
       this.$router.push({
-        path: `/service/${this.form.service_info.service_name}/${this.serviceClusterId}/template-create`,
-      });
+        path: `/service/${this.form.service_info.service_name}/${this.serviceClusterId}/template-create`
+      })
     },
     goServiceList() {
-      this.clearTimer();
-      this.$router.push({ name: "serviceList" });
+      this.clearTimer()
+      this.$router.push({ name: 'serviceList' })
     },
     clearTimer() {
-      if (this.timer != "") {
-        window.clearInterval(this.timer);
+      if (this.timer !== '') {
+        window.clearInterval(this.timer)
       }
       if (this.tipDialogVisible === true) {
-        this.tipDialogVisible = false;
+        this.tipDialogVisible = false
       }
-    },
-  },
-};
+    }
+  }
+}
 </script>
 <style lang="less" scoped>
 .service-container {

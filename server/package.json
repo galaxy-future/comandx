@@ -17,7 +17,6 @@
     "koa-logger": "^3.2.0",
     "koa-body": "^4.2.0",
     "koa-onerror": "^4.1.0",
-    "koa-router": "^7.4.0",
     "koa-static": "^5.0.0",
     "koa-views": "^6.2.0",
     "pug": "^2.0.3",
@@ -30,6 +29,7 @@
     "koa2-proxy-middleware": "^0.0.4"
   },
   "devDependencies": {
+    "koa-router": "^7.4.0",
     "nodemon": "^1.19.1"
   }
 }

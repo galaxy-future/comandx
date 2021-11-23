@@ -1,4 +1,3 @@
-const { string } = require('jszip/lib/support')
 const Mock = require('mockjs')
 const service_list = Mock.mock({
   'service_list|25': [{
@@ -51,7 +50,6 @@ const tmpl_decision_rule = Mock.mock({
   }
 })
 
-
 module.exports = [
   {
     url: '/api/v1/schedulx/service/list',
@@ -63,8 +61,8 @@ module.exports = [
         data: {
           service_list: items,
           pager: {
-            page_number:1,
-            page_size:20,
+            page_number: 1,
+            page_size: 20,
             total: items.length
           }
         }
@@ -78,7 +76,7 @@ module.exports = [
       return {
         code: 200,
         data: {
-          "service_cluster_id": 1
+          'service_cluster_id': 1
         }
       }
     }
@@ -122,8 +120,8 @@ module.exports = [
         data: {
           schedule_task_list: items,
           pager: {
-            page_number:1,
-            page_size:20,
+            page_number: 1,
+            page_size: 20,
             total: items.length
           }
         }
@@ -150,8 +148,8 @@ module.exports = [
         data: {
           tmpl_expand_list: items,
           pager: {
-            page_number:1,
-            page_size:20,
+            page_number: 1,
+            page_size: 20,
             total: items.length
           }
         }
@@ -179,5 +177,5 @@ module.exports = [
         code: 200
       }
     }
-  },
+  }
 ]

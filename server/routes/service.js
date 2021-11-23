@@ -4,7 +4,7 @@ const Router = require('koa-router')
 const routerApi = new Router({
   prefix: '/api/v1'
 })
-const serviceHost = "10.16.23.96:9090" 
+const serviceHost = '10.16.23.96:9090'
 
 routerApi.get('/schedulx/service/list', async(ctx) => {
   try {

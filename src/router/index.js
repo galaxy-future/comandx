@@ -80,8 +80,7 @@ export const constantRoutes = [
     }, {
       path: '/service',
       component: () => import('@/views/service/index'),
-      // component: Layout,
-      redirect: "serviceList",
+      redirect: '/service/list',
       name: 'serviceManager',
       meta: { title: '服务部署', icon: '' },
       children: [{

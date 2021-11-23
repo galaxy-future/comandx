@@ -47,12 +47,11 @@ export async function serviceExpand(params) {
   return request({
     url: '/api/v1/schedulx/service/expand',
     method: 'get',
-    params, params,
+    params: params,
     headers: {
       Authorization: ` Bearer ${token}`
     }
   })
-  return res
 }
 
 export async function serviceShrink(params) {
@@ -65,7 +64,6 @@ export async function serviceShrink(params) {
       Authorization: ` Bearer ${token}`
     }
   })
-  return res
 }
 
 export async function getTemplateList(params) {

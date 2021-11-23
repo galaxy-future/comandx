@@ -23,7 +23,7 @@
           </el-table-column>
           <el-table-column label="执行动作" min-width="60px">
             <template slot-scope="{ row }">
-              <span>{{ row.schedule_type  === "expand" ? "扩容" : "缩容" }}</span>
+              <span>{{ row.schedule_type === "expand" ? "扩容" : "缩容" }}</span>
             </template>
           </el-table-column>
           <el-table-column label="执行机器数" width="150px" align="center">
@@ -41,7 +41,7 @@
               <span>{{ row.task_exec_opr }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="执行开始"  min-width="100px">
+          <el-table-column label="执行开始" min-width="100px">
             <template slot-scope="{ row }">
               <span>{{ row.begin_at }}</span>
             </template>
@@ -74,26 +74,25 @@
   </div>
 </template>
 
-
 <script>
-import { getHistoryList } from "@/api/service";
-import waves from "@/directive/waves"; // waves directive
-import Pagination from "@/components/Pagination";
-import _ from "lodash";
+import { getHistoryList } from '@/api/service'
+import waves from '@/directive/waves' // waves directive
+import Pagination from '@/components/Pagination'
+import _ from 'lodash'
 
 export default {
-  name: "History",
+  name: 'History',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: "success",
-        draft: "info",
-        deleted: "danger",
-      };
-      return statusMap[status];
-    },
+        published: 'success',
+        draft: 'info',
+        deleted: 'danger'
+      }
+      return statusMap[status]
+    }
   },
   data() {
     return {
@@ -101,13 +100,13 @@ export default {
       total: 0,
       listQuery: {
         page_size: 20,
-        page_num: 1,
+        page_num: 1
       },
-      historyList: [],
-    };
+      historyList: []
+    }
   },
   created() {
-    this.getList();
+    this.getList()
   },
   // filters: {
   //   taskStatus(value) {
@@ -129,21 +128,20 @@ export default {
   // },
   methods: {
     async getList() {
-      this.listLoading = true;
-      let params = {
+      this.listLoading = true
+      const params = {
         service_cluster_id: this.$route.params.service_cluster_id,
-        ...this.listQuery,
-      };
-      const res = await getHistoryList(params);
-      console.log(res);
-      this.historyList = _.get(res, "schedule_task_list", []);
-      this.total = res.pager.total;
-      this.listLoading = false;
-    },
-  },
-};
+        ...this.listQuery
+      }
+      const res = await getHistoryList(params)
+      console.log(res)
+      this.historyList = _.get(res, 'schedule_task_list', [])
+      this.total = res.pager.total
+      this.listLoading = false
+    }
+  }
+}
 </script>
-
 
 <style lang="less" scoped>
 .container {

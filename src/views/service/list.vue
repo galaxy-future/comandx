@@ -31,23 +31,26 @@
         </div>
       </div>
       <div class="buttons">
-        <el-button size="medium" type="primary" @click="getList"
-          >查询</el-button
-        >
+        <el-button
+          size="medium"
+          type="primary"
+          @click="getList"
+        >查询</el-button>
         <el-button size="medium" @click="resetSearch">重置</el-button>
       </div>
     </div>
     <div class="content">
       <div class="buttons">
-        <el-button size="medium" type="primary" @click="handleCreate"
-          >+创建服务</el-button
-        >
+        <el-button
+          size="medium"
+          type="primary"
+          @click="handleCreate"
+        >+创建服务</el-button>
         <el-button
           size="medium"
           :disabled="selectServices.length !== 1"
           @click="handleEdit"
-          >编辑</el-button
-        >
+        >编辑</el-button>
       </div>
       <div class="table">
         <el-table
@@ -94,24 +97,25 @@
                 active-value="on"
                 inactive-value="off"
                 disabled
-              >
-              </el-switch>
+              />
               {{ row.auto_decision === 'on' ? "开启" : "关闭" }}
             </template>
           </el-table-column>
           <el-table-column label="扩缩容状态" min-width="50px">
             <template slot-scope="{ row }">
-              <span>{{  row.task_type_status | taskTypeStatus  }} </span>
+              <span>{{ row.task_type_status | taskTypeStatus }} </span>
             </template>
           </el-table-column>
           <el-table-column label="操作">
             <template slot-scope="scope">
-              <el-button type="text" @click="process(scope.row)"
-                >扩缩容</el-button
-              >
-              <el-button type="text" @click="processHistory(scope.row)"
-                >扩缩容历史</el-button
-              >
+              <el-button
+                type="text"
+                @click="process(scope.row)"
+              >扩缩容</el-button>
+              <el-button
+                type="text"
+                @click="processHistory(scope.row)"
+              >扩缩容历史</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -130,17 +134,15 @@
         ref="editServiceDialogForm"
         :model="editServiceDialogForm"
         label-width="100px"
-        
       >
         <el-form-item label="服务描述">
           <el-input
+            v-model="editServiceDialogForm.description"
             type="textarea"
             :rows="3"
-            v-model="editServiceDialogForm.description"
             placeholder="请输入服务描述"
             style="width:230px"
-          >
-          </el-input>
+          />
         </el-form-item>
         <el-form-item style="margin-left:5%">
           <el-button type="primary" @click="editServiceDialog">保存</el-button>
@@ -169,16 +171,15 @@
               v-for="item in numRadios"
               :key="item.label"
               :label="item.label"
-              >{{ item.name }}</el-radio-button
-            >
+            >{{ item.name }}</el-radio-button>
           </el-radio-group>
           <div>
             其他：
             <el-input
-             prop="otherNum"
               v-model="dialogForm.otherNum"
+              prop="otherNum"
               style="width: 80px"
-            ></el-input>
+            />
             台
           </div>
         </el-form-item>
@@ -190,78 +191,92 @@
     </el-dialog>
   </div>
 
-  
 </template>
 
-
 <script>
-import { getServiceList, serviceExpand, serviceShrink,serviceDelete,serviceEdit,getTemplateList } from "@/api/service";
+import { getServiceList, serviceExpand, serviceShrink, serviceDelete, serviceEdit, getTemplateList } from '@/api/service'
 // import { cloudAccountList } from "@/api/cloud";
-import { languageMap } from "@/config/service";
-import waves from "@/directive/waves"; // waves directive
-import Pagination from "@/components/Pagination";
-import _ from "lodash";
+import { languageMap } from '@/config/service'
+import waves from '@/directive/waves' // waves directive
+import Pagination from '@/components/Pagination'
+import _ from 'lodash'
 
 export default {
-  name: "Service",
+  name: 'Service',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: "success",
-        draft: "info",
-        deleted: "danger",
-      };
-      return statusMap[status];
+        published: 'success',
+        draft: 'info',
+        deleted: 'danger'
+      }
+      return statusMap[status]
     },
+    taskTypeStatus(value) {
+      let str = ''
+      if (value === 'FAIL') {
+        str = '失败'
+      }
+      if (value === 'SUCC') {
+        str = '成功'
+      }
+      if (value === 'RUNNIGN') {
+        str = '运行中'
+      }
+      if (value === 'INIT') {
+        str = '未进行'
+      }
+      return str
+    }
   },
   data() {
     return {
       rules: {
         dialogTemplate: [
-          { required: true, message: "请选择扩缩容模板", trigger: "blur" },
-        ],
+          { required: true, message: '请选择扩缩容模板', trigger: 'blur' }
+        ]
       },
       dialogVisible: false,
       editServiceDialogVisible: false,
       listLoading: false,
       total: 0,
       search: {
-        service_name: "",
-        language: "",
+        service_name: '',
+        language: ''
       },
       listQuery: {
         page_num: 1,
-        page_size: 20,
+        page_size: 20
       },
       selectServices: [],
       languageMap: languageMap,
       numRadios: [
         {
           label: 1,
-          name: "+1",
+          name: '+1'
         },
         {
           label: 5,
-          name: "+5",
+          name: '+5'
         },
         {
           label: 10,
-          name: "+10",
+          name: '+10'
         },
         {
           label: 50,
-          name: "+50",
+          name: '+50'
         },
         {
           label: 100,
-          name: "+100",
+          name: '+100'
         },
         {
           label: 200,
-          name: "+200",
-        },
+          name: '+200'
+        }
       ],
       serviceList: [],
       templateList: [],
@@ -269,170 +284,147 @@ export default {
         dialogTemplate: 0,
         operateType: 'expand',
         otherNum: '',
-        operateCount: 5,
+        operateCount: 5
       },
       editServiceDialogForm: {
-        description: ""
+        description: ''
       },
-      currentRowServiceClusterId: ""
-    };
+      currentRowServiceClusterId: ''
+    }
   },
   created() {
-    this.getList();
+    this.getList()
   },
-  filters:{
-        taskTypeStatus(value) {
-          let str="";
-          if(value === "FAIL") {
-            str = "失败";
-          }
-          if(value === "SUCC") {
-            str = "成功";
-          }
-          if(value === "RUNNIGN") {
-            str = "运行中";
-          }
-          if(value === "INIT") {
-            str = "未进行";
-          }
-          return str;
-        }
-      },
   methods: {
     async getList() {
-      this.listLoading = true;
-      let params = {
+      this.listLoading = true
+      const params = {
         ...this.search,
-        ...this.listQuery,
-      };
-      const res = await getServiceList(params);
-      this.serviceList = _.get(res, "service_list", []);
-      this.total = res.pager.total;
-      this.listLoading = false;
+        ...this.listQuery
+      }
+      const res = await getServiceList(params)
+      this.serviceList = _.get(res, 'service_list', [])
+      this.total = res.pager.total
+      this.listLoading = false
     },
     resetSearch() {
       this.search = {
-        service_name: "",
-        language: "",
-      };
+        service_name: '',
+        language: ''
+      }
       this.listQuery = {
         page_num: 1,
-        page_size: 20,
-      };
+        page_size: 20
+      }
     },
     process(row) {
-      this.currentRowServiceClusterId = row.service_cluster_id;
-      this.getTemplateList(row);
-      this.dialogVisible = true;
+      this.currentRowServiceClusterId = row.service_cluster_id
+      this.getTemplateList(row)
+      this.dialogVisible = true
     },
     async getTemplateList(row) {
       const params = {
-        "service_name": row.service_name,
-        "page_num": 1,
-        "page_size": 100 
+        'service_name': row.service_name,
+        'page_num': 1,
+        'page_size': 100
       }
-      let res = await getTemplateList(params)
-      this.templateList = _.get(res, "tmpl_expand_list", []);
-      if(this.templateList.length != 0) {
-        this.dialogForm.dialogTemplate = this.templateList[0].tmpl_expand_id;
+      const res = await getTemplateList(params)
+      this.templateList = _.get(res, 'tmpl_expand_list', [])
+      if (this.templateList.length !== 0) {
+        this.dialogForm.dialogTemplate = this.templateList[0].tmpl_expand_id
       }
-      
     },
     async submitDialog() {
       if (
         this.dialogForm.operateCount === 0 &&
         this.dialogForm.otherNum === 0
       ) {
-        this.$message.info("操作台数为0");
-        return;
+        this.$message.info('操作台数为0')
+        return
       }
       const count =
         this.dialogForm.otherNum === ''
           ? this.dialogForm.operateCount
-          : this.dialogForm.otherNum;
+          : this.dialogForm.otherNum
       const params = {
-            service_cluster_id: Number(this.currentRowServiceClusterId),
-            count: Number(count)
-          };
-      let res;
-      switch (this.dialogForm.operateType) {
-        case "expand":
-          res = await serviceExpand(params);
-          if (res.code === 200) {
-            this.$message.success("提交成功");
-            this.dialogVisible = false;
-          } else {
-            this.$message.error("提交失败");
-          };
-          break;
-        case "shrink":
-          res = await serviceShrink(params);
-          if (res.code === 200) {
-            this.$message.success("提交成功");
-            this.dialogVisible = false;
-          } else {
-            this.$message.error("提交失败");
-          };
-          break;
+        service_cluster_id: Number(this.currentRowServiceClusterId),
+        count: Number(count)
       }
-      
+      let res
+      switch (this.dialogForm.operateType) {
+        case 'expand':
+          res = await serviceExpand(params)
+          if (res.code === 200) {
+            this.$message.success('提交成功')
+            this.dialogVisible = false
+          } else {
+            this.$message.error('提交失败')
+          }
+          break
+        case 'shrink':
+          res = await serviceShrink(params)
+          if (res.code === 200) {
+            this.$message.success('提交成功')
+            this.dialogVisible = false
+          } else {
+            this.$message.error('提交失败')
+          }
+          break
+      }
     },
     cancelDialog() {
-      this.dialogVisible = false;
+      this.dialogVisible = false
     },
     cancelEditServiceDialog() {
-      this.editServiceDialogVisible = false;
+      this.editServiceDialogVisible = false
     },
     handleSelectionChange(val) {
-      this.selectServices = val;
+      this.selectServices = val
     },
     async editServiceDialog() {
-      if(this.selectServices.length != 1) {
-        this.$message.info("请选择一条记录")
+      if (this.selectServices.length !== 1) {
+        this.$message.info('请选择一条记录')
         return
       }
       const data = {
-        "service_info": {
-          "service_name": this.selectServices[0].service_name,
-          "description": this.editServiceDialogForm.description
+        'service_info': {
+          'service_name': this.selectServices[0].service_name,
+          'description': this.editServiceDialogForm.description
         }
       }
-      const res = await serviceEdit(data) 
-      if(res.data.code === 200) {
-        this.$message.success("编辑成功");
-        this.editServiceDialogVisible = false;
-        this.getList();
+      const res = await serviceEdit(data)
+      if (res.data.code === 200) {
+        this.$message.success('编辑成功')
+        this.editServiceDialogVisible = false
+        this.getList()
       } else {
-        this.$message.error("编辑失败");
+        this.$message.error('编辑失败')
       }
-      
-    }
-    ,
+    },
     handleCreate() {
-      this.$router.push({ name: "serviceCreate" });
+      this.$router.push({ name: 'serviceCreate' })
     },
     handleEdit() {
-      this.editServiceDialogForm.description = this.selectServices[0].description;
-      this.editServiceDialogVisible = true;
+      this.editServiceDialogForm.description = this.selectServices[0].description
+      this.editServiceDialogVisible = true
     },
     async handleDelete() {
       const res = await serviceDelete(this.selectServices.map(0))
       if (res.code === 200) {
-        this.$message.success("删除成功");
+        this.$message.success('删除成功')
       }
-      await this.getList();
+      await this.getList()
     },
     processHistory(row) {
-      this.$router.push({ path: `/service/history/${row.service_cluster_id}` });
+      this.$router.push({ path: `/service/history/${row.service_cluster_id}` })
     },
     goTemplateIndex(row) {
-      this.$router.push({ path: `/service/${row.service_name}/${row.service_cluster_id}/template` });
+      this.$router.push({ path: `/service/${row.service_name}/${row.service_cluster_id}/template` })
     }
-  
-  },
-};
-</script>
 
+  }
+}
+</script>
 
 <style lang="less" scoped>
 .container {

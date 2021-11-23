@@ -9,9 +9,11 @@
           <el-tab-pane label="扩缩容模板" name="first">
             <div class="content">
               <div class="buttons">
-                <el-button size="medium" type="primary" @click="createTemplate"
-                  >+新建</el-button
-                >
+                <el-button
+                  size="medium"
+                  type="primary"
+                  @click="createTemplate"
+                >+新建</el-button>
               </div>
               <div class="table">
                 <el-table
@@ -24,9 +26,11 @@
                   @selection-change="handleSelectionChange"
                 >
                   <el-table-column type="selection" width="50" />
-                  <el-table-column label="ID"
+                  <el-table-column
+                    label="ID"
                     width="100px"
-                    align="center">
+                    align="center"
+                  >
                     <template slot-scope="{ row }">
                       <span>{{ row.tmpl_expand_id }}</span>
                     </template>
@@ -69,23 +73,23 @@
           <el-tab-pane label="自动扩缩容" name="second">
             <div class="content">
               <el-form
+                ref="form"
+                v-model="form"
                 style="margin-left:20%"
                 class="form"
                 label-position="right"
-                v-model="form"
                 size="medium"
                 label-width="140px"
                 :rules="rules"
                 :model="form"
-                ref="form"
               >
                 <el-form-item
                   label="单机QPS"
                   prop="tmpl_decision_rule.metric_value"
                 >
                   <el-input
-                    size="medium"
                     v-model="form.tmpl_decision_rule.metric_value"
+                    size="medium"
                     placeholder="请输入QPS值"
                     style="width: 400px"
                   />
@@ -95,8 +99,8 @@
                   prop="tmpl_decision_rule.redundancy"
                 >
                   <el-input
-                    size="medium"
                     v-model="form.tmpl_decision_rule.redundancy"
+                    size="medium"
                     placeholder="请输入冗余度"
                     style="width: 400px"
                   />
@@ -109,8 +113,8 @@
                   prop="tmpl_decision_rule.expand_size"
                 >
                   <el-input
-                    size="medium"
                     v-model="form.tmpl_decision_rule.expand_size"
+                    size="medium"
                     placeholder="请输入扩容步长"
                     style="width: 400px"
                   />
@@ -126,15 +130,14 @@
                     v-model="form.tmpl_decision_rule.is_valid"
                     active-color="#13ce66"
                     inactive-color="#ff4949"
-                    :active-value=1
-                    :inactive-value=0
-                  >
-                  </el-switch>
+                    :active-value="1"
+                    :inactive-value="0"
+                  />
                 </el-form-item>
 
                 <div style="display: flex; justify-content: right; margin-right:58%">
                   <el-button type="primary" @click="submit">保存</el-button>
-                  
+
                 </div>
               </el-form>
             </div>
@@ -145,127 +148,124 @@
   </div>
 </template>
 
-
 <script>
 import {
   getTemplateList,
   decisionUpdate,
-  getDecisionRule,
-} from "@/api/service";
-import waves from "@/directive/waves"; // waves directive
-import Pagination from "@/components/Pagination";
-import _ from "lodash";
+  getDecisionRule
+} from '@/api/service'
+import waves from '@/directive/waves' // waves directive
+import Pagination from '@/components/Pagination'
+import _ from 'lodash'
 
 export default {
-  name: "Template",
+  name: 'Template',
   components: { Pagination },
   directives: { waves },
   filters: {
     statusFilter(status) {
       const statusMap = {
-        published: "success",
-        draft: "info",
-        deleted: "danger",
-      };
-      return statusMap[status];
-    },
+        published: 'success',
+        draft: 'info',
+        deleted: 'danger'
+      }
+      return statusMap[status]
+    }
   },
   data() {
     return {
       form: {
         tmpl_decision_rule: {
-          id:"",
-          metric_value: "",
-          redundancy: "",
-          expand_size: "",
-          is_valid: 1,
-        },
+          id: '',
+          metric_value: '',
+          redundancy: '',
+          expand_size: '',
+          is_valid: 1
+        }
       },
-      activeName: "first",
+      activeName: 'first',
       listLoading: false,
       total: 0,
       listQuery: {
         page_num: 1,
-        page_size: 20,
+        page_size: 20
       },
       selectTemplates: [],
       templateList: [],
-      service_name: "",
-      service_cluster_id: "",
+      service_name: '',
+      service_cluster_id: '',
       rules: {
-        "tmpl_decision_rule.metric_value": [
-          { required: true, message: "请输入QPS值", trigger: "blur" },
+        'tmpl_decision_rule.metric_value': [
+          { required: true, message: '请输入QPS值', trigger: 'blur' }
         ],
-        "tmpl_decision_rule.redundancy": [
-          { required: true, message: "请输入冗余度", trigger: "blur" },
+        'tmpl_decision_rule.redundancy': [
+          { required: true, message: '请输入冗余度', trigger: 'blur' }
         ],
-        "tmpl_decision_rule.expand_size": [
-          { required: true, message: "请输入扩容步长", trigger: "blur" },
-        ],
-      },
-    };
+        'tmpl_decision_rule.expand_size': [
+          { required: true, message: '请输入扩容步长', trigger: 'blur' }
+        ]
+      }
+    }
   },
   created() {
-    this.getList();
-    this.getDecisionRule();
+    this.getList()
+    this.getDecisionRule()
   },
   methods: {
     async getList() {
-      this.listLoading = true;
-      let serviceName = this.$route.params.service_name;
-      let serviceClusterId = this.$route.params.service_cluster_id;
-      let params = {
+      this.listLoading = true
+      const serviceName = this.$route.params.service_name
+      const serviceClusterId = this.$route.params.service_cluster_id
+      const params = {
         ...this.listQuery,
         service_name: serviceName,
         service_cluster_id: serviceClusterId
-      };
+      }
 
-      const res = await getTemplateList(params);
-      this.templateList = _.get(res, "tmpl_expand_list", []);
-      this.total = res.pager.total;
-      this.listLoading = false;
-      this.service_name = serviceName;
-      this.service_cluster_id = serviceClusterId;
+      const res = await getTemplateList(params)
+      this.templateList = _.get(res, 'tmpl_expand_list', [])
+      this.total = res.pager.total
+      this.listLoading = false
+      this.service_name = serviceName
+      this.service_cluster_id = serviceClusterId
     },
     async submit() {
-      this.$refs["form"].validate(async (valid) => {
+      this.$refs['form'].validate(async(valid) => {
         if (valid) {
-          this.form.tmpl_decision_rule.id = Number(this.form.tmpl_decision_rule.id);
-          this.form.tmpl_decision_rule.metric_value = Number(this.form.tmpl_decision_rule.metric_value);
-          this.form.tmpl_decision_rule.redundancy = Number(this.form.tmpl_decision_rule.redundancy);
-          this.form.tmpl_decision_rule.expand_size = Number(this.form.tmpl_decision_rule.expand_size);
-          this.form.tmpl_decision_rule.is_valid = Number(this.form.tmpl_decision_rule.is_valid);
-          const res = await decisionUpdate(this.form);
+          this.form.tmpl_decision_rule.id = Number(this.form.tmpl_decision_rule.id)
+          this.form.tmpl_decision_rule.metric_value = Number(this.form.tmpl_decision_rule.metric_value)
+          this.form.tmpl_decision_rule.redundancy = Number(this.form.tmpl_decision_rule.redundancy)
+          this.form.tmpl_decision_rule.expand_size = Number(this.form.tmpl_decision_rule.expand_size)
+          this.form.tmpl_decision_rule.is_valid = Number(this.form.tmpl_decision_rule.is_valid)
+          const res = await decisionUpdate(this.form)
           if (res.data.code === 200) {
-            this.$message.success("保存成功");
-            this.createDialogVisible = false;
-            this.$router.push({ name: "serviceList" });
+            this.$message.success('保存成功')
+            this.createDialogVisible = false
+            this.$router.push({ name: 'serviceList' })
           } else {
-            this.$message.error("保存失败");
+            this.$message.error('保存失败')
           }
         }
-      });
+      })
     },
     handleSelectionChange(val) {
-      this.selectServices = val;
+      this.selectServices = val
     },
     createTemplate() {
       this.$router.push({
-        path: `/service/${this.service_name}/${this.service_cluster_id}/template-create`,
-      });
+        path: `/service/${this.service_name}/${this.service_cluster_id}/template-create`
+      })
     },
     async getDecisionRule() {
       const data = {
-        service_cluster_id: this.$route.params.service_cluster_id,
-      };
-      const res = await getDecisionRule(data);
-      this.form.tmpl_decision_rule = _.get(res, "tmpl_decision_rule", {});
-
+        service_cluster_id: this.$route.params.service_cluster_id
+      }
+      const res = await getDecisionRule(data)
+      this.form.tmpl_decision_rule = _.get(res, 'tmpl_decision_rule', {})
     }
-  },
-};
+  }
+}
 </script>
-
 
 <style lang="less" scoped>
 .container {
