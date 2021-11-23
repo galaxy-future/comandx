@@ -73,14 +73,6 @@
                 />
               </el-col>
             </el-row>
-            <!-- <el-row>
-              <el-col :span="5"><div style="height: 16px" /></el-col>
-              <el-col :span="19"
-                ><div class="note">
-                  支持中文、英文、数字，限制500字符
-                </div></el-col
-              >
-            </el-row> -->
           </div>
         </div>
         <div v-if="step === 1" class="form">
@@ -272,7 +264,43 @@ export default {
       if (this.step-- < 0) this.step = 0
     },
     next() {
+      if (!this.validate()) {
+        return
+      }
       if (this.step++ > 3) this.step = 0
+    },
+    validate() {
+      if (this.step === 0) {
+        if (this.form.tmpl_info.bridgx_clusname === '') {
+          this.$message.warning('请选择关联模板')
+          return false
+        }
+        if (this.form.tmpl_info.tmpl_name === '') {
+          this.$message.warning('请输入模板名称')
+          return false
+        }
+      }
+      if (this.step === 2) {
+        if (this.form.service_env.image_url === '') {
+          this.$message.warning('请输入镜像仓库路径')
+          return false
+        }
+        if (this.form.service_env.port === '') {
+          this.$message.warning('请输入服务端口')
+          return false
+        }
+        if (this.form.service_env.cmd === '') {
+          this.$message.warning('请输入镜像启动命令')
+          return false
+        }
+      }
+      if (this.step === 3) {
+        if (this.form.mount.mount_value === '') {
+          this.$message.warning('请输入ID名称')
+          return false
+        }
+      }
+      return true
     },
     loadData() {
       this.form.service_name = this.$route.params.service_name
@@ -288,6 +316,9 @@ export default {
       this.bridgXCluster = res.cluster_list
     },
     async submit() {
+      if (!this.validate()) {
+        return
+      }
       if (this.step === 0) {
         this.form.end_step = 'tmpl_info'
       }

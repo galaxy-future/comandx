@@ -35,7 +35,7 @@
                       <span>{{ row.tmpl_expand_id }}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column label="扩容模板" min-width="100px">
+                  <el-table-column label="扩缩容流程" min-width="100px">
                     <template slot-scope="{ row }">
                       <span>{{ row.tmpl_expand_name }}</span>
                     </template>
