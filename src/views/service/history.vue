@@ -1,5 +1,8 @@
 <template>
   <div class="container">
+    <div class="header">
+      {{ service_name }}
+    </div>
     <div class="content">
       <div class="table">
         <el-table
@@ -102,11 +105,13 @@ export default {
         page_size: 20,
         page_num: 1
       },
-      historyList: []
+      historyList: [],
+      service_name: ''
     }
   },
   created() {
     this.getList()
+    this.service_name = this.$route.params.service_name
   },
   // filters: {
   //   taskStatus(value) {

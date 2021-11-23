@@ -96,7 +96,7 @@ export const constantRoutes = [
       component: () => import('@/views/service/create'),
       meta: { title: '创建服务', icon: '' }
     }, {
-      path: '/service/history/:service_cluster_id',
+      path: '/service/history/:service_name/:service_cluster_id',
       name: 'serviceHistory',
       component: () => import('@/views/service/history'),
       meta: { title: '扩缩容记录', icon: '' },

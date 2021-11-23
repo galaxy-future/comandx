@@ -416,7 +416,7 @@ export default {
       await this.getList()
     },
     processHistory(row) {
-      this.$router.push({ path: `/service/history/${row.service_cluster_id}` })
+      this.$router.push({ path: `/service/history/${row.service_name}/${row.service_cluster_id}` })
     },
     goTemplateIndex(row) {
       this.$router.push({ path: `/service/${row.service_name}/${row.service_cluster_id}/template` })

@@ -80,7 +80,7 @@
             <el-row>
               <el-col :span="5"><div class="center-text">容器化</div></el-col>
               <el-col :span="19">
-                <div class="center-text">
+                <div style="line-height:36px">
                   <el-switch
                     v-model="form.base_env.is_container"
                     active-color="#13ce66"
@@ -89,6 +89,15 @@
                   {{ form.base_env.is_container? "启用" : "关闭" }}
                 </div>
               </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="5"><div style="height: 16px" /></el-col>
+              <el-col
+                :span="19"
+              >
+                <div class="note"><i class="el-icon-warning" />
+                  将服务器初始化为容器
+                </div></el-col>
             </el-row>
           </div>
         </div>
@@ -101,8 +110,8 @@
               <el-col :span="19">
                 <el-radio-group v-model="form.service_env.image_storage_type">
                   <el-radio-button label="acr">阿里云ACR</el-radio-button>
-                  <el-radio-button label="ims">华为云IMS</el-radio-button>
-                  <el-radio-button label="other">其他</el-radio-button>
+                  <el-radio-button label="ims" disabled>华为云IMS</el-radio-button>
+                  <el-radio-button label="other" disabled>其他</el-radio-button>
                 </el-radio-group>
               </el-col>
             </el-row>
@@ -117,12 +126,12 @@
           </div>
           <div class="form-container">
             <el-row>
-              <el-col :span="5"><div class="center-text">镜像仓库路径</div></el-col>
+              <el-col :span="5"><div class="center-text">镜像仓库地址</div></el-col>
               <el-col :span="19">
                 <el-input
                   v-model="form.service_env.image_url"
                   size="medium"
-                  placeholder="请输入镜像仓库路径"
+                  placeholder="请输入镜像仓库地址"
                   maxlength="500"
                   show-word-limit
                 />
@@ -145,12 +154,14 @@
           </div>
           <div class="form-container">
             <el-row>
-              <el-col :span="5"><div class="center-text">镜像启动命令</div></el-col>
+              <el-col :span="5"><div class="center-text">服务启动命令</div></el-col>
               <el-col :span="19">
                 <el-input
                   v-model="form.service_env.cmd"
+                  type="textarea"
+                  :rows="5"
                   size="medium"
-                  placeholder="请输入镜像启动命令"
+                  placeholder="请输入服务启动命令"
                   maxlength="500"
                   show-word-limit
                 />
@@ -164,16 +175,16 @@
               <el-col :span="5"><div class="center-text">流量接入方式</div></el-col>
               <el-col :span="19">
                 <el-radio-group v-model="form.mount.mount_type">
-                  <el-radio-button label="Nginx" name="Nginx" />
                   <el-radio-button label="SLB" name="SLB" />
-                  <el-radio-button label="ELB" name="ELB" />
+                  <el-radio-button label="Nginx" name="Nginx" disabled />
+                  <el-radio-button label="ELB" name="ELB" disabled />
                 </el-radio-group>
               </el-col>
             </el-row>
           </div>
           <div class="form-container">
             <el-row>
-              <el-col :span="5"><div class="center-text"> ID</div></el-col>
+              <el-col :span="5"><div class="center-text">SLB ID</div></el-col>
               <el-col :span="19">
                 <el-input
                   v-model="form.mount.mount_value"
@@ -188,31 +199,33 @@
         </div>
       </div>
       <div class="buttons">
-        <el-button
-          v-if="step !== 0"
-          type="primary"
-          style="margin-top: 12px"
-          size="medium"
-          @click="previous"
-        >上一步</el-button>
-        <el-button
-          v-if="step !== 3"
-          type="primary"
-          style="margin-top: 12px"
-          size="medium"
-          @click="next"
-        >下一步</el-button>
-        <el-button
-          style="margin-top: 12px"
-          size="medium"
-          @click="submit"
-        >完成</el-button>
-        <el-button
-          style="margin-top: 12px"
-          size="medium"
-          type="info"
-          @click="cancel"
-        >取消</el-button>
+        <div class="step-buttons"><el-button
+                                    v-if="step !== 0"
+                                    type="primary"
+                                    style="margin-top: 12px"
+                                    size="medium"
+                                    @click="previous"
+                                  >上一步</el-button>
+          <el-button
+            v-if="step !== 3"
+            type="primary"
+            style="margin-top: 12px"
+            size="medium"
+            @click="next"
+          >下一步</el-button></div>
+        <div class="submit-buttons"><el-button
+                                      type="primary"
+                                      style="margin-top: 12px"
+                                      size="medium"
+                                      @click="submit"
+                                    >完成</el-button>
+          <el-button
+            style="margin-top: 12px"
+            size="medium"
+            type="info"
+            @click="cancel"
+          >取消</el-button></div>
+
       </div>
     </div>
 
@@ -246,7 +259,7 @@ export default {
           cmd: ''
         },
         mount: {
-          mount_type: 'Nginx',
+          mount_type: 'SLB',
           mount_value: ''
         },
         end_step: 'tmpl_info'
@@ -282,7 +295,7 @@ export default {
       }
       if (this.step === 2) {
         if (this.form.service_env.image_url === '') {
-          this.$message.warning('请输入镜像仓库路径')
+          this.$message.warning('请输入镜像仓库地址')
           return false
         }
         if (this.form.service_env.port === '') {
@@ -290,7 +303,7 @@ export default {
           return false
         }
         if (this.form.service_env.cmd === '') {
-          this.$message.warning('请输入镜像启动命令')
+          this.$message.warning('请输入服务启动命令')
           return false
         }
       }
@@ -360,9 +373,17 @@ export default {
     padding: 20px;
   }
   .buttons {
-    display: flex;
-    flex-direction: row;
-    justify-content: flex-end;
+    display: grid;
+      .step-buttons {
+        grid-column-start: 1;
+        grid-row-start: 1;
+        justify-self:center;
+      }
+      .submit-buttons {
+        grid-column-start: 1;
+        grid-row-start: 1;
+        justify-self: right;
+      }
   }
 }
 .form {
