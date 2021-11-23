@@ -13,7 +13,9 @@
             <el-row>
               <el-col :span="5"><div class="center-text">服务名称</div></el-col>
               <el-col :span="19">
-                <div>{{ form.service_name }}</div>
+                <div
+                  style="line-height: 36px"
+                >{{ form.service_name }}</div>
               </el-col>
             </el-row>
           </div>
