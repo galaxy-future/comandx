@@ -14,17 +14,17 @@
           size="medium"
         >
           <el-table-column type="selection" width="50px" />
-          <el-table-column label="流水号">
+          <el-table-column label="流水号" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.task_id }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="扩缩容流程" min-width="120px">
+          <el-table-column label="扩缩容流程" min-width="120px" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.tmpl_expand_name }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="执行动作" min-width="60px">
+          <el-table-column label="执行动作" min-width="60px" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.schedule_type === "expand" ? "扩容" : "缩容" }}</span>
             </template>
@@ -34,34 +34,37 @@
               {{ row.task_inst_cnt }}
             </template>
           </el-table-column>
-          <el-table-column label="执行触发" min-width="100px">
+          <el-table-column label="执行触发" min-width="100px" align="center">
             <template slot-scope="{ row }">
               {{ row.task_exec_type === "manual" ? "手工执行" : "自动化" }}
             </template>
           </el-table-column>
-          <el-table-column label="执行方">
+          <el-table-column label="执行方" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.task_exec_opr }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="执行开始" min-width="100px">
+          <el-table-column label="执行开始" min-width="100px" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.begin_at }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="执行耗时">
+          <el-table-column label="执行耗时" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.time_cost }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="扩缩容进度">
+          <el-table-column label="扩缩容进度" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.task_step_desc }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="扩缩容执行状态">
+          <el-table-column label="扩缩容执行状态" align="center">
             <template slot-scope="{ row }">
-              <span>{{ row.task_status_desc }}</span>
+              <span v-if="row.task_status_desc === '成功'" style="color: rgb(0,168,67)">{{ row.task_status_desc }}</span>
+              <span v-if="row.task_status_desc === '失败'" style="display: inline-block; background-color: #f4516c; color: white; padding: 2px 5px; border-radius: 10px">{{ row.task_status_desc }}</span>
+              <span v-if="row.task_status_desc === '已创建'" style="color: rgb(0,168,67)">{{ row.task_status_desc }}</span>
+              <span v-if="row.task_status_desc === '进行中'" style="color: rgb(0,168,67)">{{ row.task_status_desc }}</span>
             </template>
           </el-table-column>
         </el-table>

@@ -1,8 +1,8 @@
 const host = 'http://127.0.0.1:9090'
 // const host = 'http://bridgx-api.internal.galaxy-future.org'
 
-const schedulx_host = 'http://10.16.23.96:9090'
-// const schedulx_host = 'http://192.168.35.41:9090'
+// const schedulx_host = 'http://10.16.23.96:9090'
+const schedulx_host = 'http://127.0.0.1:9091'
 
 function getHost() {
   return host

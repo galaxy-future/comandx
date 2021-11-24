@@ -172,7 +172,7 @@
                   size="medium"
                   placeholder="请输入密码"
                   maxlength="100"
-                  show-word-limit
+                  type="password"
                 />
               </el-col>
             </el-row>

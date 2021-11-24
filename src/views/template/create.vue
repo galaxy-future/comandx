@@ -183,7 +183,7 @@
                   size="medium"
                   placeholder="请输入密码"
                   maxlength="100"
-                  show-word-limit
+                  type="password"
                 />
               </el-col>
             </el-row>
@@ -421,8 +421,9 @@ export default {
       if (res.data.code === 200) {
         this.$message.success('创建成功')
         this.$router.push({ name: 'serviceList' })
+      } else {
+        this.$message.error('创建失败')
       }
-      this.$router.push({ name: 'serviceList' })
     },
     cancel() {
       this.$router.push({ name: 'serviceList' })

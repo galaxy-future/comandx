@@ -147,29 +147,27 @@
     <el-dialog
       title="服务创建成功"
       :visible="tipDialogVisible"
-      width="30%"
+      width="20%"
       @close="cancel"
     >
-      <div>
-        <img
-          v-if="createPng"
-          :src="createPng"
+      <div style="text-align:center">
+        <svg-icon
+          icon-class="right"
           style="
-            width: 200px;
+            width: 150px;
             height: 150px;
-            margin-left: 25%;
           "
-        >
+        />
       </div>
-      <div style="margin-left: 30%">
+      <div style="text-align:center">
         <span>{{ seconds }}</span>s后自动跳转
         <el-button
           type="text"
           @click="goTemplateCreate()"
         >创建扩缩容流程</el-button>
       </div>
-      <div style="margin-left: 35%">
-        <el-button type="text" @click="goServiceList()">返回服务列表</el-button>
+      <div style="text-align:center">
+        <el-button type="text" style="color:#ccc" @click="goServiceList()">返回服务列表</el-button>
       </div>
     </el-dialog>
   </div>

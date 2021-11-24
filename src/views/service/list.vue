@@ -63,32 +63,37 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="50px" />
-          <el-table-column label="序号" width="50px">
+          <el-table-column label="序号" width="50px" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.service_id }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="服务名称" min-width="60px">
+          <el-table-column label="服务名称" min-width="60px" align="center">
             <template slot-scope="{ row }">
               <el-button type="text" @click="goTemplateIndex(row)">{{ row.service_name }}</el-button>
             </template>
           </el-table-column>
-          <el-table-column label="服务类型" min-width="50px">
+          <el-table-column label="服务类型" min-width="50px" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.language }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="镜像库地址" width="150px">
+          <el-table-column label="关联集群" min-width="50px" align="center">
+            <template slot-scope="{ row }">
+              <span>{{ row.cluster_num }}</span>
+            </template>
+          </el-table-column>
+          <!-- <el-table-column label="镜像库地址" width="150px">
             <template slot-scope="{ row }">
               {{ row.image_url }}
             </template>
-          </el-table-column>
-          <el-table-column label="扩缩容流程" width="150px">
+          </el-table-column> -->
+          <!-- <el-table-column label="扩缩容流程" width="150px">
             <template slot-scope="{ row }">
               {{ row.tmpl_expand_name }}
             </template>
-          </el-table-column>
-          <el-table-column label="自动扩缩容策略" min-width="60px">
+          </el-table-column> -->
+          <el-table-column label="自动扩缩容策略" min-width="60px" align="center">
             <template slot-scope="{ row }">
               <el-switch
                 v-model="row.auto_decision"
@@ -101,9 +106,12 @@
               {{ row.auto_decision === 'on' ? "开启" : "关闭" }}
             </template>
           </el-table-column>
-          <el-table-column label="扩缩容状态" min-width="50px">
+          <el-table-column label="扩缩容状态" min-width="50px" align="center">
             <template slot-scope="{ row }">
-              <span>{{ row.task_type_status | taskTypeStatus }} </span>
+              <span v-if="row.task_type_status === 'SUCC'" style="color: rgb(0,168,67)">成功</span>
+              <span v-if="row.task_type_status === 'FAIL'" style="display: inline-block; background-color: #f4516c; color: white; padding: 2px 5px; border-radius: 10px">失败</span>
+              <span v-if="row.task_type_status === 'INIT'" style="color: rgb(0,168,67)">未进行</span>
+              <span v-if="row.task_type_status === 'RUNNING'" style="color: rgb(0,168,67)">运行中</span>
             </template>
           </el-table-column>
           <el-table-column label="操作">
@@ -190,11 +198,11 @@
       </el-form>
     </el-dialog>
 
-    <el-dialog title="执行扩缩容" :visible="warningDialogVisible" width="40%" @close="cancelWarningDialogVisible">
-      <div style="margin-left: 30%">
+    <el-dialog title="执行扩缩容" :visible="warningDialogVisible" width="20%" @close="cancelWarningDialogVisible">
+      <div style="font-size:25px;text-align:center">
         提示：不能进行扩缩容
       </div>
-      <div style="margin-left: 35%">
+      <div style="text-align:center">
         当前服务尚未创建对应的扩缩容流程，请  <el-button
           type="text"
           @click="goTemplateCreate()"
@@ -234,7 +242,7 @@ export default {
       if (value === 'SUCC') {
         str = '成功'
       }
-      if (value === 'RUNNIGN') {
+      if (value === 'RUNNING') {
         str = '运行中'
       }
       if (value === 'INIT') {
