@@ -138,6 +138,66 @@
               </el-col>
             </el-row>
           </div>
+
+          <div class="form-container">
+            <el-row>
+              <el-col :span="5"><div style="height: 16px" /></el-col>
+              <el-col
+                :span="19"
+              ><div class="note">
+                在拉取私有镜像或者上传镜像前，需要docker login输入您的凭证信息，请设置用户名和密码作为访问凭证
+              </div></el-col>
+            </el-row>
+          </div>
+
+          <div class="form-container">
+            <el-row>
+              <el-col :span="5"><div class="center-text">用户名</div></el-col>
+              <el-col :span="19">
+                <el-input
+                  v-model="form.service_env.accout"
+                  size="medium"
+                  placeholder="请输入阿里云用户名"
+                  maxlength="100"
+                  show-word-limit
+                />
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="5"><div style="height: 16px" /></el-col>
+              <el-col
+                :span="19"
+              >
+                <div class="note"><i class="el-icon-warning" />
+                  Docker客户端登录时使用的用户名为阿里云账户全名
+                </div></el-col>
+            </el-row>
+          </div>
+
+          <div class="form-container">
+            <el-row>
+              <el-col :span="5"><div class="center-text">登录密码</div></el-col>
+              <el-col :span="19">
+                <el-input
+                  v-model="form.service_env.password"
+                  size="medium"
+                  placeholder="请输入密码"
+                  maxlength="100"
+                  show-word-limit
+                />
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col :span="5"><div style="height: 16px" /></el-col>
+              <el-col
+                :span="19"
+              >
+                <div class="note"><i class="el-icon-warning" />
+                  请提供镜像仓库的登录密码
+                </div></el-col>
+            </el-row>
+          </div>
+
           <div class="form-container">
             <el-row>
               <el-col :span="5"><div class="center-text">服务端口</div></el-col>
@@ -256,7 +316,9 @@ export default {
           image_storage_type: 'acr',
           image_url: '',
           port: '',
-          cmd: ''
+          cmd: '',
+          accout: '',
+          password: ''
         },
         mount: {
           mount_type: 'SLB',
@@ -298,6 +360,14 @@ export default {
           this.$message.warning('请输入镜像仓库地址')
           return false
         }
+        if (this.form.service_env.accout === '') {
+          this.$message.warning('请输入阿里云用户名')
+          return false
+        }
+        if (this.form.service_env.password === '') {
+          this.$message.warning('请输入密码')
+          return false
+        }
         if (this.form.service_env.port === '') {
           this.$message.warning('请输入服务端口')
           return false
@@ -334,18 +404,19 @@ export default {
       }
       if (this.step === 0) {
         this.form.end_step = 'tmpl_info'
+        this.form.tmpl_info.service_cluster_id = Number(this.form.tmpl_info.service_cluster_id)
       }
       if (this.step === 1) {
         this.form.end_step = 'base_env'
       }
       if (this.step === 2) {
         this.form.end_step = 'service_env'
+        this.form.service_env.port = Number(this.form.service_env.port)
       }
       if (this.step === 3) {
         this.form.end_step = 'mount'
       }
-      this.form.tmpl_info.service_cluster_id = Number(this.form.tmpl_info.service_cluster_id)
-      this.form.service_env.port = Number(this.form.service_env.port)
+
       const res = await templateCreate(this.form)
       if (res.data.code === 200) {
         this.$message.success('创建成功')

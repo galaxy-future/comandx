@@ -166,7 +166,7 @@
         <el-button
           type="text"
           @click="goTemplateCreate()"
-        >创建扩容模板</el-button>
+        >创建扩缩容流程</el-button>
       </div>
       <div style="margin-left: 35%">
         <el-button type="text" @click="goServiceList()">返回服务列表</el-button>

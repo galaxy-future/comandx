@@ -189,6 +189,18 @@
         </el-form-item>
       </el-form>
     </el-dialog>
+
+    <el-dialog title="执行扩缩容" :visible="warningDialogVisible" width="40%" @close="cancelWarningDialogVisible">
+      <div style="margin-left: 30%">
+        提示：不能进行扩缩容
+      </div>
+      <div style="margin-left: 35%">
+        当前服务尚未创建对应的扩缩容流程，请  <el-button
+          type="text"
+          @click="goTemplateCreate()"
+        >创建扩缩容流程</el-button>
+      </div>
+    </el-dialog>
   </div>
 
 </template>
@@ -240,6 +252,7 @@ export default {
       },
       dialogVisible: false,
       editServiceDialogVisible: false,
+      warningDialogVisible: false,
       listLoading: false,
       total: 0,
       search: {
@@ -289,7 +302,8 @@ export default {
       editServiceDialogForm: {
         description: ''
       },
-      currentRowServiceClusterId: ''
+      currentRowServiceClusterId: '',
+      currentRowServiceName: ''
     }
   },
   created() {
@@ -319,8 +333,13 @@ export default {
     },
     process(row) {
       this.currentRowServiceClusterId = row.service_cluster_id
-      this.getTemplateList(row)
-      this.dialogVisible = true
+      this.currentRowServiceName = row.service_name
+      if (row.tmpl_expand_id === '' || row.tmpl_expand_id === 0) {
+        this.warningDialogVisible = true
+      } else {
+        this.getTemplateList(row)
+        this.dialogVisible = true
+      }
     },
     async getTemplateList(row) {
       const params = {
@@ -375,6 +394,9 @@ export default {
     cancelDialog() {
       this.dialogVisible = false
     },
+    cancelWarningDialogVisible() {
+      this.warningDialogVisible = false
+    },
     cancelEditServiceDialog() {
       this.editServiceDialogVisible = false
     },
@@ -420,8 +442,12 @@ export default {
     },
     goTemplateIndex(row) {
       this.$router.push({ path: `/service/${row.service_name}/${row.service_cluster_id}/template` })
+    },
+    goTemplateCreate() {
+      this.$router.push({
+        path: `/service/${this.currentRowServiceName}/${this.currentRowServiceClusterId}/template-create`
+      })
     }
-
   }
 }
 </script>

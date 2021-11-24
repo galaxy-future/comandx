@@ -113,6 +113,12 @@ export const constantRoutes = [
       component: () => import('@/views/template/create'),
       meta: { title: '创建扩缩容流程', icon: '' },
       hidden: true
+    }, {
+      path: '/service/template-edit/:service_name/:tmpl_expand_id',
+      name: 'templateEdit',
+      component: () => import('@/views/template/edit'),
+      meta: { title: '编辑扩缩容流程', icon: '' },
+      hidden: true
     }]
   },
   {

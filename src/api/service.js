@@ -92,6 +92,45 @@ export async function templateCreate(data) {
   return res
 }
 
+export async function getTemplateInfo(params) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/template/expand/info',
+    method: 'get',
+    params: params,
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+  return _.get(res, 'data', [])
+}
+
+export async function templateUpdate(data) {
+  const token = getToken()
+  const res = await http({
+    url: '/api/v1/schedulx/template/expand/update',
+    method: 'post',
+    data,
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+  return res
+}
+
+export async function templateDeletes(data) {
+  const token = getToken()
+  const res = await http({
+    url: '/api/v1/schedulx/template/expand/delete',
+    method: 'post',
+    data,
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+  return res
+}
+
 export async function decisionUpdate(data) {
   const token = getToken()
   const res = await http({

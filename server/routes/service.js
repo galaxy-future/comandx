@@ -4,7 +4,6 @@ const Router = require('koa-router')
 const routerApi = new Router({
   prefix: '/api/v1'
 })
-const serviceHost = '10.16.23.96:9090'
 
 routerApi.get('/schedulx/service/list', async(ctx) => {
   try {
@@ -12,7 +11,7 @@ routerApi.get('/schedulx/service/list', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/service/list`,
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/service/list`,
       qs: ctx.query,
       json: true
     })
@@ -27,7 +26,7 @@ routerApi.post('/schedulx/service/update', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/service/update`,
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/service/update`,
       method: 'POST',
       body: ctx.request.body,
       json: true
@@ -43,7 +42,7 @@ routerApi.post('/schedulx/service/create', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/service/create`,
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/service/create`,
       method: 'POST',
       body: ctx.request.body,
       json: true
@@ -59,7 +58,7 @@ routerApi.get('/schedulx/service/expand', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/service/expand`,
+      url: `${host.getSchedulxHost}/api/v1/schedulx/service/expand`,
       qs: ctx.query,
       json: true
     })
@@ -74,7 +73,7 @@ routerApi.get('/schedulx/service/shrink', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/service/shrink`,
+      url: `${host.getSchedulxHost}/api/v1/schedulx/service/shrink`,
       qs: ctx.query,
       json: true
     })
@@ -89,7 +88,7 @@ routerApi.get('/schedulx/template/expand/list', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/template/expand/list`,
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/template/expand/list`,
       qs: ctx.query
     })
   } catch (e) {
@@ -103,10 +102,56 @@ routerApi.post('/schedulx/template/expand/create', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/template/expand/create`,
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/template/expand/create`,
       method: 'POST',
       body: ctx.request.body,
       json: true
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.post('/schedulx/template/expand/update', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/template/expand/update`,
+      method: 'POST',
+      body: ctx.request.body,
+      json: true
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.post('/schedulx/template/expand/delete', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/template/expand/delete`,
+      method: 'POST',
+      body: ctx.request.body,
+      json: true
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.get('/schedulx/template/expand/info', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/template/expand/info`,
+      qs: ctx.query
     })
   } catch (e) {
     ctx.body = e.error
@@ -119,7 +164,7 @@ routerApi.post('/schedulx/decision/rule/update', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/decision/rule/update`,
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/decision/rule/update`,
       method: 'POST',
       body: ctx.request.body,
       json: true
@@ -135,7 +180,7 @@ routerApi.get('/schedulx/decision/rule/info', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/decision/rule/info`,
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/decision/rule/info`,
       qs: ctx.query
     })
   } catch (e) {
@@ -149,7 +194,7 @@ routerApi.get('/schedulx/service/breathrecord', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `http://${serviceHost}/api/v1/schedulx/service/breathrecord`,
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/service/breathrecord`,
       qs: ctx.query
     })
   } catch (e) {

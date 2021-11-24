@@ -14,6 +14,16 @@
                   type="primary"
                   @click="createTemplate"
                 >+新建</el-button>
+                <el-button
+                  size="medium"
+                  :disabled="selectTemplates.length !== 1"
+                  @click="editTemplate"
+                >编辑</el-button>
+                <el-button
+                  size="medium"
+                  :disabled="selectTemplates.length < 1"
+                  @click="deleteTemplates"
+                >删除</el-button>
               </div>
               <div class="table">
                 <el-table
@@ -152,7 +162,8 @@
 import {
   getTemplateList,
   decisionUpdate,
-  getDecisionRule
+  getDecisionRule,
+  templateDeletes
 } from '@/api/service'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination'
@@ -249,12 +260,33 @@ export default {
       })
     },
     handleSelectionChange(val) {
-      this.selectServices = val
+      this.selectTemplates = val
     },
     createTemplate() {
+      if (this.total > 0) {
+        this.$message.warning('仅允许添加一个扩缩容流程')
+        return
+      }
       this.$router.push({
         path: `/service/${this.service_name}/${this.service_cluster_id}/template-create`
       })
+    },
+    editTemplate() {
+      this.$router.push({
+        path: `/service/template-edit/${this.service_name}/${this.selectTemplates[0].tmpl_expand_id}`
+      })
+    },
+    async deleteTemplates() {
+      const data = {
+        'tmpl_expand_id': this.selectTemplates.map(i => i.tmpl_expand_id)
+      }
+      const res = await templateDeletes(data)
+      if (res.data.code === 200) {
+        this.$message.success('删除成功')
+        this.$router.push({ path: `/service/${this.service_name}/${this.service_cluster_id}/template` })
+      } else {
+        this.$message.error('删除失败')
+      }
     },
     async getDecisionRule() {
       const data = {
