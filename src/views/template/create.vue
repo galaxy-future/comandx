@@ -389,6 +389,9 @@ export default {
     loadData() {
       this.form.service_name = this.$route.params.service_name
       this.form.tmpl_info.service_cluster_id = this.$route.params.service_cluster_id
+      if (this.form.service_name === '' || this.form.tmpl_info.service_cluster_id === '') {
+        this.$message.error('路由参数错误')
+      }
       this.loadBridgXCluster()
     },
     async loadBridgXCluster() {
