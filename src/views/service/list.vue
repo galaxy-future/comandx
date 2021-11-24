@@ -225,22 +225,6 @@ export default {
         deleted: 'danger'
       }
       return statusMap[status]
-    },
-    taskTypeStatus(value) {
-      let str = ''
-      if (value === 'FAIL') {
-        str = '失败'
-      }
-      if (value === 'SUCC') {
-        str = '成功'
-      }
-      if (value === 'RUNNING') {
-        str = '运行中'
-      }
-      if (value === 'INIT') {
-        str = '未进行'
-      }
-      return str
     }
   },
   data() {
