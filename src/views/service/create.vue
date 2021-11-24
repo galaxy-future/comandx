@@ -43,29 +43,8 @@
           />
         </el-select>
       </el-form-item>
-      <!-- <el-form-item label="绑定扩容模板">
-        <el-select
-          v-model="form.service_info.tmpl_expand_id"
-          placeholder="请选择扩容模板"
-          style="width: 400px"
-        >
-          <el-option
-            v-for="item in templateList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          />
-        </el-select>
-        <el-button
-          type="primary"
-          @click="createTemplate"
-          size="small"
-          style="margin-left: 20px"
-          >创建扩容模板</el-button
-        >
-      </el-form-item> -->
 
-      <el-form-item label="自动扩缩容">
+      <!-- <el-form-item label="自动扩缩容">
         <el-switch
           v-model="form.auto_decision"
           active-color="#13ce66"
@@ -73,7 +52,7 @@
           active-value="on"
           inactive-value="off"
         />
-      </el-form-item>
+      </el-form-item> -->
 
       <el-form-item
         v-if="form.auto_decision === 'on'"

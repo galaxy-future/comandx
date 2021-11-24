@@ -454,7 +454,7 @@ export default {
       }
     },
     cancel() {
-      this.$router.push({ name: 'templateList' })
+      this.$router.push({ path: `/service/${this.form.service_name}/${this.form.tmpl_info.service_cluster_id}/template` })
     }
   }
 }

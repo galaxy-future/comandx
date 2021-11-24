@@ -80,7 +80,7 @@
               </div>
             </div>
           </el-tab-pane>
-          <el-tab-pane label="自动扩缩容" name="second">
+          <!-- <el-tab-pane label="自动扩缩容" name="second">
             <div class="content">
               <el-form
                 ref="form"
@@ -151,7 +151,7 @@
                 </div>
               </el-form>
             </div>
-          </el-tab-pane>
+          </el-tab-pane> -->
         </el-tabs>
       </div>
     </div>
@@ -161,8 +161,8 @@
 <script>
 import {
   getTemplateList,
-  decisionUpdate,
-  getDecisionRule,
+  // decisionUpdate,
+  // getDecisionRule,
   templateDeletes
 } from '@/api/service'
 import waves from '@/directive/waves' // waves directive
@@ -240,25 +240,25 @@ export default {
       this.service_name = serviceName
       this.service_cluster_id = serviceClusterId
     },
-    async submit() {
-      this.$refs['form'].validate(async(valid) => {
-        if (valid) {
-          this.form.tmpl_decision_rule.id = Number(this.form.tmpl_decision_rule.id)
-          this.form.tmpl_decision_rule.metric_value = Number(this.form.tmpl_decision_rule.metric_value)
-          this.form.tmpl_decision_rule.redundancy = Number(this.form.tmpl_decision_rule.redundancy)
-          this.form.tmpl_decision_rule.expand_size = Number(this.form.tmpl_decision_rule.expand_size)
-          this.form.tmpl_decision_rule.is_valid = Number(this.form.tmpl_decision_rule.is_valid)
-          const res = await decisionUpdate(this.form)
-          if (res.data.code === 200) {
-            this.$message.success('保存成功')
-            this.createDialogVisible = false
-            this.$router.push({ name: 'serviceList' })
-          } else {
-            this.$message.error('保存失败')
-          }
-        }
-      })
-    },
+    // async submit() {
+    //   this.$refs['form'].validate(async(valid) => {
+    //     if (valid) {
+    //       this.form.tmpl_decision_rule.id = Number(this.form.tmpl_decision_rule.id)
+    //       this.form.tmpl_decision_rule.metric_value = Number(this.form.tmpl_decision_rule.metric_value)
+    //       this.form.tmpl_decision_rule.redundancy = Number(this.form.tmpl_decision_rule.redundancy)
+    //       this.form.tmpl_decision_rule.expand_size = Number(this.form.tmpl_decision_rule.expand_size)
+    //       this.form.tmpl_decision_rule.is_valid = Number(this.form.tmpl_decision_rule.is_valid)
+    //       const res = await decisionUpdate(this.form)
+    //       if (res.data.code === 200) {
+    //         this.$message.success('保存成功')
+    //         this.createDialogVisible = false
+    //         this.$router.push({ name: 'serviceList' })
+    //       } else {
+    //         this.$message.error('保存失败')
+    //       }
+    //     }
+    //   })
+    // },
     handleSelectionChange(val) {
       this.selectTemplates = val
     },
@@ -287,14 +287,14 @@ export default {
       } else {
         this.$message.error('删除失败')
       }
-    },
-    async getDecisionRule() {
-      const data = {
-        service_cluster_id: this.$route.params.service_cluster_id
-      }
-      const res = await getDecisionRule(data)
-      this.form.tmpl_decision_rule = _.get(res, 'tmpl_decision_rule', {})
     }
+    // async getDecisionRule() {
+    //   const data = {
+    //     service_cluster_id: this.$route.params.service_cluster_id
+    //   }
+    //   const res = await getDecisionRule(data)
+    //   this.form.tmpl_decision_rule = _.get(res, 'tmpl_decision_rule', {})
+    // }
   }
 }
 </script>

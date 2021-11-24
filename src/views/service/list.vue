@@ -83,16 +83,7 @@
               <span>{{ row.cluster_num }}</span>
             </template>
           </el-table-column>
-          <!-- <el-table-column label="镜像库地址" width="150px">
-            <template slot-scope="{ row }">
-              {{ row.image_url }}
-            </template>
-          </el-table-column> -->
-          <!-- <el-table-column label="扩缩容流程" width="150px">
-            <template slot-scope="{ row }">
-              {{ row.tmpl_expand_name }}
-            </template>
-          </el-table-column> -->
+          <!--
           <el-table-column label="自动扩缩容策略" min-width="60px" align="center">
             <template slot-scope="{ row }">
               <el-switch
@@ -105,7 +96,7 @@
               />
               {{ row.auto_decision === 'on' ? "开启" : "关闭" }}
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column label="扩缩容状态" min-width="50px" align="center">
             <template slot-scope="{ row }">
               <span v-if="row.task_type_status === 'SUCC'" style="color: rgb(0,168,67)">成功</span>
