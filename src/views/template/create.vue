@@ -420,13 +420,13 @@ export default {
       const res = await templateCreate(this.form)
       if (res.data.code === 200) {
         this.$message.success('创建成功')
-        this.$router.push({ name: 'serviceList' })
+        this.$router.push({ path: `/service/${this.form.service_name}/${this.form.tmpl_info.service_cluster_id}/template` })
       } else {
         this.$message.error('创建失败')
       }
     },
     cancel() {
-      this.$router.push({ name: 'serviceList' })
+      this.$router.push({ path: `/service/${this.form.service_name}/${this.form.tmpl_info.service_cluster_id}/template` })
     }
   }
 }

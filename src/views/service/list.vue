@@ -114,7 +114,7 @@
               <span v-if="row.task_type_status === 'RUNNING'" style="color: rgb(0,168,67)">运行中</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column label="操作" align="center">
             <template slot-scope="scope">
               <el-button
                 type="text"
