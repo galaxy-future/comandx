@@ -179,7 +179,8 @@
               v-for="item in numRadios"
               :key="item.label"
               :label="item.label"
-            >{{ item.name }}</el-radio-button>
+            ><span v-if="dialogForm.operateType === 'expand'">+</span>
+              <span v-else>-</span>{{ item.name }}</el-radio-button>
           </el-radio-group>
           <div>
             其他：
@@ -276,27 +277,27 @@ export default {
       numRadios: [
         {
           label: 1,
-          name: '+1'
+          name: '1'
         },
         {
           label: 5,
-          name: '+5'
+          name: '5'
         },
         {
           label: 10,
-          name: '+10'
+          name: '10'
         },
         {
           label: 50,
-          name: '+50'
+          name: '50'
         },
         {
           label: 100,
-          name: '+100'
+          name: '100'
         },
         {
           label: 200,
-          name: '+200'
+          name: '200'
         }
       ],
       serviceList: [],

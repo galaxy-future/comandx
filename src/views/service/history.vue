@@ -1,6 +1,6 @@
 <template>
   <div class="container">
-    <div class="header">
+    <div>
       {{ service_name }}
     </div>
     <div class="content">

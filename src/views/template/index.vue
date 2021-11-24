@@ -35,7 +35,7 @@
                   size="medium"
                   @selection-change="handleSelectionChange"
                 >
-                  <el-table-column type="selection" width="50" />
+                  <el-table-column type="selection" width="50" align="center" />
                   <el-table-column
                     label="ID"
                     width="100px"
@@ -45,12 +45,12 @@
                       <span>{{ row.tmpl_expand_id }}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column label="扩缩容流程" min-width="100px">
+                  <el-table-column label="扩缩容流程" min-width="100px" align="center">
                     <template slot-scope="{ row }">
                       <span>{{ row.tmpl_expand_name }}</span>
                     </template>
                   </el-table-column>
-                  <el-table-column label="执行集群" min-width="100px">
+                  <el-table-column label="执行集群" min-width="100px" align="center">
                     <template slot-scope="{ row }">
                       <span>{{ row.inst_cluster_name }}</span>
                     </template>
@@ -64,7 +64,7 @@
                       {{ row.is_container === true ? "是" : "否" }}
                     </template>
                   </el-table-column>
-                  <el-table-column label="流量接入方式" min-width="100px">
+                  <el-table-column label="流量接入方式" min-width="100px" align="center">
                     <template slot-scope="{ row }">
                       {{ row.register_type }}
                     </template>
@@ -283,7 +283,7 @@ export default {
       const res = await templateDeletes(data)
       if (res.data.code === 200) {
         this.$message.success('删除成功')
-        this.$router.push({ path: `/service/${this.service_name}/${this.service_cluster_id}/template` })
+        this.getList()
       } else {
         this.$message.error('删除失败')
       }

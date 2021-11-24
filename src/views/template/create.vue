@@ -155,7 +155,7 @@
               <el-col :span="5"><div class="center-text">用户名</div></el-col>
               <el-col :span="19">
                 <el-input
-                  v-model="form.service_env.accout"
+                  v-model="form.service_env.account"
                   size="medium"
                   placeholder="请输入阿里云用户名"
                   maxlength="100"
@@ -283,6 +283,7 @@
             style="margin-top: 12px"
             size="medium"
             type="info"
+            plain
             @click="cancel"
           >取消</el-button></div>
 
@@ -317,7 +318,7 @@ export default {
           image_url: '',
           port: '',
           cmd: '',
-          accout: '',
+          account: '',
           password: ''
         },
         mount: {
@@ -360,7 +361,7 @@ export default {
           this.$message.warning('请输入镜像仓库地址')
           return false
         }
-        if (this.form.service_env.accout === '') {
+        if (this.form.service_env.account === '') {
           this.$message.warning('请输入阿里云用户名')
           return false
         }
@@ -404,19 +405,18 @@ export default {
       }
       if (this.step === 0) {
         this.form.end_step = 'tmpl_info'
-        this.form.tmpl_info.service_cluster_id = Number(this.form.tmpl_info.service_cluster_id)
       }
       if (this.step === 1) {
         this.form.end_step = 'base_env'
       }
       if (this.step === 2) {
         this.form.end_step = 'service_env'
-        this.form.service_env.port = Number(this.form.service_env.port)
       }
       if (this.step === 3) {
         this.form.end_step = 'mount'
       }
-
+      this.form.tmpl_info.service_cluster_id = Number(this.form.tmpl_info.service_cluster_id)
+      this.form.service_env.port = Number(this.form.service_env.port)
       const res = await templateCreate(this.form)
       if (res.data.code === 200) {
         this.$message.success('创建成功')
