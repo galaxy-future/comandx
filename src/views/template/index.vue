@@ -220,7 +220,7 @@ export default {
   },
   created() {
     this.getList()
-    this.getDecisionRule()
+    // this.getDecisionRule()
   },
   methods: {
     async getList() {

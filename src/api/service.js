@@ -44,7 +44,7 @@ export async function serviceCreate(data) {
 
 export async function serviceExpand(params) {
   const token = getToken()
-  return request({
+  return await request({
     url: '/api/v1/schedulx/service/expand',
     method: 'get',
     params: params,
@@ -56,7 +56,7 @@ export async function serviceExpand(params) {
 
 export async function serviceShrink(params) {
   const token = getToken()
-  return request({
+  return await request({
     url: '/api/v1/schedulx/service/shrink',
     method: 'get',
     params: params,

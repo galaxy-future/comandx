@@ -58,9 +58,8 @@ routerApi.get('/schedulx/service/expand', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `${host.getSchedulxHost}/api/v1/schedulx/service/expand`,
-      qs: ctx.query,
-      json: true
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/service/expand`,
+      qs: ctx.query
     })
   } catch (e) {
     ctx.body = e.error
@@ -73,9 +72,8 @@ routerApi.get('/schedulx/service/shrink', async(ctx) => {
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `${host.getSchedulxHost}/api/v1/schedulx/service/shrink`,
-      qs: ctx.query,
-      json: true
+      url: `${host.getSchedulxHost()}/api/v1/schedulx/service/shrink`,
+      qs: ctx.query
     })
   } catch (e) {
     ctx.body = e.error
