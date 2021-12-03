@@ -7,22 +7,22 @@
         <el-col :span="8">
           <el-row>
             <el-col :span="5"><span class="cluster-info-label">CPU</span></el-col>
-            <el-col :span="3"><span class="cluster-info-percent">{{ cluster.cpuPercent | formatPercent(0) }}</span></el-col>
-            <el-col :span="16"><span class="cluster-info-occupancy">{{ cluster.all_cpu_cores - cluster.free_cpu_cores }}</span> / {{ cluster.all_cpu_cores }}<span class="cluster-info-label" style="margin-left: 10px">核</span></el-col>
+            <el-col :span="3"><span class="cluster-info-percent">{{ cluster.cpuPercent | formatPercent(2) }}</span></el-col>
+            <el-col :span="16"><span class="cluster-info-occupancy">{{ (cluster.all_cpu_cores - cluster.free_cpu_cores) | formatPrecision(2) }}</span> / {{ cluster.all_cpu_cores | formatPrecision(2) }}<span class="cluster-info-label" style="margin-left: 10px">核</span></el-col>
           </el-row>
         </el-col>
         <el-col :span="8">
           <el-row>
             <el-col :span="5"><span class="cluster-info-label">MEM</span></el-col>
-            <el-col :span="3"><span class="cluster-info-percent">{{ cluster.memPercent | formatPercent(0) }}</span></el-col>
-            <el-col :span="16"><span class="cluster-info-occupancy">{{ cluster.all_memory_gi - cluster.free_memory_gi }}</span> / {{ cluster.all_memory_gi }}<span class="cluster-info-label" style="margin-left: 10px">G</span></el-col>
+            <el-col :span="3"><span class="cluster-info-percent">{{ cluster.memPercent | formatPercent(2) }}</span></el-col>
+            <el-col :span="16"><span class="cluster-info-occupancy">{{ (cluster.all_memory_gi - cluster.free_memory_gi) | formatPrecision(2) }}</span> / {{ cluster.all_memory_gi | formatPrecision(2) }}<span class="cluster-info-label" style="margin-left: 10px">G</span></el-col>
           </el-row>
         </el-col>
         <el-col :span="8">
           <el-row>
-            <el-col :span="5"><span class="cluster-info-label">CPU</span></el-col>
-            <el-col :span="3"><span class="cluster-info-percent">{{ cluster.diskPercent | formatPercent(0) }}</span></el-col>
-            <el-col :span="16"><span class="cluster-info-occupancy">{{ cluster.all_disk_gi - cluster.free_disk_gi }}</span> / {{ cluster.all_disk_gi }}<span class="cluster-info-label" style="margin-left: 10px">T</span></el-col>
+            <el-col :span="5"><span class="cluster-info-label">DISK</span></el-col>
+            <el-col :span="3"><span class="cluster-info-percent">{{ cluster.diskPercent | formatPercent(2) }}</span></el-col>
+            <el-col :span="16"><span class="cluster-info-occupancy">{{ (cluster.all_disk_gi - cluster.free_disk_gi) | formatPrecision(2) }}</span> / {{ cluster.all_disk_gi | formatPrecision(2) }}<span class="cluster-info-label" style="margin-left: 10px">T</span></el-col>
           </el-row>
         </el-col>
       </el-row>
@@ -65,7 +65,7 @@ export default {
         return
       }
       const res = await clusterSummary(this.$route.params.clusterId)
-      if (res.success !== 'success') {
+      if (res.status !== 'success') {
         this.illegalClusterId()
         return
       }

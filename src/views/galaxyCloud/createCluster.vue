@@ -189,22 +189,20 @@ export default {
     async fetchData() {
       const res = await clusterAvailable(this.query.page_number, this.query.page_size, '', '')
       this.clusters = _.get(res, 'clusters', []).map(i => ({ ...i, checked: false }))
-      if (!_.isEmpty(res.pager)) {
-        this.query = res.pager
+      this.query = {
+        page_number: _.get(res, 'page_number', 1),
+        page_size: _.get(res, 'page_size', 10),
+        total: _.get(res, 'total', 0)
       }
     },
     async searchCluster() {
       const isIp = isIPv4(this.search)
       const res = await clusterAvailable(1, 10, isIp ? this.search : '', isIp ? '' : this.search)
       this.clusters = _.get(res, 'clusters', []).map(i => ({ ...i, checked: false }))
-      if (!_.isEmpty(res.pager)) {
-        this.query = res.pager
-      } else {
-        this.query = {
-          page_number: 1,
-          page_size: 10,
-          total: 0
-        }
+      this.query = {
+        page_number: _.get(res, 'page_number', 1),
+        page_size: _.get(res, 'page_size', 10),
+        total: _.get(res, 'total', 0)
       }
     },
     chooseCluster(cluster) {
@@ -225,7 +223,7 @@ export default {
     },
     async submit() {
       const res = await clusterCreate(this.cluster_name, this.selectCluster.cluster_name, this.clusterConfigType)
-      if (res.success === 'success') {
+      if (res.status === 'success') {
         this.$message.success('创建成功')
         this.$router.push({ name: 'galaxyCloudClusterList' })
       } else {

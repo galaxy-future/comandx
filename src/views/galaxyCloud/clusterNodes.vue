@@ -24,10 +24,10 @@
         </div>
       </div>
       <div class="cluster-nodes-list">
-        <el-table :data="nodes" border style="margin: 10px; width: calc(100% - 30px)">
+        <el-table v-loading="loading" :data="nodes" border style="margin: 10px; width: calc(100% - 30px)">
           <el-table-column label="运行状态" align="center">
             <template slot-scope="{ row }">
-              <span v-if="row.status === 'common'" class="cluster-nodes-status common">{{ row.status | generateNodeStatus }}</span>
+              <span v-if="row.status === 'Ready'" class="cluster-nodes-status common">{{ row.status | generateNodeStatus }}</span>
               <span v-else class="cluster-nodes-status error">{{ row.status | generateNodeStatus }}</span>
             </template>
           </el-table-column>
@@ -44,13 +44,13 @@
           </el-table-column>
           <el-table-column label="机型" align="center">
             <template slot-scope="{ row }">
-              <span>{{ row.all_cpu_cores }}核/{{ row.all_memory_gi }}G/{{ row.all_disk_gi | formatStorage }}</span>
+              <span>{{ row.all_cpu_cores | formatPrecision(2) }}核/{{ row.all_memory_gi | formatPrecision(2) }}G/{{ row.all_disk_gi | formatStorage }}</span>
               <span v-if="row.machine_type !== ''" style="display: inline-block; margin-left: 5px">({{ row.machine_type }})</span>
             </template>
           </el-table-column>
           <el-table-column label="剩余资源" align="center">
             <template slot-scope="{ row }">
-              <span>{{ row.free_cpu_cores }}核</span>/<span>{{ row.free_memory_gi }}G</span>/{{ row.free_disk_gi | formatStorage }}
+              <span>{{ row.free_cpu_cores | formatPrecision(2) }}核</span>/<span>{{ row.free_memory_gi | formatPrecision(2) }}G</span>/{{ row.free_disk_gi | formatStorage }}
             </template>
           </el-table-column>
           <el-table-column label="所属云厂商" align="center">
@@ -89,6 +89,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       search: {
         node_ip: '',
         cluster_name: '',
@@ -110,7 +111,7 @@ export default {
     }
   },
   mounted() {
-    if (!_.isNumber(this.$route.params.clusterId || this.$route.params.clusterId < 1)) {
+    if (!_.isNumber(+this.$route.params.clusterId || this.$route.params.clusterId < 1)) {
       this.$message.error('clusterId不合法!')
       this.$router.push({ name: 'galaxyCloudClusterList' })
       return
@@ -120,13 +121,15 @@ export default {
   },
   methods: {
     async fetchData() {
+      this.loading = true
       const res = await clusterNodes(this.$route.params.clusterId, this.nodeQuery.page_number, this.nodeQuery.page_size, this.search.node_ip, this.search.cluster_name, this.search.role)
       this.nodes = _.get(res, 'nodes', [])
-      this.nodeQuery = _.get(res, 'pager', {
-        page_number: 1,
-        page_size: 10,
-        total: 0
-      })
+      this.nodeQuery = {
+        page_number: _.get(res, 'page_number', 1),
+        page_size: _.get(res, 'page_size', 10),
+        total: _.get(res, 'total', 0)
+      }
+      this.loading = false
     },
     async loadCluster() {
       const res = await clusterAvailable(this.clusterQuery.page_number, this.clusterQuery.page_size, '', '')

@@ -123,6 +123,17 @@ export function clusterCreate(cluster_name, bridgx_cluster_name, type) {
   })
 }
 
+export function clusterDelete(id) {
+  const token = getToken()
+  return request({
+    url: `/api/v1/galaxy_cloud/cluster/${id}`,
+    method: 'delete',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+}
+
 export function clusterSummary(id) {
   const token = getToken()
   return request({
@@ -166,3 +177,17 @@ export function clusterPods(id, page_number, page_size, node_ip, pod_ip) {
   })
 }
 
+export function podRestart(cluster_id, instance_name) {
+  const token = getToken()
+  return request({
+    url: '/api/v1/galaxy_cloud/eci/instance/restart',
+    method: 'post',
+    data: {
+      cluster_id,
+      instance_name
+    },
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+}

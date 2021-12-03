@@ -15,7 +15,7 @@
         </div>
       </div>
       <div class="cluster-pods-list">
-        <el-table :data="pods" border style="margin: 10px; width: calc(100% - 30px)">
+        <el-table v-loading="loading" :data="pods" border style="margin: 10px; width: calc(100% - 30px)">
           <el-table-column label="运行状态" align="center">
             <template slot-scope="{ row }">
               <span v-if="row.status === 'Running'" class="cluster-pods-status common">{{ row.status }}</span>
@@ -33,7 +33,7 @@
           <el-table-column label="宿主机IP" align="center" prop="node_ip" />
           <el-table-column label="运行时间" align="center" prop="running_time" />
           <el-table-column label="操作" align="center">
-            <template slot-scope="row">
+            <template slot-scope="{ row }">
               <el-button size="medium" type="text" @click="restart(row)">重启</el-button>
             </template>
           </el-table-column>
@@ -47,7 +47,7 @@
 <script>
 import clusterInfo from '@/views/galaxyCloud/components/clusterInfo'
 import Pagination from '@/components/Pagination'
-import { clusterPods } from '@/api/galaxyCloud'
+import { clusterPods, podRestart } from '@/api/galaxyCloud'
 import _ from 'lodash'
 import { isIPv4 } from '@/utils'
 
@@ -59,6 +59,7 @@ export default {
   },
   data() {
     return {
+      loading: false,
       search: {
         node_ip: '',
         pod_ip: ''
@@ -84,16 +85,25 @@ export default {
   },
   methods: {
     async fetchData() {
+      this.loading = true
       const res = await clusterPods(this.$route.params.clusterId, this.query.page_number, this.query.page_size, this.search.node_ip, this.search.pod_ip)
       this.pods = _.get(res, 'pods', [])
-      this.query = _.get(res, 'pager', {
-        page_number: 1,
-        page_size: 10,
-        total: 0
-      })
+      this.query = {
+        page_number: _.get(res, 'page_number', 1),
+        page_size: _.get(res, 'page_size', 10),
+        total: _.get(res, 'total', 0)
+      }
+      this.loading = false
     },
-    restart(pod) {
+    async restart(pod) {
       console.log(pod)
+      const res = await podRestart(this.$route.params.clusterId, pod.pod_name)
+      if (res.status === 'success') {
+        this.$message.success('操作成功')
+      } else {
+        this.$message.error('操作失败')
+      }
+      await this.fetchData()
     },
     reset() {
       this.search = {

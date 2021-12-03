@@ -1,7 +1,7 @@
 <template>
   <div class="galaxy-cluster-item">
     <div class="galaxy-cluster-name">
-      <div class="name">{{ cluster.cluster_name }} {{ cluster.cluster_id }}</div>
+      <div class="name"><span>{{ cluster.cluster_name }}</span></div>
       <div>
         <span class="status">{{ cluster.status }}</span>
       </div>
@@ -16,7 +16,7 @@
           <span class="percent">{{ cluster.cpuPercent | formatPercent(0) }}</span>
         </el-col>
         <el-col :span="6" class="center">
-          <span class="occupancy">{{ cluster.all_cpu_cores - cluster.free_cpu_cores }}</span><span class="division">/</span>{{ cluster.all_cpu_cores }}
+          <span class="occupancy">{{ (cluster.all_cpu_cores - cluster.free_cpu_cores) | formatPrecision(2) }}</span><span class="division">/</span>{{ cluster.all_cpu_cores | formatPrecision(2) }}
         </el-col>
         <el-col :span="6">
           <span class="unit">核</span>
@@ -30,7 +30,7 @@
           <span class="percent">{{ cluster.memPercent | formatPercent(0) }}</span>
         </el-col>
         <el-col :span="6" class="center">
-          <span class="occupancy">{{ cluster.all_memory_gi - cluster.free_memory_gi }}</span><span class="division">/</span>{{ cluster.all_memory_gi }}
+          <span class="occupancy">{{ (cluster.all_memory_gi - cluster.free_memory_gi) | formatPrecision(2) }}</span><span class="division">/</span>{{ (cluster.all_memory_gi) | formatPrecision(2) }}
         </el-col>
         <el-col :span="6">
           <span class="unit">G</span>
@@ -44,7 +44,7 @@
           <span class="percent">{{ cluster.diskPercent | formatPercent(0) }}</span>
         </el-col>
         <el-col :span="6" class="center">
-          <span class="occupancy">{{ cluster.all_disk_gi - cluster.free_disk_gi }}</span><span class="division">/</span>{{ cluster.all_disk_gi }}
+          <span class="occupancy">{{ (cluster.all_disk_gi - cluster.free_disk_gi) | formatPrecision(2) }}</span><span class="division">/</span>{{ cluster.all_disk_gi | formatPrecision(2) }}
         </el-col>
         <el-col :span="6">
           <span class="unit">T</span>
@@ -96,7 +96,7 @@
         确定要删除星云集群吗？？
       </div>
       <div slot="footer" class="warning-footer">
-        <div style="color: #D9001B" @click="deleteGCluster">删除</div>
+        <div style="color: #D9001B" @click="deleteGCluster(cluster.cluster_id)">删除</div>
         <div @click="cancel">取消</div>
       </div>
     </el-dialog>
@@ -104,6 +104,8 @@
 </template>
 
 <script>
+import { clusterDelete } from '@/api/galaxyCloud'
+
 export default {
   name: 'GalaxyClusterListItem',
   props: {
@@ -137,7 +139,14 @@ export default {
     showWarning() {
       this.warningVisible = true
     },
-    deleteGCluster() {
+    async deleteGCluster(id) {
+      const res = await clusterDelete(id)
+      if (res.status === 'success') {
+        this.$message.success('删除成功')
+      } else {
+        this.$message.error('删除失败')
+      }
+      this.$emit('reload')
       this.warningVisible = false
     },
     cancel() {
@@ -168,6 +177,10 @@ export default {
       padding: 20px;
       .name {
         font-size: 16px;
+        height: 18px;
+        span {
+          white-space: nowrap;
+        }
       }
       .status {
         display: inline-block;

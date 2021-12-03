@@ -11,7 +11,7 @@
         </div>
       </div>
       <hr color="#80FFFF">
-      <list-item v-for="(item, idx) in list" :key="idx" :item="item" />
+      <list-item v-for="(item, idx) in list" :key="idx" :item="item" @reload="fetchData"/>
     </div>
   </div>
 </template>
@@ -45,9 +45,9 @@ export default {
   },
   methods: {
     async fetchData() {
-      const data = await clustersSummary(this.listQuery.page_number, this.listQuery.page_size)
-      if (data.success === 'success') {
-        this.list = data.clusters
+      const res = await clustersSummary(this.listQuery.page_number, this.listQuery.page_size)
+      if (res.status === 'success') {
+        this.list = res.clusters
       }
     },
     createGalaxyCluster() {

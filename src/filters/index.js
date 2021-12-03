@@ -55,8 +55,8 @@ const instanceStatuses = {
 }
 
 const gclusterNodeStatuses = {
-  common: '正常',
-  error: '异常'
+  Ready: '正常',
+  notReady: '异常'
 }
 
 export function parseTaskAction(action) {
@@ -96,9 +96,16 @@ export function generateNodeStatus(status) {
   return _.get(gclusterNodeStatuses, status, '未知')
 }
 
+export function formatPrecision(value, precision) {
+  if (_.isNumber(value)) {
+    return value.toFixed(precision)
+  }
+  return '--'
+}
+
 export function formatStorage(storage) {
   if (storage >= 1000) {
     return `${(storage / 1000).toFixed(2)}T`
   }
-  return `${storage}G`
+  return `${storage.toFixed(2)}G`
 }
