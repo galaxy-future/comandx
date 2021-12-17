@@ -238,6 +238,17 @@
           </div>
           <div class="form-container">
             <el-row>
+              <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>算力类型 </div></el-col>
+              <el-col :span="19">
+                <el-radio-group v-model="computing_power_type">
+                  <el-radio-button label="CPU">CPU</el-radio-button>
+                  <el-radio-button label="GPU">GPU</el-radio-button>
+                </el-radio-group>
+              </el-col>
+            </el-row>
+          </div>
+          <div class="form-container">
+            <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>机器规格 </div></el-col>
               <el-col :span="19">
                 <el-select
@@ -585,6 +596,7 @@ export default {
         period_unit: 'Month'
       },
       network_type: 'vpc',
+      computing_power_type: 'CPU',
       network_config: {
         vpc: '',
         subnet_id: '',
@@ -838,7 +850,7 @@ export default {
     },
     async loadInstanceTypes() {
       if (this.cluster.region_id !== '' && this.cluster.zone_id !== '') {
-        const data = await instanceTypeList(this.cluster.provider, this.cluster.region_id, this.cluster.zone_id)
+        const data = await instanceTypeList(this.cluster.provider, this.cluster.region_id, this.cluster.zone_id, this.computing_power_type)
         this.instanceTypes = _.orderBy(data, ['core', 'memory'])
       }
     },

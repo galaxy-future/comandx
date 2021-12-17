@@ -38,6 +38,7 @@
               <span class="cluster-nodes-ip" @click="transformToCluster('clusterInfo', row.cluster_name)">{{ row.cluster_name }}</span>
             </template>
           </el-table-column>
+          <el-table-column label="算力类型" prop="computing_power_type" align="center"/>
           <el-table-column label="机型" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.all_cpu_cores | formatPrecision(2) }}核/{{ row.all_memory_gi | formatPrecision(2) }}G/{{ row.all_disk_gi | formatStorage }}</span>

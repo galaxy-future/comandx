@@ -252,14 +252,15 @@ export async function zoneList(provider, region_id) {
   return _.get(res, 'data', [])
 }
 
-export async function instanceTypeList(provider, region_id, zone_id) {
+export async function instanceTypeList(provider, region_id, zone_id, computing_power_type) {
   const token = getToken()
   const res = await request({
     url: '/api/v1/instance_type/list',
     params: {
       provider,
       region_id,
-      zone_id
+      zone_id,
+      computing_power_type
     },
     headers: {
       Authorization: ` Bearer ${token}`
