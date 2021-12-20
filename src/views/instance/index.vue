@@ -54,6 +54,7 @@
         <el-table-column align="center" label="机型">
           <template slot-scope="{row}">{{ row.instance_type }}</template>
         </el-table-column>
+        <el-table-column label="算力类型" prop="computing_power_type" align="center"/>
         <el-table-column align="center" label="状态">
           <template slot-scope="{row}">{{ row.status | formatInstanceStatuses }}</template>
         </el-table-column>

@@ -240,7 +240,7 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>算力类型 </div></el-col>
               <el-col :span="19">
-                <el-radio-group v-model="computing_power_type">
+                <el-radio-group v-model="computing_power_type" @change="loadInstanceTypes">
                   <el-radio-button label="CPU">CPU</el-radio-button>
                   <el-radio-button label="GPU">GPU</el-radio-button>
                 </el-radio-group>
