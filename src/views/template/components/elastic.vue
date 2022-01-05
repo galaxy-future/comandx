@@ -59,7 +59,6 @@
                 :label="item.label"
             >{{ item.name }}</el-radio-button>
           </el-radio-group>
-
           <div>
             其他：
             <el-input
