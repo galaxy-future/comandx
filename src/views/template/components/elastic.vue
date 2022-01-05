@@ -59,6 +59,14 @@
                 :label="item.label"
             >{{ item.name }}</el-radio-button>
           </el-radio-group>
+          <el-radio-group v-else v-model="dialogForm.operateCount" size="mini">
+            <el-radio-button
+                v-for="item in shrinkNumRadios"
+                :key="item.label"
+                :label="item.label"
+            >{{ item.name }}</el-radio-button>
+          </el-radio-group>
+
           <div>
             其他：
             <el-input
