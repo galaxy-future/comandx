@@ -64,14 +64,6 @@
           @selection-change="handleSelectionChange"
         >
           <el-table-column type="selection" width="50px" />
-          <el-table-column label="服务状态" min-width="50px" align="center">
-            <template slot-scope="{ row }">
-              <span v-if="row.task_type_status === 'SUCC'" style="color: rgb(0,168,67)">成功</span>
-              <span v-if="row.task_type_status === 'FAIL'" style="display: inline-block; background-color: #f4516c; color: white; padding: 2px 5px; border-radius: 10px">失败</span>
-              <span v-if="row.task_type_status === 'INIT'" style="color: rgb(0,168,67)">未进行</span>
-              <span v-if="row.task_type_status === 'RUNNING'" style="color: rgb(0,168,67)">运行中</span>
-            </template>
-          </el-table-column>
           <el-table-column label="ID" width="50px" align="center">
             <template slot-scope="{ row }">
               <span>{{ row.service_id }}</span>
@@ -92,11 +84,7 @@
               <span>{{ row.cluster_num }}</span>
             </template>
           </el-table-column>
-<<<<<<< HEAD
           <el-table-column label="服务描述" prop="description" align="center" />
-=======
-          <el-table-column label="服务描述" prop="description" />
->>>>>>> cudgx
           <!--
           <el-table-column label="自动扩缩容策略" min-width="60px" align="center">
             <template slot-scope="{ row }">

@@ -4,10 +4,12 @@ const cloudProviders = [{
 }, {
   value: 'HuaweiCloud',
   label: '华为云'
-}, {
-  value: 'TencentCloud',
-  label: '腾讯云'
-}]
+}
+// , {
+//   value: 'TencentCloud',
+//   label: '腾讯云'
+// }
+]
 
 const cloudDiskTypes = {
   AlibabaCloud: [{

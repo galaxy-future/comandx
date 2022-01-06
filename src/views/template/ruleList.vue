@@ -45,6 +45,12 @@ import { serviceClusterList } from '@/api/service'
 
 export default {
   name: 'RuleList',
+  props: {
+    bridgx_cluster: {
+      type: String,
+      require: true
+    }
+  },
   components: {},
   data() {
     return {
