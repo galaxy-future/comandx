@@ -109,7 +109,7 @@
             </div>
           </el-tab-pane>
           <el-tab-pane label="扩缩容规则" name="rule">
-            <rule-list :bridgx_cluster="clusters[0].bridgx_cluster"/>
+            <rule-list />
           </el-tab-pane>
           <el-tab-pane label="扩缩容历史" name="history">
             <history />
@@ -274,7 +274,7 @@ export default {
           { required: true, message: '请输入扩容步长', trigger: 'blur' }
         ]
       },
-      clusters: [{ bridgx_cluster: '' }]
+      clusters: []
     }
   },
   created() {
