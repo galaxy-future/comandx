@@ -685,6 +685,7 @@ export default {
           memFilter = i.memory === this.instance_type_config.mem
         }
         return coreFilter && memFilter && (this.instance_type_config.computing_power_type === 'GPU' ? i.is_gpu : !i.is_gpu)
+               && (i.charge_type === this.charge_config.charge_type || i.charge_type === 'All')
       })
     },
     filterCores() {
@@ -700,7 +701,7 @@ export default {
       return this.pairs.filter(i => i[0] === this.instance_type_config.core).map(i => i[1])
     },
     filterImages() {
-      return this.images.filter(i => i.platform === this.image_config.platform && (i.charge_type === this.charge_config.charge_type || i.charge_type === 'All'))
+      return this.images.filter(i => i.platform === this.image_config.platform)
     },
     chargePeriodOptions() {
       return _.get(this.chargePeriods, `${this.cluster.provider}.${this.charge_config.period_unit}`, [])
