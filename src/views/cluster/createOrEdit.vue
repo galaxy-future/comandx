@@ -242,7 +242,7 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>算力类型 </div></el-col>
               <el-col :span="19">
-                <el-radio-group v-model="cluster.computing_power_type" @change="changeComputedType">
+                <el-radio-group v-model="instance_type_config.computing_power_type" @change="changeComputedType">
                   <el-radio-button label="CPU">CPU</el-radio-button>
                   <el-radio-button label="GPU">GPU</el-radio-button>
                 </el-radio-group>
@@ -253,19 +253,31 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>机器规格 </div></el-col>
               <el-col :span="19">
+                筛选:
+                <el-select v-model="instance_type_config.core" size="medium" style="width: 150px" clearable filterable placeholder="请选择CPU" @change="changeCoreOrMemory">
+                  <el-option v-for="(c, idx) in filterCores" :key="idx" :value="c" :label="c" />
+                </el-select>
+                <el-select v-model="instance_type_config.mem" size="medium" style="width: 150px;margin-left: 10px" clearable filterable placeholder="请选择内存" @change="changeCoreOrMemory">
+                  <el-option v-for="(m, idx) in filterMems" :key="idx" :value="m" :label="m" />
+                </el-select>
+              </el-col>
+            </el-row>
+            <el-row style="margin-top: 10px">
+              <el-col :span="5"><div style="height: 36px" /></el-col>
+              <el-col :span="19">
                 <el-select
-                  v-model="cluster.instance_type"
-                  size="medium"
-                  :disabled="cluster.region_id === '' || cluster.zone_id === ''"
-                  placeholder="可输入机器信息匹配"
-                  style="width: calc( 40% + 220px )"
-                  filterable
+                    v-model="cluster.instance_type"
+                    size="medium"
+                    :disabled="cluster.region_id === '' || cluster.zone_id === ''"
+                    placeholder="可输入机器信息匹配"
+                    style="width: calc( 25% + 340px )"
+                    filterable
                 >
                   <el-option
-                    v-for="(item, idx) in instanceTypes"
-                    :key="idx"
-                    :value="item.instance_type"
-                    :label="item.instance_type + '(' + item.core + '核' + item.memory + 'G)'"
+                      v-for="(item, idx) in filterInstanceTypes"
+                      :key="idx"
+                      :value="item.instance_type"
+                      :label="item.instance_type"
                   />
                 </el-select>
               </el-col>
@@ -279,11 +291,14 @@
                 <!--                  <el-radio-button label="public">云厂商镜像</el-radio-button>-->
                 <!--                  <el-radio-button label="private">自定义镜像</el-radio-button>-->
                 <!--                </el-radio-group>-->
-                <el-select v-model="image_config.type" size="medium" placeholder="请选择镜像类别" style="width: 200px" @change="changeImageType">
+                <el-select v-model="image_config.type" size="medium" placeholder="请选择镜像类别" style="width: 150px" @change="changeImageType">
                   <el-option v-for="t in imageTypes" :key="t.value" :value="t.value" :label="t.label" />
                 </el-select>
-                <el-select v-model="cluster.image" size="medium" style="width: 40%; margin-left: 20px" filterable placeholder="可输入镜像信息匹配" :disabled="image_config.type === ''">
-                  <el-option v-for="i in images" :key="i.ImageId" :value="i.ImageId" :label="i.OsName" />
+                <el-select v-model="image_config.platform" size="medium" placeholder="请选择镜像平台" style="width: 150px; margin-left: 20px" :disabled="image_config.type === ''" clearable filterable @change="changeImagePlatform">
+                  <el-option v-for="(i, idx) in Object.keys(imagePlatforms)" :key="idx" :value="i" :label="i" />
+                </el-select>
+                <el-select v-model="cluster.image" size="medium" style="width: 25%; margin-left: 20px" filterable placeholder="可输入镜像信息匹配" :disabled="image_config.type === ''">
+                  <el-option v-for="i in filterImages" :key="i.image_id" :value="i.image_id" :label="i.os_name" />
                 </el-select>
               </el-col>
             </el-row>
@@ -589,7 +604,14 @@ export default {
         zone_id: '',
         instance_type: '',
         image: '',
-        password: '',
+        password: ''
+      },
+      cores: [],
+      mems: [],
+      pairs: [],
+      instance_type_config: {
+        core: '',
+        mem: '',
         computing_power_type: 'CPU'
       },
       chargePeriods,
@@ -624,10 +646,12 @@ export default {
       securityGroups: [],
       instanceTypes: [],
       images: [],
+      imagePlatforms: [],
       image_config: {
         id: '',
         name: '',
-        type: ''
+        type: '',
+        platform: ''
       },
       imageTypes,
       accounts: [],
@@ -650,6 +674,34 @@ export default {
     }
   },
   computed: {
+    filterInstanceTypes() {
+      return this.instanceTypes.filter((i) => {
+        let coreFilter = true
+        let memFilter = true
+        if (this.instance_type_config.core !== '') {
+          coreFilter = i.core === this.instance_type_config.core
+        }
+        if (this.instance_type_config.mem !== '') {
+          memFilter = i.memory === this.instance_type_config.mem
+        }
+        return coreFilter && memFilter && (this.instance_type_config.computing_power_type === 'GPU' ? i.is_gpu : !i.is_gpu)
+      })
+    },
+    filterCores() {
+      if (this.instance_type_config.mem === '') {
+        return this.cores
+      }
+      return this.pairs.filter(i => i[1] === this.instance_type_config.mem).map(i => i[0])
+    },
+    filterMems() {
+      if (this.instance_type_config.core === '') {
+        return this.mems
+      }
+      return this.pairs.filter(i => i[0] === this.instance_type_config.core).map(i => i[1])
+    },
+    filterImages() {
+      return this.images.filter(i => i.platform === this.image_config.platform && (i.charge_type === this.charge_config.charge_type || i.charge_type === 'All'))
+    },
     chargePeriodOptions() {
       return _.get(this.chargePeriods, `${this.cluster.provider}.${this.charge_config.period_unit}`, [])
     },
@@ -712,7 +764,9 @@ export default {
       const cluster = await clusterDescribe(this.$route.params.name)
       if (!_.isEmpty(cluster)) {
         this.cluster = { ...cluster }
-        this.image_config = _.get(cluster, 'image_config')
+        this.image_config.type = _.get(cluster, 'image_config.type')
+        this.image_config.id = _.get(cluster, 'image_config.id')
+        this.image_config.name = _.get(cluster, 'image_config.name')
         this.network_config = _.get(cluster, 'network_config')
         this.networkSwitch = this.network_config.internet_max_bandwidth_out > 0
         this.system_disk = _.get(cluster, 'storage_config.disks.system_disk')
@@ -786,9 +840,9 @@ export default {
         zone_id: '',
         instance_type: '',
         image: '',
-        password: '',
-        computing_power_type: 'CPU'
+        password: ''
       }
+      this.instance_type_config.computing_power_type = 'CPU'
     },
     cleanNetConfig() {
       this.network_config = {
@@ -837,6 +891,7 @@ export default {
     async afterRegionSelected() {
       await this.loadZoneAndVpc()
       this.cluster.zone_id = _.get(this.zones, '0.ZoneId', '')
+      await this.loadInstanceTypes()
       this.cleanNetConfig()
     },
     async loadZoneAndVpc() {
@@ -857,11 +912,22 @@ export default {
           if (this.image_config.type === 'private') {
             return {
               ...i,
-              OsName: i.ImageName
+              os_name: i.image_name
             }
           }
           return {...i}
         })
+      }
+      this.imagePlatforms = _.groupBy(this.images, 'platform')
+      this.loadImagePlatform()
+    },
+    changeImagePlatform() {
+      this.cluster.image = ''
+    },
+    loadImagePlatform() {
+      if (this.cluster.image !== '') {
+        const info = this.images.find(i => i.image_id === this.cluster.image)
+        this.image_config.platform = info.platform
       }
     },
     async loadCloud() {
@@ -878,14 +944,41 @@ export default {
       this.cleanNetConfig()
     },
     changeComputedType() {
-      this.loadInstanceTypes()
+      this.cluster.instance_type = ''
+      this.instance_type_config.core= ''
+      this.instance_type_config.mem = ''
+    },
+    changeCoreOrMemory() {
       this.cluster.instance_type = ''
     },
     async loadInstanceTypes() {
       if (this.cluster.region_id !== '' && this.cluster.zone_id !== '') {
-        const data = await instanceTypeList(this.cluster.provider, this.cluster.region_id, this.cluster.zone_id, this.cluster.computing_power_type)
+        const data = await instanceTypeList(this.cluster.provider, this.cluster.region_id, this.cluster.zone_id)
         this.instanceTypes = _.orderBy(data, ['core', 'memory'])
       }
+      this.generateInstanceType()
+      this.loadCoreAndMem()
+    },
+    loadCoreAndMem() {
+      if (this.cluster.instance_type !== '') {
+        const info = this.instanceTypes.find(i => i.instance_type === this.cluster.instance_type)
+        this.instance_type_config.core = info.core
+        this.instance_type_config.mem = info.memory
+        this.instance_type_config.computing_power_type = info.is_gpu ? 'GPU' : 'CPU'
+      }
+    },
+    generateInstanceType() {
+      const cores = []
+      const mems = []
+      const pairs = []
+      this.instanceTypes.forEach((i) => {
+        cores.push(i.core)
+        mems.push(i.memory)
+        pairs.push([i.core, i.memory])
+      })
+      this.cores = _.uniq(cores)
+      this.mems = _.uniq(mems)
+      this.pairs = _.uniqWith(pairs, _.isEqual)
     },
     async submit() {
       let network_config
@@ -911,11 +1004,11 @@ export default {
           charge_type: this.charge_config.charge_type
         }
       }
-      const image = this.images.find(i => i.ImageId === this.cluster.image)
+      const image = this.images.find(i => i.image_id === this.cluster.image)
       const image_config = {
         type: this.image_config.type,
-        id: image.ImageId,
-        name: image.OsName
+        id: image.image_id,
+        name: image.os_name
       }
       const disks = {}
       if (this.system_disk.size !== '') {
