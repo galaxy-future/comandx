@@ -1031,7 +1031,12 @@ export default {
         storage_config: {
           disks
         },
-        charge_config
+        charge_config,
+        extend_config: {
+          core: +this.instance_type_config.core,
+          memory: +this.instance_type_config.mem,
+          cpu_type: this.instance_type_config.computing_power_type
+        }
       }
       let res
       let text = '创建成功'
