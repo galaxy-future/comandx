@@ -316,7 +316,7 @@
                       :value="item.value"
                     />
                   </el-select>
-                  <el-input v-model="system_disk.size" placeholder="磁盘空间20-500" size="medium" style="width: 150px; margin-left: 20px" @blur="checkNum('system', true)" /><span style="display: inline-block; margin-left: 5px">GiB</span>
+                  <el-input v-model="system_disk.size" placeholder="磁盘空间20-500" size="medium" style="width: 160px; margin-left: 20px" @blur="checkNum('system', true)" /><span style="display: inline-block; margin-left: 5px">GiB</span>
                 </div>
               </el-col>
             </el-row>
@@ -333,7 +333,7 @@
                   <span style="color: #8c939d">
                     您已选择<span style="display: inline-block; padding: 0 10px; color: red">{{ data_disks.length }}</span>块盘，还可以选择<span style="display: inline-block; padding: 0 10px; color: red">{{ 16 - data_disks.length }}</span>块盘
                   </span>
-                  <el-button size="mini" type="primary" style="margin-left: 10px" @click="addItem">+增加数据盘</el-button>
+                  <el-button size="mini" type="primary" style="margin-left: 10px" @click="addItem" :disabled="data_disks.length > 15">+增加数据盘</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -351,7 +351,7 @@
                       :value="t.value"
                     />
                   </el-select>
-                  <el-input v-model="item.size" placeholder="磁盘空间20-32768" size="medium" style="width: 150px; margin-left: 20px" @blur="checkNum('data', true)" /><span style="display: inline-block; margin-left: 5px">GiB</span>
+                  <el-input v-model="item.size" placeholder="磁盘空间20-32768" size="medium" style="width: 160px; margin-left: 20px" @blur="checkNum('data', true)" /><span style="display: inline-block; margin-left: 5px">GiB</span>
                 </div>
               </el-col>
             </el-row>
@@ -719,7 +719,8 @@ export default {
       return true
     },
     diskCheck() {
-      return this.data_disks.filter(i => i.size === '' || i.category === '').length < 1 && this.system_disk.size !== '' && this.system_disk.category !== ''
+      return this.data_disks.filter(i => i.size === '' || i.category === '' || +i.size < 20 || +i.size > 32768).length < 1
+          && this.system_disk.size !== '' && this.system_disk.category !== '' && +this.system_disk.size >= 20 && +this.system_disk.size <= 500
     },
     submitDisabled() {
       return this.cluster.password === '' || this.cluster.password !== this.againPassword || this.passwordIllegal

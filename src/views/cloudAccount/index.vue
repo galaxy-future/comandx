@@ -217,7 +217,7 @@ export default {
           this.$message.success('添加成功')
           this.addForm = {
             account_name: '',
-            provider: 'aliyun',
+            provider: 'AlibabaCloud',
             key: '',
             secret: ''
           }
