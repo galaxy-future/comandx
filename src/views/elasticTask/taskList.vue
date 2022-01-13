@@ -155,6 +155,9 @@
       <div class="detail-container">
         <div class="title">
           {{ taskDetail.task_name }}
+          <div style="float: right">
+            <el-button size="mini" type="primary" @click="exportExcel">导出</el-button>
+          </div>
         </div>
         <div class="detail-content">
           <el-table v-loading="instanceLoading" :data="instances" size="mini" border>
@@ -197,6 +200,7 @@ import { taskStatus } from '@/config/cloud'
 import Pagination from '@/components/Pagination'
 import clipboard from '@/directive/clipboard/index'
 import loadMore from '@/directive/el-select-load-more'
+import { formatInstanceStatuses } from '@/filters'
 
 export default {
   name: 'TaskList',
@@ -338,6 +342,26 @@ export default {
     },
     clipboardSuccess() {
       this.$message.success('已复制到剪切板')
+    },
+    exportExcel() {
+      import('@/vendor/Export2Excel').then(excel => {
+        const tHeader = ['IP', '状态', '开始时间', '耗时(秒)']
+        const filterVal = ['ip_inner', 'status', 'create_at', 'startup_time']
+        const data = this.formatJson(filterVal)
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: 'execution-detail'
+        })
+      })
+    },
+    formatJson(filterVal) {
+      return this.instances.map(v => filterVal.map((j) => {
+        if (j === 'status') {
+          return formatInstanceStatuses(_.get(v, j, ''))
+        }
+        return _.get(v, j, '')
+      }))
     }
   }
 }
@@ -398,7 +422,7 @@ export default {
       }
     }
     .detail-content {
-      padding: 10px;
+      padding: 10px 0;
       .detail-label {
         color: rgb(181, 181, 184);
       }

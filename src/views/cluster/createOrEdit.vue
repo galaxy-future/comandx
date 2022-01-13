@@ -118,13 +118,22 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>VPC </div></el-col>
               <el-col :span="19">
-                <el-select v-model="network_config.vpc" :disabled="cluster.region_id === ''" size="medium" style="width: 400px" @change="afterVpcChange">
+                <el-select v-model="network_config.vpc" :disabled="cluster.region_id === ''" size="medium" style="width: 400px"
+                           @change="afterVpcChange"
+                           popper-class="select-customize">
                   <el-option
                     v-for="item in vpcs"
                     :key="item.VpcId"
                     :value="item.VpcId"
                     :label="item.VpcName"
-                  />
+                  >
+                    <div>
+                      <div>专业网络ID: {{ item.VpcId }}</div>
+                      <div>专有网络名称: {{ item.VpcName }}</div>
+                      <div>目标网段: {{ item.CidrBlock }}</div>
+                      <div>创建时间: {{ item.CreateAt | formatMomentZone('YYYY年MM月DD日 HH:mm') }}</div>
+                    </div>
+                  </el-option>
                 </el-select>
                 <el-tooltip class="item" effect="light" placement="top">
                   <div slot="content">
@@ -142,13 +151,21 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>子网 </div></el-col>
               <el-col :span="19">
-                <el-select v-model="network_config.subnet_id" size="medium" :disabled="network_config.vpc === ''" style="width: 400px">
+                <el-select v-model="network_config.subnet_id" size="medium" :disabled="network_config.vpc === ''"
+                           style="width: 400px" popper-class="select-customize">
                   <el-option
                     v-for="item in subnets"
                     :key="item.SwitchId"
                     :value="item.SwitchId"
                     :label="item.SwitchName"
-                  />
+                  >
+                    <div>
+                      <div>虚拟交换机ID: {{ item.SwitchId }}</div>
+                      <div>虚拟交换机名称: {{ item.SwitchName }}</div>
+                      <div>网段: {{ item.CidrBlock }}</div>
+                      <div>可用区: {{ getZoneName(item.ZoneId) }} </div>
+                    </div>
+                  </el-option>
                 </el-select>
                 <el-tooltip class="item" effect="light" placement="top">
                   <div slot="content">
@@ -254,11 +271,15 @@
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>机器规格 </div></el-col>
               <el-col :span="19">
                 筛选:
-                <el-select v-model="instance_type_config.core" size="medium" style="width: 150px" clearable filterable placeholder="请选择CPU" @change="changeCoreOrMemory">
-                  <el-option v-for="(c, idx) in filterCores" :key="idx" :value="c" :label="c" />
+                <el-select v-model="instance_type_config.core" size="medium" style="width: 150px" clearable filterable placeholder="请选择 vCPU" @change="changeCoreOrMemory">
+                  <el-option v-for="(c, idx) in filterCores" :key="idx" :value="c" :label="c">
+                    {{ c }} vCPU
+                  </el-option>
                 </el-select>
                 <el-select v-model="instance_type_config.mem" size="medium" style="width: 150px;margin-left: 10px" clearable filterable placeholder="请选择内存" @change="changeCoreOrMemory">
-                  <el-option v-for="(m, idx) in filterMems" :key="idx" :value="m" :label="m" />
+                  <el-option v-for="(m, idx) in filterMems" :key="idx" :value="m" :label="m">
+                    {{ m }} GiB
+                  </el-option>
                 </el-select>
               </el-col>
             </el-row>
@@ -778,6 +799,10 @@ export default {
       }
       this.againPassword = this.cluster.password
     },
+    getZoneName(id) {
+      const zone = this.zones.find(i => i.ZoneId === id)
+      return zone ? zone.LocalName : id
+    },
     async changeProvider(provider) {
       this.handleCache(provider)
       await this.loadAccounts()
@@ -1167,6 +1192,17 @@ export default {
   }
 }
 </script>
+
+<style lang="less">
+  .select-customize {
+    li:not(:last-child) {
+      border-bottom: 2px solid #e3e3e5;
+    }
+    .el-select-dropdown__item {
+      height: 140px !important;
+    }
+  }
+</style>
 
 <style lang="less" scoped>
 .cluster-container {

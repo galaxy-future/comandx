@@ -77,63 +77,15 @@
               </span>
             </template>
           </el-table-column>
+          <el-table-column label="操作" align="center">
+            <template slot-scope="{row}">
+              <el-button type="text" @click="transfer(row)">扩缩容</el-button>
+            </template>
+          </el-table-column>
         </el-table>
         <pagination v-show="total>0" :total="total" :page.sync="listQuery.page_number" :limit.sync="listQuery.page_size" @pagination="fetchData" />
       </div>
     </div>
-    <el-dialog :visible.sync="detailDialogVisible" title="集群详情">
-      <div>
-        <el-divider />
-        <el-row :gutter="20">
-          <el-col :span="4"><b>名称</b></el-col>
-          <el-col :span="8"><div style="height: 16px">{{ clusterDetail.name }}</div></el-col>
-          <el-col :span="4"><b>云厂商</b></el-col>
-          <el-col :span="8"><div style="height: 16px">{{ clusterDetail.provider }}</div></el-col>
-          <el-col :span="4"><b>描述</b></el-col>
-          <el-col :span="8"><div style="height: 16px">{{ clusterDetail.desc }}</div></el-col>
-          <el-col :span="4"><b>创建时间</b></el-col>
-          <el-col :span="8"><div style="height: 16px">{{ clusterDetail.create_at }}</div></el-col>
-          <el-col :span="4"><b>机型</b></el-col>
-          <el-col :span="8"><div style="height: 16px">{{ clusterDetail.instance_type }}</div></el-col>
-          <el-col :span="4"><b>镜像</b></el-col>
-          <el-col :span="8"><div style="height: 16px">{{ clusterDetail.image }}</div></el-col>
-          <el-col :span="4"><b>系统盘类型</b></el-col>
-          <el-col :span="8"><div style="height: 16px">{{ clusterDetail.storage_config.disks.system_disk.category }}</div></el-col>
-          <el-col :span="4"><b>系统盘大小</b></el-col>
-          <el-col :span="8"><div style="height: 16px">{{ clusterDetail.storage_config.disks.system_disk.size }}</div></el-col>
-          <el-col v-if="clusterDetail.storage_config.disks.data_disk.length > 0" :span="4"><b>数据盘类型</b></el-col>
-          <el-col v-if="clusterDetail.storage_config.disks.data_disk.length > 0" :span="8">
-            <div style="height: 16px">
-              {{ clusterDetail.storage_config.disks.data_disk[0].category }}
-            </div>
-          </el-col>
-          <el-col v-if="clusterDetail.storage_config.disks.data_disk.length > 0" :span="4"><b>数据盘大小</b></el-col>
-          <el-col v-if="clusterDetail.storage_config.disks.data_disk.length > 0" :span="8">
-            <div style="height: 16px">{{ clusterDetail.storage_config.disks.data_disk[0].size }}</div>
-          </el-col>
-          <el-col v-if="clusterDetail.storage_config.disks.data_disk.length > 0" :span="4"><b>数据盘数量</b></el-col>
-          <el-col v-if="clusterDetail.storage_config.disks.data_disk.length > 0" :span="8"><div style="height: 16px">{{ clusterDetail.storage_config.disks.data_disk.length }}</div></el-col>
-        </el-row>
-        <el-divider />
-        <el-row :gutter="20">
-          <el-col :span="24"><span style="font-size: larger; font-weight: bolder; color: #2c3e50">网络选项</span></el-col>
-          <el-col :span="4"><b>专有网络</b></el-col>
-          <el-col :span="8">{{ clusterDetail.network_config.vpc }}</el-col>
-          <el-col :span="4"><b>子网</b></el-col>
-          <el-col :span="8">{{ clusterDetail.network_config.subnet_id }}</el-col>
-          <el-col :span="4"><b>安全组</b></el-col>
-          <el-col :span="8">{{ clusterDetail.network_config.security_group }}</el-col>
-        </el-row>
-        <el-divider />
-        <el-row :gutter="20">
-          <el-col :span="24"><span style="font-size: larger; font-weight: bolder; color: #2c3e50">地域选项</span></el-col>
-          <el-col :span="4"><b>地域</b></el-col>
-          <el-col :span="8">{{ clusterDetail.region_id }}</el-col>
-          <el-col :span="4"><b>可用区</b></el-col>
-          <el-col :span="8">{{ clusterDetail.zone_id }}</el-col>
-        </el-row>
-      </div>
-    </el-dialog>
   </div>
 </template>
 
@@ -232,7 +184,6 @@ export default {
       selectClusters: [],
       dialogFormVisible: false,
       createDialogVisible: false,
-      detailDialogVisible: false,
       step: 0,
       clusterDetail: {
         storage_config: {
@@ -303,6 +254,9 @@ export default {
     },
     gotoInfo(name) {
       this.$router.push({ name: 'clusterInfo', params: { name }})
+    },
+    transfer(cluster) {
+      this.$router.push({ name: 'createOnceTask', query: { cluster: cluster.cluster_name } })
     },
     async handleDelete() {
       try {

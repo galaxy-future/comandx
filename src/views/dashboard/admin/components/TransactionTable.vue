@@ -11,8 +11,13 @@
       </template>
     </el-table-column>
     <el-table-column label="执行状态" align="center">
-      <template slot-scope="scope">
-        {{ scope.row.status | parseTaskStatus }}
+      <template slot-scope="{ row }">
+        <span v-if="row.task_status === 'FAILED'" style="display: inline-block; background-color: #f4516c; color: white; padding: 2px 5px; border-radius: 10px">
+          执行失败
+        </span>
+        <span v-else>
+          {{ row.status | parseTaskStatus }}
+        </span>
       </template>
     </el-table-column>
     <el-table-column label="执行动作" align="center">
