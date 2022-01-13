@@ -5,6 +5,7 @@ const getters = {
   schedulX: state => state.app.service.schedulX,
   token: state => state.user.token,
   avatar: state => state.user.avatar,
-  name: state => state.user.name
+  name: state => state.user.name,
+  userType: state => state.user.userType
 }
 export default getters

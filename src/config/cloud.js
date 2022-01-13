@@ -213,7 +213,7 @@ const providerDiskLimits = {
       max: 1024,
       min: 50
     },
-    data_disK: {
+    data_disk: {
       max: 32000,
       min: 20
     }

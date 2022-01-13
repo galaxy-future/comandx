@@ -11,8 +11,8 @@
       <div style="font-size: 16px; font-weight: bolder; margin-bottom: 20px">子账号</div>
       <div class="buttons">
         <el-button size="medium" type="primary" @click="handleCreate">+创建子账号</el-button>
-        <el-button size="medium" :disabled="selectUsers.length < 1" @click="batchDisable">禁用</el-button>
-        <el-button size="medium" :disabled="selectUsers.length < 1" @click="batchEnable">启用</el-button>
+        <el-button size="medium" :disabled="selectUsers.length < 1" @click="batchDisable" v-if="userType === 'ADMIN'">禁用</el-button>
+        <el-button size="medium" :disabled="selectUsers.length < 1" @click="batchEnable" v-if="userType === 'ADMIN'">启用</el-button>
       </div>
       <div class="table">
         <el-table v-loading="loading" :data="list" size="medium" border @selection-change="handleSelectionChange">
@@ -28,6 +28,7 @@
                 active-color="#13ce66"
                 inactive-color="#ff4949"
                 size="mini"
+                :disabled="userType !== 'ADMIN'"
                 @change="handleStatus(row)"
               />{{ row.user_status | parseStatus }}
             </template>
@@ -123,7 +124,8 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'name'
+      'name',
+      'userType'
     ])
   },
   mounted() {

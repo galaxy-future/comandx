@@ -128,7 +128,7 @@
                     :label="item.VpcName"
                   >
                     <div>
-                      <div>专业网络ID: {{ item.VpcId }}</div>
+                      <div>专有网络ID: {{ item.VpcId }}</div>
                       <div>专有网络名称: {{ item.VpcName }}</div>
                       <div>目标网段: {{ item.CidrBlock }}</div>
                       <div>创建时间: {{ item.CreateAt | formatMomentZone('YYYY年MM月DD日 HH:mm') }}</div>
