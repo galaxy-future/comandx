@@ -187,6 +187,39 @@ const chargePeriods = {
   }
 }
 
+const providerDiskLimits = {
+  AlibabaCloud: {
+    system_disk: {
+      max:  500,
+      min: 20
+    },
+    data_disk: {
+      max: 32768,
+      min: 20
+    }
+  },
+  HuaweiCloud: {
+    system_disk: {
+      max: 1024,
+      min: 40
+    },
+    data_disk: {
+      max: 32768,
+      min: 10
+    }
+  },
+  TencentCloud: {
+    system_disk: {
+      max: 1024,
+      min: 50
+    },
+    data_disK: {
+      max: 32000,
+      min: 20
+    }
+  }
+}
+
 export {
   cloudProviders,
   cloudDiskTypes,
@@ -200,5 +233,6 @@ export {
   chargeUnits,
   protocols,
   chargePeriods,
-  vpcCidrOptions
+  vpcCidrOptions,
+  providerDiskLimits
 }

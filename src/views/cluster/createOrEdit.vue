@@ -337,7 +337,7 @@
                       :value="item.value"
                     />
                   </el-select>
-                  <el-input v-model="system_disk.size" placeholder="磁盘空间20-500" size="medium" style="width: 160px; margin-left: 20px" @blur="checkNum('system', true)" /><span style="display: inline-block; margin-left: 5px">GiB</span>
+                  <el-input v-model="system_disk.size" :placeholder="`磁盘空间${diskLimit.system_disk.min}-${diskLimit.system_disk.max}`" size="medium" style="width: 160px; margin-left: 20px" @blur="checkNum('system', true)" /><span style="display: inline-block; margin-left: 5px">GiB</span>
                 </div>
               </el-col>
             </el-row>
@@ -372,7 +372,7 @@
                       :value="t.value"
                     />
                   </el-select>
-                  <el-input v-model="item.size" placeholder="磁盘空间20-32768" size="medium" style="width: 160px; margin-left: 20px" @blur="checkNum('data', true)" /><span style="display: inline-block; margin-left: 5px">GiB</span>
+                  <el-input v-model="item.size" :placeholder="`磁盘空间${diskLimit.data_disk.min}-${diskLimit.data_disk.max}`" size="medium" style="width: 160px; margin-left: 20px" @blur="checkNum('data', true)" /><span style="display: inline-block; margin-left: 5px">GiB</span>
                 </div>
               </el-col>
             </el-row>
@@ -547,7 +547,19 @@
 <script>
 import _ from 'lodash'
 import { justifySubnet, passwordLegitimacy } from '@/utils'
-import { cloudProviders, cloudDiskTypes, systemDiskSizes, dataDiskSizes, huaweiIpType, imageTypes, chargeUnits, protocols, chargePeriods, vpcCidrOptions } from '@/config/cloud'
+import {
+  cloudProviders,
+  cloudDiskTypes,
+  systemDiskSizes,
+  dataDiskSizes,
+  huaweiIpType,
+  imageTypes,
+  chargeUnits,
+  protocols,
+  chargePeriods,
+  vpcCidrOptions,
+  providerDiskLimits
+} from '@/config/cloud'
 import loadMore from '@/directive/el-select-load-more'
 import {
   securityGroupDescribe,
@@ -740,14 +752,17 @@ export default {
       return true
     },
     diskCheck() {
-      return this.data_disks.filter(i => i.size === '' || i.category === '' || +i.size < 20 || +i.size > 32768).length < 1
-          && this.system_disk.size !== '' && this.system_disk.category !== '' && +this.system_disk.size >= 20 && +this.system_disk.size <= 500
+      return this.data_disks.filter(i => i.size === '' || i.category === '' || +i.size < this.diskLimit.data_disk.min || +i.size > this.diskLimit.data_disk.max).length < 1
+          && this.system_disk.size !== '' && this.system_disk.category !== '' && +this.system_disk.size >= this.diskLimit.system_disk.min && +this.system_disk.size <= this.diskLimit.system_disk.max
     },
     submitDisabled() {
       return this.cluster.password === '' || this.cluster.password !== this.againPassword || this.passwordIllegal
     },
     againPasswordIllegal() {
       return this.cluster.password !== this.againPassword
+    },
+    diskLimit() {
+      return _.get(providerDiskLimits, this.cluster.provider)
     }
   },
   async mounted() {
