@@ -288,3 +288,62 @@ export async function imageList(provider, region_id, instance_type, image_type) 
   })
   return _.get(res, 'data', [])
 }
+//
+// export async function vpcInfo(id) {
+//   const token = getToken()
+//   const res = await request({
+//     url: `/api/v1/vpc/id/${id}`,
+//     headers: {
+//       Authorization: ` Bearer ${token}`
+//     }
+//   })
+//   return res
+// }
+//
+// export async function subnetInfo(vpc_id, switch_id) {
+//   const token = getToken()
+//   const res = await request({
+//     url: '/api/v1/subnet/get',
+//     params: {
+//       vpc_id,
+//       switch_id
+//     },
+//     headers: {
+//       Authorization: ` Bearer ${token}`
+//     }
+//   })
+//   return res
+// }
+//
+// export async function securityGroupInfo(vpc_id, security_group_id, provider) {
+//   const token = getToken()
+//   const res = await request({
+//     url: '/api/v1/security_group/get_witch_rule',
+//     params: {
+//       vpc_id,
+//       security_group_id,
+//       provider
+//     },
+//     headers: {
+//       Authorization: ` Bearer ${token}`
+//     }
+//   })
+//   return res
+// }
+//
+// export async function netWorkConfigSync(provider, region_id, account_key) {
+//   const token = getToken()
+//   const res = await request({
+//     url: '/api/v1/network_config/sync',
+//     method: 'post',
+//     data: {
+//       provider,
+//       region_id,
+//       account_key
+//     },
+//     headers: {
+//       Authorization: ` Bearer ${token}`
+//     }
+//   })
+//   return res
+// }

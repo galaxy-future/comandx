@@ -143,6 +143,7 @@
                   </div>
                   <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px" />
                 </el-tooltip>
+<!--                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshVPC" />-->
                 <el-button size="medium" type="primary" style="margin-left: 10px; width: 126px" :disabled="cluster.region_id === '' || cluster.account_key === ''" @click="addVpc">添加VPC</el-button>
               </el-col>
             </el-row>
@@ -173,6 +174,7 @@
                   </div>
                   <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px" />
                 </el-tooltip>
+<!--                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshSubnet" />-->
                 <el-button size="medium" type="primary" style="margin-left: 10px;" @click="addSubnet">添加网络子网</el-button>
               </el-col>
             </el-row>
@@ -195,6 +197,7 @@
                   </div>
                   <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px" />
                 </el-tooltip>
+<!--                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshSecurityGroup" />-->
                 <el-button size="medium" type="primary" style="margin-left: 10px;width: 126px" @click="addSecurityGroup">添加安全组</el-button>
               </el-col>
             </el-row>
@@ -810,6 +813,11 @@ export default {
         this.system_disk = _.get(cluster, 'storage_config.disks.system_disk')
         this.data_disks = _.get(cluster, 'storage_config.disks.data_disk') || []
         this.charge_config = _.get(cluster, 'charge_config')
+        this.instance_type_config = {
+          mem: _.get(cluster, 'extend_config.memory', ''),
+          core: _.get(cluster, 'extend_config.core', ''),
+          computing_power_type: _.get(cluster, 'extend_config.cpu_type', '')
+        }
         await this.loadInstanceTypes()
       }
       this.againPassword = this.cluster.password
@@ -935,6 +943,19 @@ export default {
       this.cluster.zone_id = _.get(this.zones, '0.ZoneId', '')
       await this.loadInstanceTypes()
       this.cleanNetConfig()
+      await this.autoSelectVpcAndSubnet()
+    },
+    async autoSelectVpcAndSubnet() {
+      if (this.network_config.vpc === '' && this.vpcs !== null && this.vpcs.length === 1) {
+        this.network_config.vpc = this.vpcs[0].VpcId
+      }
+      await this.loadCloud()
+      if (this.network_config.subnet_id === '' && this.subnets !== null && this.subnets.length === 1) {
+        this.network_config.subnet_id = this.subnets[0].SwitchId
+      }
+      if (this.network_config.security_group === '' && this.securityGroups !== null && this.securityGroups.length === 1) {
+        this.network_config.security_group = this.securityGroups[0].SecurityGroupId
+      }
     },
     async loadZoneAndVpc() {
       this.zones = await zoneList(this.cluster.provider, this.cluster.region_id)
@@ -943,9 +964,13 @@ export default {
       }
       this.vpcs = await vpcDescribe(this.cluster.region_id, this.cluster.provider, this.cluster.account_key)
     },
+    async loadVpc() {
+      this.vpcs = await vpcDescribe(this.cluster.region_id, this.cluster.provider, this.cluster.account_key)
+    },
     changeImageType() {
       this.loadImages()
       this.cluster.image = ''
+      this.image_config.platform = ''
     },
     async loadImages() {
       const images = await imageList(this.cluster.provider, this.cluster.region_id, this.cluster.instance_type, this.image_config.type)
@@ -1065,6 +1090,7 @@ export default {
           size: +i.size
         }))
       }
+      const instanceType = this.instanceTypes.find(i => i.instance_type === this.cluster.instance_type)
       const data = {
         ...this.cluster,
         network_config,
@@ -1074,9 +1100,9 @@ export default {
         },
         charge_config,
         extend_config: {
-          core: +this.instance_type_config.core,
-          memory: +this.instance_type_config.mem,
-          cpu_type: this.instance_type_config.computing_power_type
+          core: instanceType.core || this.instance_type_config.core,
+          memory: instanceType.memory || this.instance_type_config.mem,
+          cpu_type: instanceType.is_gpu ? 'GPU' : 'CPU' || this.instance_type_config.computing_power_type
         }
       }
       let res
@@ -1170,16 +1196,18 @@ export default {
       const res = await vpcCreate(this.cluster.provider, this.cluster.region_id, this.vpc.cidr_block, this.vpc.vpc_name, this.cluster.account_key)
       if (res.code === 200) {
         this.$message.success('创建成功!')
+        this.network_config.vpc = res.data
       }
-      await this.loadZoneAndVpc()
+      await this.loadVpc()
       this.vpcAddVisible = false
     },
     async submitSubnet() {
       const res = await subnetCreate(this.cluster.provider, this.cluster.zone_id, this.subnet.cidr_block, this.subnet.vpc_id, this.subnet.switch_name, this.subnet.gateway_ip)
       if (res.code === 200) {
         this.$message.success('创建成功!')
+        this.network_config.subnet_id = res.data
       }
-      await this.loadCloud()
+      this.subnets = await subnetDescribe(this.network_config.vpc, this.cluster.zone_id)
       this.subnetAddVisible = false
     },
     addSecurityRule() {
@@ -1197,13 +1225,23 @@ export default {
       })))
       if (res.code === 200) {
         this.$message.success('创建成功!')
+        this.network_config.security_group = res.data
       }
-      await this.loadCloud()
+      this.securityGroups = await securityGroupDescribe(this.network_config.vpc)
       this.securityGroupsAddVisible = false
     },
     checkPassword() {
       this.passwordIllegal = !passwordLegitimacy(this.cluster.password)
     }
+    // refreshVPC() {
+    //   console.log('vpc')
+    // },
+    // refreshSubnet() {
+    //   console.log('subnet')
+    // },
+    // refreshSecurityGroup() {
+    //   console.log('sercurity group')
+    // }
   }
 }
 </script>

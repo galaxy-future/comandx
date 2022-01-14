@@ -43,10 +43,10 @@
           <el-input v-model="userForm.username" />
         </el-form-item>
         <el-form-item label="密码" prop="pass">
-          <el-input v-model="userForm.pass" type="password" autocomplete="off" />
+          <el-input v-model="userForm.pass" type="password" autocomplete="off" show-password />
         </el-form-item>
         <el-form-item label="确认密码" prop="checkPass">
-          <el-input v-model="userForm.checkPass" type="password" autocomplete="off" />
+          <el-input v-model="userForm.checkPass" type="password" autocomplete="off" show-password />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" :disabled="userForm.checkPass !== userForm.pass || userForm.username === ''" @click="submitForm('userForm')">提交</el-button>

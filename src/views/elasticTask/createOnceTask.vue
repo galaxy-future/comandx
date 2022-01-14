@@ -1,3 +1,14 @@
+<style lang="less">
+  .once_task_select {
+    li:not(:last-child) {
+      border-bottom: 2px solid #e3e3e5;
+    }
+    .el-select-dropdown__item {
+      height: 50px !important;
+      line-height: 20px !important;
+    }
+  }
+</style>
 <template>
   <div style="padding: 10px">
     <el-card>
@@ -32,8 +43,17 @@
           <el-row>
             <el-col :span="5"><div class="center-text">执行集群 </div></el-col>
             <el-col :span="15">
-              <el-select v-model="task.cluster_name" v-load-more="loadMore" placeholder="请选择" style="width: 400px" size="medium" @change="loadInstanceNum">
-                <el-option v-for="item in clusters" :key="item.cluster_name" :value="item.cluster_name" :label="item.cluster_name" />
+              <el-select v-model="task.cluster_name" v-load-more="loadMore" placeholder="请选择" style="width: 400px" size="medium" popper-class="once_task_select" @change="loadInstanceNum">
+                <el-option v-for="item in clusters" :key="item.cluster_name" :value="item.cluster_name" :label="item.cluster_name">
+                  <div>
+                    <div>{{ item.cluster_name }}</div>
+                    <div style="color: #8c939d">
+                      <span>{{ item.instance_type }}</span>
+                      <span style="display: inline-block; margin: 0 10px">{{ item.provider | filterCloudProvider }}/{{ item.charge_type | parsePaidType }}</span>
+                      <span>运行中<span style="color: blue">{{ item.instance_count }}</span>台</span>
+                    </div>
+                  </div>
+                </el-option>
               </el-select>
             </el-col>
             <el-col :span="4">
@@ -109,10 +129,10 @@
                 <el-row style="margin-top: 5px">
                   <el-col :span="2"><div style="display: flex; align-items: center; height: 28px">其他: </div></el-col>
                   <el-col v-if="task.type === 'expand'" :span="22">
-                    <el-input-number v-model="task.otherNum" controls-position="right" size="mini" style="width: 100px;" @focus="handleChange" /> 台
+                    <el-input-number v-model="task.otherNum" controls-position="right" size="mini" style="width: 100px;" :min="minNum" @change="handleChange" /> 台
                   </el-col>
                   <el-col v-if="task.type === 'shrink'" :span="22">
-                    <el-input-number v-model="task.otherNum" controls-position="right" size="mini" style="width: 100px;" :max="instanceNum" @focus="handleChange" /> 台
+                    <el-input-number v-model="task.otherNum" controls-position="right" size="mini" style="width: 100px;" :min="minNum" :max="instanceNum" @focus="handleChange" /> 台
                   </el-col>
                 </el-row>
               </el-col>
@@ -145,7 +165,6 @@
 import { clusterExpand, clusterShrink, clusterDescribeAll, clusterInstanceStat } from '@/api/cluster'
 import _ from 'lodash'
 import loadMore from '@/directive/el-select-load-more'
-import { cloudAccountList } from '@/api/cloud'
 
 export default {
   name: 'CreateOnceTask',
@@ -156,6 +175,7 @@ export default {
     return {
       instanceNumLoading: false,
       instanceNum: 0,
+      minNum: 0,
       instanceTypeDesc: '',
       cluster: {
         provider: ''
