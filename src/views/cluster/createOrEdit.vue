@@ -118,9 +118,15 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>VPC </div></el-col>
               <el-col :span="19">
-                <el-select v-model="network_config.vpc" :disabled="cluster.region_id === ''" size="medium" style="width: 400px"
-                           @change="afterVpcChange"
-                           popper-class="select-customize">
+                <el-select
+                  v-model="network_config.vpc"
+                  v-loading="vpcRefresh"
+                  :disabled="cluster.region_id === ''"
+                  size="medium"
+                  style="width: 400px"
+                  popper-class="select-customize"
+                  @change="afterVpcChange"
+                >
                   <el-option
                     v-for="item in vpcs"
                     :key="item.VpcId"
@@ -143,7 +149,7 @@
                   </div>
                   <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px" />
                 </el-tooltip>
-<!--                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshVPC" />-->
+                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshVPC" />
                 <el-button size="medium" type="primary" style="margin-left: 10px; width: 126px" :disabled="cluster.region_id === '' || cluster.account_key === ''" @click="addVpc">添加VPC</el-button>
               </el-col>
             </el-row>
@@ -152,8 +158,14 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>子网 </div></el-col>
               <el-col :span="19">
-                <el-select v-model="network_config.subnet_id" size="medium" :disabled="network_config.vpc === ''"
-                           style="width: 400px" popper-class="select-customize">
+                <el-select
+                  v-model="network_config.subnet_id"
+                  v-loading="subnetRefresh"
+                  size="medium"
+                  :disabled="network_config.vpc === ''"
+                  style="width: 400px"
+                  popper-class="select-customize"
+                >
                   <el-option
                     v-for="item in subnets"
                     :key="item.SwitchId"
@@ -174,7 +186,7 @@
                   </div>
                   <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px" />
                 </el-tooltip>
-<!--                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshSubnet" />-->
+                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshSubnet" />
                 <el-button size="medium" type="primary" style="margin-left: 10px;" @click="addSubnet">添加网络子网</el-button>
               </el-col>
             </el-row>
@@ -183,7 +195,7 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>安全组 </div></el-col>
               <el-col :span="19">
-                <el-select v-model="network_config.security_group" size="medium" :disabled="network_config.vpc === ''" style="width: 400px">
+                <el-select v-model="network_config.security_group" v-loading="securityGroupRefresh" size="medium" :disabled="network_config.vpc === ''" style="width: 400px">
                   <el-option
                     v-for="item in securityGroups"
                     :key="item.SecurityGroupId"
@@ -197,7 +209,7 @@
                   </div>
                   <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px" />
                 </el-tooltip>
-<!--                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshSecurityGroup" />-->
+                <i class="el-icon-refresh" style="color: #409EFF; cursor: pointer" @click="refreshSecurityGroup" />
                 <el-button size="medium" type="primary" style="margin-left: 10px;width: 126px" @click="addSecurityGroup">添加安全组</el-button>
               </el-col>
             </el-row>
@@ -275,14 +287,10 @@
               <el-col :span="19">
                 筛选:
                 <el-select v-model="instance_type_config.core" size="medium" style="width: 150px" clearable filterable placeholder="请选择 vCPU" @change="changeCoreOrMemory">
-                  <el-option v-for="(c, idx) in filterCores" :key="idx" :value="c" :label="c">
-                    {{ c }} vCPU
-                  </el-option>
+                  <el-option v-for="(c, idx) in filterCores" :key="idx" :value="c" :label="c + ' vCPU'" />
                 </el-select>
                 <el-select v-model="instance_type_config.mem" size="medium" style="width: 150px;margin-left: 10px" clearable filterable placeholder="请选择内存" @change="changeCoreOrMemory">
-                  <el-option v-for="(m, idx) in filterMems" :key="idx" :value="m" :label="m">
-                    {{ m }} GiB
-                  </el-option>
+                  <el-option v-for="(m, idx) in filterMems" :key="idx" :value="m" :label="m + ' GiB'" />
                 </el-select>
               </el-col>
             </el-row>
@@ -290,18 +298,18 @@
               <el-col :span="5"><div style="height: 36px" /></el-col>
               <el-col :span="19">
                 <el-select
-                    v-model="cluster.instance_type"
-                    size="medium"
-                    :disabled="cluster.region_id === '' || cluster.zone_id === ''"
-                    placeholder="可输入机器信息匹配"
-                    style="width: calc( 25% + 340px )"
-                    filterable
+                  v-model="cluster.instance_type"
+                  size="medium"
+                  :disabled="cluster.region_id === '' || cluster.zone_id === ''"
+                  placeholder="可输入机器信息匹配"
+                  style="width: calc( 25% + 340px )"
+                  filterable
                 >
                   <el-option
-                      v-for="(item, idx) in filterInstanceTypes"
-                      :key="idx"
-                      :value="item.instance_type"
-                      :label="item.instance_type"
+                    v-for="(item, idx) in filterInstanceTypes"
+                    :key="idx"
+                    :value="item.instance_type"
+                    :label="item.instance_type"
                   />
                 </el-select>
               </el-col>
@@ -319,7 +327,7 @@
                   <el-option v-for="t in imageTypes" :key="t.value" :value="t.value" :label="t.label" />
                 </el-select>
                 <el-select v-model="image_config.platform" size="medium" placeholder="请选择镜像平台" style="width: 150px; margin-left: 20px" :disabled="image_config.type === ''" clearable filterable @change="changeImagePlatform">
-                  <el-option v-for="(i, idx) in Object.keys(imagePlatforms)" :key="idx" :value="i" :label="i" />
+                  <el-option v-for="(i, idx) in imagePlatforms" :key="idx" :value="i" :label="i" />
                 </el-select>
                 <el-select v-model="cluster.image" size="medium" style="width: 25%; margin-left: 20px" filterable placeholder="可输入镜像信息匹配" :disabled="image_config.type === ''">
                   <el-option v-for="i in filterImages" :key="i.image_id" :value="i.image_id" :label="i.os_name" />
@@ -357,7 +365,7 @@
                   <span style="color: #8c939d">
                     您已选择<span style="display: inline-block; padding: 0 10px; color: red">{{ data_disks.length }}</span>块盘，还可以选择<span style="display: inline-block; padding: 0 10px; color: red">{{ 16 - data_disks.length }}</span>块盘
                   </span>
-                  <el-button size="mini" type="primary" style="margin-left: 10px" @click="addItem" :disabled="data_disks.length > 15">+增加数据盘</el-button>
+                  <el-button size="mini" type="primary" style="margin-left: 10px" :disabled="data_disks.length > 15" @click="addItem">+增加数据盘</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -575,7 +583,8 @@ import {
   subnetCreate,
   securityGroupCreateWithRule,
   imageList,
-  cloudAccountList
+  cloudAccountList,
+  netWorkConfigSync
 } from '@/api/cloud'
 import { clusterCreate, clusterDescribe, clusterEdit } from '@/api/cluster'
 const data_disk_item = {
@@ -683,7 +692,7 @@ export default {
       securityGroups: [],
       instanceTypes: [],
       images: [],
-      imagePlatforms: [],
+      imagePlatformsData: [],
       image_config: {
         id: '',
         name: '',
@@ -707,7 +716,10 @@ export default {
       cache: {
         AlibabaCloud: {},
         HuaweiCloud: {}
-      }
+      },
+      vpcRefresh: false,
+      subnetRefresh: false,
+      securityGroupRefresh: false
     }
   },
   computed: {
@@ -721,9 +733,12 @@ export default {
         if (this.instance_type_config.mem !== '') {
           memFilter = i.memory === this.instance_type_config.mem
         }
-        return coreFilter && memFilter && (this.instance_type_config.computing_power_type === 'GPU' ? i.is_gpu : !i.is_gpu)
-               && (i.charge_type === this.charge_config.charge_type || i.charge_type === 'All')
+        return coreFilter && memFilter && (this.instance_type_config.computing_power_type === 'GPU' ? i.is_gpu : !i.is_gpu) &&
+               (i.charge_type === this.charge_config.charge_type || i.charge_type === 'All')
       })
+    },
+    imagePlatforms() {
+      return Object.keys(this.imagePlatformsData)
     },
     filterCores() {
       if (this.instance_type_config.mem === '') {
@@ -756,8 +771,8 @@ export default {
       return true
     },
     diskCheck() {
-      return this.data_disks.filter(i => i.size === '' || i.category === '' || +i.size < this.diskLimit.data_disk.min || +i.size > this.diskLimit.data_disk.max).length < 1
-          && this.system_disk.size !== '' && this.system_disk.category !== '' && +this.system_disk.size >= this.diskLimit.system_disk.min && +this.system_disk.size <= this.diskLimit.system_disk.max
+      return this.data_disks.filter(i => i.size === '' || i.category === '' || +i.size < this.diskLimit.data_disk.min || +i.size > this.diskLimit.data_disk.max).length < 1 &&
+          this.system_disk.size !== '' && this.system_disk.category !== '' && +this.system_disk.size >= this.diskLimit.system_disk.min && +this.system_disk.size <= this.diskLimit.system_disk.max
     },
     submitDisabled() {
       return this.cluster.password === '' || this.cluster.password !== this.againPassword || this.passwordIllegal
@@ -850,7 +865,8 @@ export default {
       this.image_config = {
         id: '',
         type: '',
-        name: ''
+        name: '',
+        platform: ''
       }
     },
     loadCache(provider) {
@@ -983,10 +999,10 @@ export default {
               os_name: i.image_name
             }
           }
-          return {...i}
+          return { ...i }
         })
       }
-      this.imagePlatforms = _.groupBy(this.images, 'platform')
+      this.imagePlatformsData = _.groupBy(this.images, 'platform')
       this.loadImagePlatform()
     },
     changeImagePlatform() {
@@ -999,7 +1015,7 @@ export default {
       }
     },
     async loadCloud() {
-      this.securityGroups = await securityGroupDescribe(this.network_config.vpc)
+      this.securityGroups = await securityGroupDescribe(this.cluster.account_key, this.cluster.region_id, this.network_config.vpc)
       this.subnets = await subnetDescribe(this.network_config.vpc, this.cluster.zone_id)
     },
     async afterVpcChange() {
@@ -1013,7 +1029,7 @@ export default {
     },
     changeComputedType() {
       this.cluster.instance_type = ''
-      this.instance_type_config.core= ''
+      this.instance_type_config.core = ''
       this.instance_type_config.mem = ''
     },
     changeCoreOrMemory() {
@@ -1203,7 +1219,7 @@ export default {
       this.vpcAddVisible = false
     },
     async submitSubnet() {
-      const res = await subnetCreate(this.cluster.provider, this.cluster.zone_id, this.subnet.cidr_block, this.subnet.vpc_id, this.subnet.switch_name, this.subnet.gateway_ip)
+      const res = await subnetCreate(this.cluster.provider, this.cluster.account_key, this.cluster.region_id, this.cluster.zone_id, this.subnet.cidr_block, this.subnet.vpc_id, this.subnet.switch_name, this.subnet.gateway_ip)
       if (res.code === 200) {
         this.$message.success('创建成功!')
         this.network_config.subnet_id = res.data
@@ -1218,7 +1234,7 @@ export default {
       this.rules = this.rules.filter((v, i) => i !== idx)
     },
     async submitSecurityGroup() {
-      const res = await securityGroupCreateWithRule(this.cluster.region_id, this.network_config.vpc, this.securityGroup.security_group_name, this.rules.map(i => ({
+      const res = await securityGroupCreateWithRule(this.cluster.account_key, this.cluster.region_id, this.network_config.vpc, this.securityGroup.security_group_name, this.rules.map(i => ({
         protocol: i.protocol,
         port_from: +i.port_from,
         port_to: +i.port_to,
@@ -1228,21 +1244,36 @@ export default {
         this.$message.success('创建成功!')
         this.network_config.security_group = res.data
       }
-      this.securityGroups = await securityGroupDescribe(this.network_config.vpc)
+      this.securityGroups = await securityGroupDescribe(this.cluster.account_key, this.cluster.region_id, this.network_config.vpc)
       this.securityGroupsAddVisible = false
     },
     checkPassword() {
       this.passwordIllegal = !passwordLegitimacy(this.cluster.password)
+    },
+    async refreshVPC() {
+      this.vpcRefresh = true
+      const res = await netWorkConfigSync(this.cluster.provider, this.cluster.region_id, this.cluster.account_key)
+      if (res.code === 200) {
+        this.$message.success('刷新成功')
+      }
+      this.vpcRefresh = false
+    },
+    async refreshSubnet() {
+      this.subnetRefresh = true
+      const res = await netWorkConfigSync(this.cluster.provider, this.cluster.region_id, this.cluster.account_key)
+      if (res.code === 200) {
+        this.$message.success('刷新成功')
+      }
+      this.subnetRefresh = false
+    },
+    async refreshSecurityGroup() {
+      this.securityGroupRefresh = true
+      const res = await netWorkConfigSync(this.cluster.provider, this.cluster.region_id, this.cluster.account_key)
+      if (res.code === 200) {
+        this.$message.success('刷新成功')
+      }
+      this.securityGroupRefresh = false
     }
-    // refreshVPC() {
-    //   console.log('vpc')
-    // },
-    // refreshSubnet() {
-    //   console.log('subnet')
-    // },
-    // refreshSecurityGroup() {
-    //   console.log('sercurity group')
-    // }
   }
 }
 </script>

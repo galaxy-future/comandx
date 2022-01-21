@@ -14,13 +14,13 @@
           </el-row>
           <el-row>
             <el-col :span="3" class="info-label">云厂商</el-col>
-            <el-col :span="9" class="info-content">{{ cluster.provider }}</el-col>
+            <el-col :span="9" class="info-content">{{ cluster.provider | filterCloudProvider }}</el-col>
             <el-col :span="3" class="info-label">云厂商账户</el-col>
             <el-col :span="9" class="info-content">{{ cluster.account_key || '空' }}</el-col>
           </el-row>
           <el-row>
             <el-col :span="3" class="info-label">算力类型</el-col>
-            <el-col :span="9" class="info-content">{{ cluster.computed_type }}</el-col>
+            <el-col :span="9" class="info-content">{{ cluster.extend_config.cpu_type }}</el-col>
             <el-col :span="3" class="info-label">付费方式</el-col>
             <el-col :span="9" class="info-content">{{ cluster.charge_config.charge_type | parsePaidType }}</el-col>
           </el-row>
@@ -53,9 +53,9 @@
           </el-row>
           <el-row>
             <el-col :span="3" class="info-label">CPU(核)</el-col>
-            <el-col :span="9" class="info-content">{{ cluster.instance_core }}</el-col>
+            <el-col :span="9" class="info-content">{{ cluster.extend_config.core }}</el-col>
             <el-col :span="3" class="info-label">内存(G)</el-col>
-            <el-col :span="9" class="info-content">{{ cluster.instance_memory }}</el-col>
+            <el-col :span="9" class="info-content">{{ cluster.extend_config.memory }}</el-col>
           </el-row>
           <el-row>
             <el-col :span="3" class="info-label">系统盘种类</el-col>
@@ -78,7 +78,7 @@
                     <el-table-column label="数据盘大小(G)" prop="size" align="center" width="100" />
                   </el-table>
                 </div>
-                <span style="color: blue; cursor:pointer;">{{ cluster.storage_config.disks.data_disk.length }}</span>
+                <span class="pointer-text">{{ cluster.storage_config.disks.data_disk.length }}</span>
               </el-tooltip>
             </el-col>
             <el-col :span="3" class="info-label">数据盘总大小(G)</el-col>
@@ -95,7 +95,7 @@
                     <el-table-column label="数据盘大小(G)" prop="size" align="center" width="100" />
                   </el-table>
                 </div>
-                <span style="color: blue; cursor:pointer;">{{ dataDiskTotalSize }}</span>
+                <span class="pointer-text">{{ dataDiskTotalSize }}</span>
               </el-tooltip>
             </el-col>
           </el-row>
@@ -106,13 +106,54 @@
             <el-col :span="3" class="info-label">网络类型</el-col>
             <el-col :span="9" class="info-content">VPC专有网络</el-col>
             <el-col :span="3" class="info-label">VPC</el-col>
-            <el-col :span="9" class="info-content">{{ cluster.network_config.vpc }}</el-col>
+            <el-col :span="9" class="info-content">
+              <el-tooltip placement="top" effect="light">
+                <div slot="content">
+                  <div class="tooltip-detail">
+                    <div><span>VPC名称:</span>{{ vpc.VpcName }}</div>
+                    <div><span>VPC ID:</span>{{ vpc.VpcId }}</div>
+                    <div><span>网段:</span>{{ vpc.CidrBlock }}</div>
+                    <div><span>创建时间:</span>{{ vpc.CreateAt | formatMomentZone('YYYY-MM-DD HH:mm:ss') }}</div>
+                  </div>
+                </div>
+                <span class="pointer-text">{{ vpc.VpcName }}</span>
+              </el-tooltip>
+            </el-col>
           </el-row>
           <el-row>
             <el-col :span="3" class="info-label">子网</el-col>
-            <el-col :span="9" class="info-content">{{ cluster.network_config.subnet_id }}</el-col>
+            <el-col :span="9" class="info-content">
+              <el-tooltip placement="top" effect="light">
+                <div slot="content">
+                  <div class="tooltip-detail">
+                    <div><span>子网名称:</span>{{ subnet.SwitchName }}</div>
+                    <div><span>子网ID:</span>{{ subnet.SwitchId }}</div>
+                    <div><span>网段:</span>{{ subnet.CidrBlock }}</div>
+                    <div><span>创建时间:</span>{{ subnet.CreateAt | formatMomentZone('YYYY-MM-DD HH:mm:ss') }}</div>
+                  </div>
+                </div>
+                <span class="pointer-text">{{ subnet.SwitchName }}</span>
+              </el-tooltip>
+            </el-col>
             <el-col :span="3" class="info-label">安全组</el-col>
-            <el-col :span="9" class="info-content">{{ cluster.network_config.security_group }}</el-col>
+            <el-col :span="9" class="info-content">
+              <el-tooltip placement="top" effect="light">
+                <div slot="content">
+                  <div class="tooltip-detail">
+                    <div><span>安全组ID:</span>{{ securityGroup.security_group_id }}</div>
+                    <div><span>安全组名称:</span>{{ securityGroup.security_group_name }}</div>
+                    <div class="tooltip-detail-border">
+                      <div v-for="(rule, idx) in securityGroup.rules" :key="idx">
+                        <section><span>传输协议:</span>{{ rule.protocol }}</section>
+                        <section><span>端口范围:</span>{{ rule.port_range }}</section>
+                        <section><span>规则方向:</span>{{ rule.direction }}</section>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <span class="pointer-text">{{ securityGroup.security_group_name }}</span>
+              </el-tooltip>
+            </el-col>
           </el-row>
           <el-row>
             <el-col :span="3" class="info-label">是否公网访问</el-col>
@@ -241,6 +282,7 @@ import { filterStatuses } from '@/config/instance'
 import clipboard from '@/directive/clipboard/index'
 import { clusterDescribe } from '@/api/cluster'
 import { taskDescribeAll } from '@/api/task'
+import { vpcInfo, subnetInfo, securityGroupInfo } from '@/api/cloud'
 
 export default {
   name: 'Detail',
@@ -261,6 +303,7 @@ export default {
       filterStatuses,
       cluster: {
         charge_config: {},
+        extend_config: {},
         image_config: {},
         storage_config: {
           disks: {
@@ -278,7 +321,10 @@ export default {
         page_number: 1
       },
       historyLoading: false,
-      dataDiskTotalSize: 0
+      dataDiskTotalSize: 0,
+      vpc: {},
+      subnet: {},
+      securityGroup: {}
     }
   },
   mounted() {
@@ -294,7 +340,16 @@ export default {
         this.dataDiskTotalSize = _.sum(this.cluster.storage_config.disks.data_disk.map(i => i.size))
         this.networkSwitch = this.cluster.network_config.internet_charge_type !== ''
         await this.fetchHistory()
+        await this.loadCloud()
       }
+    },
+    async loadCloud() {
+      this.vpc = await vpcInfo(this.cluster.network_config.vpc)
+      console.log(this.vpc)
+      this.subnet = await subnetInfo(this.cluster.network_config.vpc, this.cluster.network_config.subnet_id)
+      console.log(this.subnet)
+      this.securityGroup = await securityGroupInfo(this.cluster.network_config.vpc, this.cluster.network_config.security_group, this.cluster.provider, this.cluster.region_id)
+      console.log(this.securityGroup)
     },
     async fetchHistory() {
       this.historyLoading = true
@@ -370,6 +425,28 @@ export default {
 
   .info-label {
     color: #8080e1;
+  }
+}
+.pointer-text {
+  color: blue;
+  cursor: pointer;
+}
+.tooltip-detail {
+  span {
+    color: #8c939d;
+    display: inline-block;
+    width: 80px;
+    padding-right: 10px;
+    text-align: right
+  }
+  .tooltip-detail-border {
+    margin-top: 10px;
+    div {
+      border-top: 2px solid #e3e3e5;
+    }
+    div:last-child {
+      border-bottom: 2px solid #e3e3e5;
+    }
   }
 }
 </style>

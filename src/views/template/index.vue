@@ -109,7 +109,7 @@
             </div>
           </el-tab-pane>
           <el-tab-pane label="扩缩容规则" name="rule">
-            <rule-list />
+            <rule-list :tmplExpandId="tmpl_expand_id" />
           </el-tab-pane>
           <el-tab-pane label="扩缩容历史" name="history">
             <history />
@@ -274,7 +274,8 @@ export default {
           { required: true, message: '请输入扩容步长', trigger: 'blur' }
         ]
       },
-      clusters: []
+      clusters: [],
+      tmpl_expand_id: 0
     }
   },
   created() {
@@ -296,6 +297,7 @@ export default {
 
       const res = await getTemplateList(params)
       this.templateList = _.get(res, 'tmpl_expand_list', [])
+      this.tmpl_expand_id = _.get(this.templateList, '0.tmpl_expand_id') || 0
       this.total = res.pager.total
       this.listLoading = false
       this.service_name = serviceName

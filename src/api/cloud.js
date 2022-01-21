@@ -59,7 +59,7 @@ export async function subnetDescribe(vpc_id, zone_id) {
   return _.get(res, 'data.Switches', [])
 }
 
-export function subnetCreate(provider, zone_id, cidr_block, vpc_id, switch_name, gateway_ip) {
+export function subnetCreate(provider, account_key, region_id, zone_id, cidr_block, vpc_id, switch_name, gateway_ip) {
   const token = getToken()
   return request({
     url: '/api/v1/subnet/create',
@@ -70,7 +70,9 @@ export function subnetCreate(provider, zone_id, cidr_block, vpc_id, switch_name,
       cidr_block,
       vpc_id,
       switch_name,
-      gateway_ip
+      gateway_ip,
+      account_key,
+      region_id
     },
     headers: {
       Authorization: ` Bearer ${token}`
@@ -78,13 +80,15 @@ export function subnetCreate(provider, zone_id, cidr_block, vpc_id, switch_name,
   })
 }
 
-export async function securityGroupDescribe(vpc_id) {
+export async function securityGroupDescribe(account_key, region_id, vpc_id) {
   const token = getToken()
   const res = await request({
     url: '/api/v1/security_group/describe',
     method: 'get',
     params: {
-      vpc_id
+      vpc_id,
+      account_key,
+      region_id
     },
     headers: {
       Authorization: ` Bearer ${token}`
@@ -93,12 +97,13 @@ export async function securityGroupDescribe(vpc_id) {
   return _.get(res, 'data.Groups', [])
 }
 
-export function securityGroupCreate(region_id, vpc_id, security_group_name) {
+export function securityGroupCreate(account_key, region_id, vpc_id, security_group_name) {
   const token = getToken()
   return request({
     url: '/api/v1/security_group/create',
     method: 'post',
     data: {
+      account_key,
       region_id,
       vpc_id,
       security_group_name
@@ -109,12 +114,13 @@ export function securityGroupCreate(region_id, vpc_id, security_group_name) {
   })
 }
 
-export function securityGroupCreateWithRule(region_id, vpc_id, security_group_name, rules) {
+export function securityGroupCreateWithRule(account_key, region_id, vpc_id, security_group_name, rules) {
   const token = getToken()
   return request({
     url: '/api/v1/security_group/create_with_rule',
     method: 'post',
     data: {
+      account_key,
       region_id,
       vpc_id,
       security_group_name,
@@ -126,7 +132,7 @@ export function securityGroupCreateWithRule(region_id, vpc_id, security_group_na
   })
 }
 
-export function securityGroupRuleAdd(region_id, vpc_id, security_group_id, protocol, port_range, direction, group_id, cidr_ip, prefix_list_id) {
+export function securityGroupRuleAdd(account_key, region_id, vpc_id, security_group_id, protocol, port_range, direction, group_id, cidr_ip, prefix_list_id) {
   const token = getToken()
   return request({
     url: '/api/v1/security_group/rule/add',
@@ -288,62 +294,61 @@ export async function imageList(provider, region_id, instance_type, image_type) 
   })
   return _.get(res, 'data', [])
 }
-//
-// export async function vpcInfo(id) {
-//   const token = getToken()
-//   const res = await request({
-//     url: `/api/v1/vpc/id/${id}`,
-//     headers: {
-//       Authorization: ` Bearer ${token}`
-//     }
-//   })
-//   return res
-// }
-//
-// export async function subnetInfo(vpc_id, switch_id) {
-//   const token = getToken()
-//   const res = await request({
-//     url: '/api/v1/subnet/get',
-//     params: {
-//       vpc_id,
-//       switch_id
-//     },
-//     headers: {
-//       Authorization: ` Bearer ${token}`
-//     }
-//   })
-//   return res
-// }
-//
-// export async function securityGroupInfo(vpc_id, security_group_id, provider) {
-//   const token = getToken()
-//   const res = await request({
-//     url: '/api/v1/security_group/get_witch_rule',
-//     params: {
-//       vpc_id,
-//       security_group_id,
-//       provider
-//     },
-//     headers: {
-//       Authorization: ` Bearer ${token}`
-//     }
-//   })
-//   return res
-// }
-//
-// export async function netWorkConfigSync(provider, region_id, account_key) {
-//   const token = getToken()
-//   const res = await request({
-//     url: '/api/v1/network_config/sync',
-//     method: 'post',
-//     data: {
-//       provider,
-//       region_id,
-//       account_key
-//     },
-//     headers: {
-//       Authorization: ` Bearer ${token}`
-//     }
-//   })
-//   return res
-// }
+
+export async function vpcInfo(id) {
+  const token = getToken()
+  const res = await request({
+    url: `/api/v1/vpc/info/${id}`,
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+  return _.get(res, 'data')
+}
+
+export async function subnetInfo(vpc_id, switch_id) {
+  const token = getToken()
+  const res = await request({
+    url: `/api/v1/subnet/info/${switch_id}`,
+    params: {
+      vpc_id
+    },
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+  return _.get(res, 'data')
+}
+
+export async function securityGroupInfo(vpc_id, security_group_id, provider, region_id) {
+  const token = getToken()
+  const res = await request({
+    url: `/api/v1/security_group/${security_group_id}/rules`,
+    params: {
+      vpc_id,
+      provider,
+      region_id
+    },
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+  return _.get(res, 'data')
+}
+
+export async function netWorkConfigSync(provider, region_id, account_key) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/network_config/sync',
+    method: 'post',
+    data: {
+      provider,
+      region_id,
+      account_key
+    },
+    headers: {
+      Authorization: ` Bearer ${token}`
+    }
+  })
+  return res
+}

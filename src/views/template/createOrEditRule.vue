@@ -1,3 +1,15 @@
+<style lang="less">
+  .rule-table {
+    width: 450px;
+    margin-top: 10px;
+    td, th {
+      padding: 0!important;
+    }
+  }
+  .rule-tooltip {
+    border-color: #d6d8da !important;
+  }
+</style>
 <template>
   <div class="container">
     <div class="content">
@@ -25,38 +37,84 @@
         <el-row style="margin-top: 29px">
           <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>度量指标</div></el-col>
           <el-col :span="16">
-            <el-select v-model="rule.metric_name" size="medium" disabled style="width: 400px">
+            <el-select v-model="rule.metric_name" size="medium" style="width: 400px">
               <el-option value="qps" label="QPS" />
+              <el-option value="qps_section_factor" label="MetricQPS" />
             </el-select>
+            <el-tooltip v-show="rule.metric_name === 'qps_section_factor'" placement="top" effect="light">
+              <div slot="content">
+                <div style="width: 330px">
+                  MetricQPS度量指标，把不同QPS请求对服务器资源占用时长纳入了考量。该方法将QPS按时长进行分段，每个分段确定与之对应的权重值，进而计算单机最大承载能力<br><br>
+                  <strong>单机metricQPS =（wi权重值 * 分段请求数）/ num机器数</strong>
+                </div>
+              </div>
+              <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px; cursor: pointer" />
+            </el-tooltip>
           </el-col>
         </el-row>
         <el-row style="margin-top: 29px">
-          <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>单机QPS</div></el-col>
-          <el-col :span="16"><el-input v-model="rule.benchmark_qps" placeholder="请输入QPS值" style="width: 400px" size="medium" @blur="checkInput" /></el-col>
+          <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>{{ benchmarkQpsLabel }}</div></el-col>
+          <el-col :span="16">
+            <el-input v-model="rule.benchmark_qps" :placeholder="benchmarkPlaceholder" style="width: 400px" size="medium" @blur="checkInput" />
+            <el-tooltip v-show="rule.metric_name === 'qps_section_factor'" placement="bottom" effect="light" popper-class="rule-tooltip">
+              <div slot="content">
+                <div style="width: 450px">
+                  <div>
+                    以5台机器进行压测，分段规则及压测结果如下，为例进行计算。<br><span style="color: red">（注：该分段方式及对应权重为以往经验值）</span>
+                    <el-table :data="sections" size="mini" border class="rule-table">
+                      <el-table-column label="耗时区间" prop="cost" align="center" />
+                      <el-table-column label="区间范围(不含上限)" width="160" prop="boundary" align="center" />
+                      <el-table-column label="权重值" prop="right" align="center" />
+                      <el-table-column label="请求数" prop="times" align="center" />
+                    </el-table>
+                    <div style="width: 100%; text-align: center; color: #a4a9af; margin-top: 5px">
+                      分段压测结果
+                    </div>
+                    <div class="rule-formula">
+                      <div>单机MetricQPS = </div>
+                      <div class="formula">
+                        <div class="dividend">
+                          4000*0.1 + 3000*0.5 + 2000*2 + 900*4 + 100*8
+                        </div>
+                        <div class="divisor">
+                          5
+                        </div>
+                      </div>
+                      <div>
+                        = 2060
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px; cursor: pointer" />
+            </el-tooltip>
+          </el-col>
         </el-row>
         <el-row>
           <el-col :span="8"><div style="height: 16px" /></el-col>
           <el-col :span="16">
             <div class="note">
               <i class="el-icon-info" style="color: green; font-size: 16px" />
-              请根据压测或评估结果，输入该集群单机可承载的QPS
+              {{ benchmarkQpsNote }}
             </div>
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
-          <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>冗余度</div></el-col>
-          <el-col :span="16">
-            <div class="redundancy">
-              <div>
-                <i class="el-icon-info" style="color: green; font-size: 16px" />
-                冗余度代表当前运行机器对线上流量的承载富余程度，100%代表运行机器可承载2倍的当前线上流量
+          <el-col :span="8"><div class="center-text"><div class="asterisk">*
+          </div>
+            冗余度
+            <el-tooltip placement="top" effect="light">
+              <div slot="content">
+                <div style="width: 330px">
+                  冗余度代表当前运行机器对线上流量的承载富余程度，100%代表刚好可承载线上流量，200%代表运行机器可承载2倍当前线上流量
+                </div>
               </div>
-            </div>
+              <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px; cursor: pointer" />
+            </el-tooltip>
+          </div>
           </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="8"><div style="height: 16px" /></el-col>
-          <el-col :span="16">
+          <el-col :span="16" class="col">
             上限<el-input v-model="rule.max_redundancy" size="mini" style="width: 100px; margin-left: 10px" @blur="checkInput" />%
             <i class="el-icon-info" style="color: green; font-size: 16px; margin-left: 10px" />
             <span class="note-text">冗余度高于上限，将缩容服务机器数节约成本</span>
@@ -74,20 +132,20 @@
           <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>机器数限制</div></el-col>
           <el-col :span="16" class="col">
             上限<el-input v-model="rule.max_instance_count" size="mini" style="width: 100px; margin-left: 10px" @blur="checkInput" />台
-            <i class="el-icon-info" style="color: green; font-size: 16px; margin-left: 13px" />
-            <span class="note-text">
-              集群机器数达到上限后，将不再继续扩容
-            </span>
+            <!--            <i class="el-icon-info" style="color: green; font-size: 16px; margin-left: 13px" />-->
+            <!--            <span class="note-text">-->
+            <!--              集群机器数达到上限后，将不再继续扩容-->
+            <!--            </span>-->
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="8"><div style="height: 16px" /></el-col>
           <el-col :span="16" class="col">
             下限<el-input v-model="rule.min_instance_count" size="mini" style="width: 100px; margin-left: 10px" @blur="checkInput" />台
-            <i class="el-icon-info" style="color: green; font-size: 16px; margin-left: 13px" />
-            <span class="note-text">
-            线上流量接近0时，保持的最小机器
-          </span>
+            <!--            <i class="el-icon-info" style="color: green; font-size: 16px; margin-left: 13px" />-->
+            <!--            <span class="note-text">-->
+            <!--              线上流量接近0时，保持的最小机器-->
+            <!--            </span>-->
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
@@ -96,24 +154,24 @@
             单次<el-input v-model="rule.execute_ratio" size="mini" style="width: 100px; margin-left: 10px" @blur="checkInput" />%
             <i class="el-icon-info" style="color: green; font-size: 16px; margin-left: 15px" />
             <span class="note-text">
-            每次扩缩容发生时，增减的机器比例，不足1台向上取整
-          </span>
+              每次扩缩容发生时，增减的机器比例，不足1台向上取整
+            </span>
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
           <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>规则启停</div></el-col>
           <el-col :span="16" class="col">
-            <el-switch v-model="switchStatus" @change="changeStatus" style="margin-right: 10px" />
+            <el-switch v-model="switchStatus" style="margin-right: 10px" @change="changeStatus" />
             <span v-if="switchStatus" style="color: #409EFF">启用</span>
             <span v-else style="color: #909399">停用</span>
-            <i class="el-icon-info" style="color: green; font-size: 16px; margin-left: 90px" />
-            <span class="note-text">提交后默认开启规则，自动执行扩缩容动作</span>
+            <!--            <i class="el-icon-info" style="color: green; font-size: 16px; margin-left: 90px" />-->
+            <!--            <span class="note-text">提交后默认开启规则，自动执行扩缩容动作</span>-->
           </el-col>
         </el-row>
       </div>
       <div style="display: flex; flex-direction: row; justify-content: center; margin-top: 30px">
         <div>
-          <el-button type="primary" size="medium" @click="submit" :disabled="disabled">提交</el-button>
+          <el-button type="primary" size="medium" :disabled="disabled" @click="submit">提交</el-button>
           <el-button size="medium" style="margin-left: 10px" @click="cancel">取消</el-button>
         </div>
       </div>
@@ -130,6 +188,7 @@ export default {
   name: 'CreateOrEditRule',
   data() {
     return {
+      switchStatus: true,
       clusters: [],
       rule: {
         name: '',
@@ -142,7 +201,33 @@ export default {
         max_instance_count: '',
         execute_ratio: '',
         status: 'enable'
-      }
+      },
+      sections: [{
+        cost: 1,
+        boundary: '0~10 ms',
+        right: 0.1,
+        times: 4000
+      }, {
+        cost: 2,
+        boundary: '10~50 ms',
+        right: 0.5,
+        times: 3000
+      }, {
+        cost: 3,
+        boundary: '50~100 ms',
+        right: 2,
+        times: 2000
+      }, {
+        cost: 4,
+        boundary: '100~500 ms',
+        right: 4,
+        times: 900
+      }, {
+        cost: 5,
+        boundary: '500ms以上',
+        right: 8,
+        times: 100
+      }]
     }
   },
   computed: {
@@ -153,16 +238,31 @@ export default {
       const res = validInput(this.rule.name)
       return res.type && res.count <= 20
     },
-    switchStatus() {
-      return this.rule.status === 'enable'
-    },
     disabled() {
-      return this.rule.name === '' || !this.ruleNameValidate || this.rule.cluster_name === ''
-          || this.rule.benchmark_qps === '' || this.rule.min_redundancy === ''
-          || this.rule.max_redundancy === '' || this.rule.min_instance_count === ''
-          || this.rule.max_instance_count === '' || this.rule.execute_ratio === ''
-          || (+this.rule.max_redundancy) <= (+this.rule.min_redundancy)
-          || +this.rule.max_instance_count <= +this.rule.min_instance_count
+      return this.rule.name === '' || !this.ruleNameValidate || this.rule.cluster_name === '' ||
+          this.rule.benchmark_qps === '' || this.rule.min_redundancy === '' ||
+          this.rule.max_redundancy === '' || this.rule.min_instance_count === '' ||
+          this.rule.max_instance_count === '' || this.rule.execute_ratio === '' ||
+          (+this.rule.max_redundancy) <= (+this.rule.min_redundancy) ||
+          +this.rule.max_instance_count <= +this.rule.min_instance_count
+    },
+    benchmarkQpsNote() {
+      if (this.rule.metric_name === 'qps') {
+        return '请根据压测或评估结果，输入该集群单机可承载的QPS'
+      }
+      return '请根据压测或评估结果，输入该集群单机最大承载能力'
+    },
+    benchmarkQpsLabel() {
+      if (this.rule.metric_name === 'qps') {
+        return '单机QPS'
+      }
+      return '单机MetricQPS'
+    },
+    benchmarkPlaceholder() {
+      if (this.rule.metric_name === 'qps') {
+        return '请输入QPS值'
+      }
+      return '请输入单机MetricQPS'
     }
   },
   mounted() {
@@ -181,6 +281,7 @@ export default {
     },
     async fetchData() {
       this.rule = await getPredictRule(this.$route.params.rule_id)
+      this.switchStatus = this.rule.status === 'enable'
     },
     changeStatus() {
       this.rule.status = this.rule.status === 'enable' ? 'disable' : 'enable'
@@ -216,6 +317,7 @@ export default {
       const data = {
         ...this.rule,
         cluster_name: 'default',
+        status: this.switchStatus ? 'enable' : 'disable',
         service_name: this.$route.params.service_name,
         benchmark_qps: +this.rule.benchmark_qps,
         min_redundancy: +this.rule.min_redundancy,
@@ -302,6 +404,25 @@ export default {
       display: flex;
       align-items: center;
       font-size: 13px;
+    }
+  }
+  .rule-formula {
+    margin-top: 15px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    .formula {
+      margin: 0 5px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      .dividend {
+        border-bottom: solid 1px black;
+      }
+      .divisor {
+        width: 100%;
+        text-align: center;
+      }
     }
   }
 </style>

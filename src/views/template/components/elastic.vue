@@ -2,16 +2,16 @@
   <div>
     <el-dialog title="执行扩缩容" :visible="dialogVisible" width="40%" @close="cancelDialog">
       <el-form
-          ref="dialogForm"
-          :model="dialogForm"
-          label-width="100px"
-          label-position="right"
-          :rules="rules"
+        ref="dialogForm"
+        :model="dialogForm"
+        label-width="100px"
+        label-position="right"
+        :rules="rules"
       >
         <el-form-item label="执行集群">
-<!--          <el-select v-model="dialogForm.cluster" size="mini">-->
-<!--            <el-option v-for="(c, idx) in clusters" :key="idx" :label="c.bridgx_cluster" :value="c" />-->
-<!--          </el-select>-->
+          <!--          <el-select v-model="dialogForm.cluster" size="mini">-->
+          <!--            <el-option v-for="(c, idx) in clusters" :key="idx" :label="c.bridgx_cluster" :value="c" />-->
+          <!--          </el-select>-->
           {{ cluster.bridgx_cluster }}
         </el-form-item>
         <el-form-item label="操作动作">
@@ -34,46 +34,38 @@
             <el-radio label="redundancy" disabled>按冗余度</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="冗余度" v-show="dialogForm.expandType === 'redundancy'">
+        <el-form-item v-show="dialogForm.expandType === 'redundancy'" label="冗余度">
           <el-slider
-              style="width: 80%"
-              :format-tooltip="format"
-              v-model="dialogForm.redundancy"
-              :min="100"
-              :max="300"
-              :marks="marks">
-          </el-slider>
+            v-model="dialogForm.redundancy"
+            style="width: 80%"
+            :format-tooltip="format"
+            :min="100"
+            :max="300"
+            :marks="marks"
+          />
         </el-form-item>
-        <el-form-item label="操作台数" v-show="dialogForm.expandType === 'instanceNum'">
+        <el-form-item v-show="dialogForm.expandType === 'instanceNum'" label="操作台数">
           <el-radio-group v-if="dialogForm.operateType === 'expand'" v-model="dialogForm.operateCount" size="mini">
             <el-radio-button
-                v-for="item in numRadios"
-                :key="item.label"
-                :label="item.label"
+              v-for="item in numRadios"
+              :key="item.label"
+              :label="item.label"
             >{{ item.name }}</el-radio-button>
           </el-radio-group>
           <el-radio-group v-else v-model="dialogForm.operateCount" size="mini">
             <el-radio-button
-                v-for="item in shrinkNumRadios"
-                :key="item.label"
-                :label="item.label"
+              v-for="item in shrinkNumRadios"
+              :key="item.label"
+              :label="item.label"
             >{{ item.name }}</el-radio-button>
           </el-radio-group>
-          <el-radio-group v-else v-model="dialogForm.operateCount" size="mini">
-            <el-radio-button
-                v-for="item in shrinkNumRadios"
-                :key="item.label"
-                :label="item.label"
-            >{{ item.name }}</el-radio-button>
-          </el-radio-group>
-
           <div>
             其他：
             <el-input
-                v-model="dialogForm.otherNum"
-                prop="otherNum"
-                size="mini"
-                style="width: 80px"
+              v-model="dialogForm.otherNum"
+              prop="otherNum"
+              size="mini"
+              style="width: 80px"
             />
             台
           </div>
@@ -103,18 +95,6 @@ export default {
       require: true
     }
   },
-  computed: {
-    shrinkDisabled() {
-      return this.cluster.instance_count === 0
-    },
-    shrinkNumRadios() {
-      const nums = [...this.shrinkNums.filter(i => i < this.cluster.instance_count), this.cluster.instance_count]
-      return nums.map(i => ({
-        label: i,
-        name: `-${i}`
-      }))
-    }
-  },
   data() {
     return {
       rules: {
@@ -128,7 +108,7 @@ export default {
         otherNum: '',
         operateCount: 0,
         expandType: 'instanceNum',
-        redundancy: 200,
+        redundancy: 200
       },
       format: (val) => `${val}%`,
       clusters: [],
@@ -170,13 +150,25 @@ export default {
         154: {
           label: this.$createElement('span', '当前冗余度: 154%')
         }
-      },
+      }
+    }
+  },
+  computed: {
+    shrinkDisabled() {
+      return this.cluster.instance_count === 0
+    },
+    shrinkNumRadios() {
+      const nums = [...this.shrinkNums.filter(i => i < this.cluster.instance_count), this.cluster.instance_count]
+      return nums.map(i => ({
+        label: i,
+        name: `-${i}`
+      }))
     }
   },
   methods: {
     async submitDialog() {
       if (
-          this.dialogForm.operateCount === 0 &&
+        this.dialogForm.operateCount === 0 &&
           this.dialogForm.otherNum === 0
       ) {
         this.$message.info('操作台数为0')
@@ -184,8 +176,8 @@ export default {
       }
       const count =
           this.dialogForm.otherNum === ''
-              ? this.dialogForm.operateCount
-              : this.dialogForm.otherNum
+            ? this.dialogForm.operateCount
+            : this.dialogForm.otherNum
       const params = {
         service_cluster_id: this.cluster.service_cluster_id,
         count: Number(count)
@@ -214,7 +206,7 @@ export default {
     },
     cancelDialog() {
       this.$emit('close')
-    },
+    }
   }
 }
 </script>

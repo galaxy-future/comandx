@@ -95,10 +95,10 @@ export async function disablePredictRule(id) {
   return _.get(res, 'data.status')
 }
 
-export async function redundancyQps(service_name, cluster_name, begin, end) {
+export async function queryRedundancyMetric(metric_name, service_name, cluster_name, begin, end) {
   const token = getToken()
   const res = await http({
-    url: '/api/v1/query/redundancy/qps_average',
+    url: `/api/v1/query/metric/redundancy/${metric_name}`,
     params: {
       service_name,
       cluster_name,
@@ -112,10 +112,10 @@ export async function redundancyQps(service_name, cluster_name, begin, end) {
   return _.get(res, 'data.data.clusters')
 }
 
-export async function redundancyInstanceCount(service_name, cluster_name, begin, end) {
+export async function queryInstanceCountMetric(metric_name, service_name, cluster_name, begin, end) {
   const token = getToken()
   const res = await http({
-    url: '/api/v1/query/redundancy/instance_count',
+    url: `/api/v1/query/metric/instance_count/${metric_name}`,
     params: {
       service_name,
       cluster_name,
@@ -129,10 +129,10 @@ export async function redundancyInstanceCount(service_name, cluster_name, begin,
   return _.get(res, 'data.data.clusters')
 }
 
-export async function redundancyQpsTotal(service_name, cluster_name, begin, end) {
+export async function queryLoadMetric(metric_name, service_name, cluster_name, begin, end) {
   const token = getToken()
   const res = await http({
-    url: '/api/v1/query/redundancy/qps_total',
+    url: `/api/v1/query/metric/load/${metric_name}`,
     params: {
       service_name,
       cluster_name,

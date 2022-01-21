@@ -4,17 +4,22 @@
       服务监控 - {{ $route.params.service_name }}
       <div style="margin-top: 20px">
         冗余度走势
-        <line-chart :timestamps="redundancy.timestamp" :values="redundancy.val" :mark-line="redundancyLimit" type="冗余度"></line-chart>
+        <line-chart :timestamps="redundancy.timestamp" :values="redundancy.val" :mark-line="redundancyLimit" type="冗余度" />
       </div>
       <div style="margin-top: 20px">
-        QPS
-        <line-chart :timestamps="qps.timestamp" :values="qps.val" type="QPS"></line-chart>
+        {{ qpsName }}
+        <line-chart :timestamps="qps.timestamp" :values="qps.val" :type="qpsName" />
       </div>
       <div style="margin-top: 20px">
         机器数
-        <line-chart :timestamps="instanceCount.timestamp" :values="instanceCount.val" type="机器数"></line-chart>
+        <line-chart :timestamps="instanceCount.timestamp" :values="instanceCount.val" type="机器数" />
       </div>
-      服务扩缩记录
+      <div style="height: 30px; line-height: 30px">
+        服务扩缩记录
+        <div style="float: right">
+          <el-button size="mini" type="primary" @click="getList">刷新</el-button>
+        </div>
+      </div>
       <el-table v-loading="listLoading" :data="historyList" border size="medium">
         <el-table-column label="执行结果" align="center">
           <template slot-scope="{ row }">
@@ -31,7 +36,7 @@
             {{ row.task_exec_type === "manual" ? "手动执行" : "自动化" }}
           </template>
         </el-table-column>
-        <el-table-column label="执行动作" align="center" >
+        <el-table-column label="执行动作" align="center">
           <template slot-scope="{ row }">
             <span>{{ row.schedule_type === "expand" ? "扩容" : "缩容" }}</span>
           </template>
@@ -42,18 +47,18 @@
             <span style="color: red">{{ row.fail_count }}</span> / <span>{{ row.success_count }}</span> / <span>{{ row.total_count }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="发生时间" align="center" >
+        <el-table-column label="发生时间" align="center">
           <template slot-scope="{ row }">
             {{ row.begin_at }}
           </template>
         </el-table-column>
       </el-table>
       <pagination
-          v-show="total > 0"
-          :total="total"
-          :page.sync="query.page_num"
-          :limit.sync="query.page_size"
-          @pagination="getList"
+        v-show="total > 0"
+        :total="total"
+        :page.sync="query.page_num"
+        :limit.sync="query.page_size"
+        @pagination="getList"
       />
     </div>
   </div>
@@ -65,13 +70,16 @@ import echarts from 'echarts'
 import LineChart from '@/components/chart/LineChart'
 import Pagination from '@/components/Pagination'
 import { getHistoryList, serviceClusterList } from '@/api/service'
-import { redundancyQps, redundancyInstanceCount, redundancyQpsTotal, getPredictRuleList } from '@/api/cube'
+import {
+  getPredictRuleList,
+  queryLoadMetric, queryInstanceCountMetric, queryRedundancyMetric
+} from '@/api/cube'
 import _ from 'lodash'
 export default {
   name: 'Monitor',
   components: {
     LineChart,
-    Pagination,
+    Pagination
   },
   data() {
     return {
@@ -113,12 +121,14 @@ export default {
       cluster: {},
       clusters: [],
       listLoading: false,
-      interval: null
+      interval: null,
+      qpsName: 'QPS'
     }
   },
-  mounted() {
-    this.getList()
-    this.interval = setInterval(this.getList, 15000)
+  async mounted() {
+    await this.getList()
+    await this.intervalLoad()
+    this.interval = setInterval(this.intervalLoad, 10000)
     echarts.connect('group1')
   },
   beforeDestroy() {
@@ -127,12 +137,6 @@ export default {
   methods: {
     async getList() {
       this.listLoading = true
-      const rRes = await getPredictRuleList(this.$route.params.service_name, this.cluster.bridgx_cluster, 1, 50)
-      const rule = _.get(rRes, 'predict_rule_list').find(i => i.metric_name === 'qps')
-      this.redundancyLimit = {
-        min: _.isEmpty(rule) ? null : rule.min_redundancy / 100,
-        max: _.isEmpty(rule) ? null : rule.max_redundancy / 100
-      }
       const cRes = await serviceClusterList(this.$route.params.service_name)
       this.clusters = _.get(cRes, 'cluster_list', [])
       if (_.isEmpty(this.$route.query.cluster)) {
@@ -145,18 +149,34 @@ export default {
         service_cluster_id: this.cluster.service_cluster_id,
         service_name: this.$route.params.service_name
       }
-      await this.loadChartData()
       const res = await getHistoryList(params)
       this.historyList = _.get(res, 'schedule_task_list', [])
       this.total = res.pager.total
       this.listLoading = false
     },
-    async loadChartData() {
+    async intervalLoad() {
+      const rRes = await getPredictRuleList(this.$route.params.service_name, undefined, 1, 50)
+      this.redundancyLimit = {
+        min: _.isEmpty(rule) ? null : rule.min_redundancy / 100,
+        max: _.isEmpty(rule) ? null : rule.max_redundancy / 100
+      }
+      const rule = _.get(rRes, 'predict_rule_list.0')
+      if (!_.isEmpty(rule)) {
+        await this.loadChartData(rule.metric_name)
+      }
+    },
+    loadChartData(metric_name) {
+      if (metric_name === 'qps_section_factor') {
+        this.qpsName = 'MetricQPS'
+      }
       const begin = Moment().subtract(30, 'minutes')
       const end = Moment()
-      const qps = await redundancyQpsTotal(this.$route.params.service_name, this.cluster.service_cluster, this.formatTime(begin), this.formatTime(end))
-      const instanceCount = await redundancyInstanceCount(this.$route.params.service_name, this.cluster.service_cluster, this.formatTime(begin), this.formatTime(end))
-      const redundancy = await redundancyQps(this.$route.params.service_name, this.cluster.service_cluster, this.formatTime(begin), this.formatTime(end))
+      this.getQps(begin, end, metric_name)
+      this.getInstanceCount(begin, end, metric_name)
+      this.getRedundancy(begin, end, metric_name)
+    },
+    async getQps(begin, end, metric_name) {
+      const qps = await queryLoadMetric(metric_name, this.$route.params.service_name, this.cluster.service_cluster, this.formatTime(begin), this.formatTime(end))
       this.qps = {
         timestamp: qps ? _.get(qps, '0.timestamps', []).map(i => i * 1000) : [],
         val: {
@@ -164,6 +184,9 @@ export default {
           data: qps ? _.get(qps, '0.values', []) : []
         }
       }
+    },
+    async getInstanceCount(begin, end, metric_name) {
+      const instanceCount = await queryInstanceCountMetric(metric_name, this.$route.params.service_name, this.cluster.service_cluster, this.formatTime(begin), this.formatTime(end))
       this.instanceCount = {
         timestamp: instanceCount ? _.get(instanceCount, '0.timestamps', []).map(i => i * 1000) : [],
         val: {
@@ -171,6 +194,9 @@ export default {
           data: instanceCount ? _.get(instanceCount, '0.values', []) : []
         }
       }
+    },
+    async getRedundancy(begin, end, metric_name) {
+      const redundancy = await queryRedundancyMetric(metric_name, this.$route.params.service_name, this.cluster.service_cluster, this.formatTime(begin), this.formatTime(end))
       this.redundancy = {
         timestamp: redundancy ? _.get(redundancy, '0.timestamps', []).map(i => i * 1000) : [],
         val: {
@@ -180,7 +206,7 @@ export default {
       }
     },
     formatTime(time) {
-      return +(+time/1000).toFixed()
+      return +(+time / 1000).toFixed()
     }
   }
 }

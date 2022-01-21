@@ -75,8 +75,14 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.timestamps, this.values, this.markLine)
     },
-    formatValue(value) {
-      return value.toFixed(2)
+    formatValue(type, value) {
+      if (type === '冗余度') {
+        return value.toFixed(2)
+      }
+      if (type === 'MetricQPS') {
+        return value.toFixed(0)
+      }
+      return value
     },
     setOptions(timestamps, values, markLine) {
       const data = _.zip(timestamps, values.data)
@@ -118,7 +124,7 @@ export default {
           triggerOn: 'none',
           enterable: true,
           formatter: (params) => {
-            const value = this.type === '冗余度' ? this.formatValue(params[0].value[1]) : params[0].value[1]
+            const value = this.formatValue(this.type, params[0].value[1])
             return `${Moment(+params[0].axisValue).format('YYYY-MM-DD')}<br>${Moment(+params[0].axisValue).format('HH:mm:ss')}<br>${params[0].marker}${this.type}:${value}`
           },
           padding: [5, 10]
@@ -144,7 +150,7 @@ export default {
               }
             }
           },
-          smooth: true,
+          smooth: false,
           type: 'line',
           symbol: 'circle',
           data,
@@ -158,12 +164,12 @@ export default {
       }
       if (this.type === '冗余度') {
         options.yAxis.axisLabel = {
-          formatter: this.formatValue
+          formatter: (v) => v.toFixed(2)
         }
       }
       if (markLine !== null && markLine.min !== null && markLine.max !== null && values.data.length !== 0) {
         options.series[0].markLine = {
-          symbol:'none',
+          symbol: 'none',
           data: [{
             lineStyle: {
               color: '#FD0202DA',
@@ -171,7 +177,7 @@ export default {
             },
             label: {
               position: 'middle',
-              formatter:'冗余下限'
+              formatter: '冗余下限'
             },
             yAxis: markLine.min
           }, {
@@ -181,7 +187,7 @@ export default {
             },
             label: {
               position: 'middle',
-              formatter:'冗余上限'
+              formatter: '冗余上限'
             },
             yAxis: markLine.max
           }]

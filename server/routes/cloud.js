@@ -253,4 +253,61 @@ routerApi.get('/image/list', async(ctx) => {
   }
 })
 
+routerApi.post('/network_config/sync', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getHost()}${prefix}/network_config/sync`,
+      method: 'POST',
+      body: ctx.request.body,
+      json: true
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.get('/vpc/info/:id', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getHost()}${prefix}/vpc/info/${ctx.params.id}`,
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.get('/subnet/info/:id', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getHost()}${prefix}/subnet/info/${ctx.params.id}`,
+      qs: ctx.query
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.get('/security_group/:id/rules', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getHost()}${prefix}/security_group/${ctx.params.id}/rules`,
+      qs: ctx.query
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
 module.exports = routerApi

@@ -129,7 +129,6 @@
       title="服务创建成功"
       :visible="tipDialogVisible"
       width="20%"
-      @close="cancel"
     >
       <div style="text-align:center">
         <svg-icon
@@ -157,13 +156,11 @@
 <script>
 import { languages } from '@/config/service'
 import { getTemplateList, serviceCreate } from '@/api/service'
-import createPng from '@/assets/create.png'
 import _ from 'lodash'
 export default {
   name: 'ServiceCreate',
   data() {
     return {
-      createPng: createPng,
       form: {
         service_info: {
           service_name: '',
@@ -268,13 +265,13 @@ export default {
         try {
           if (valid && this.serviceNameValidate) {
             this.form.decision_rule.metric_value = Number(
-                this.form.decision_rule.metric_value
+              this.form.decision_rule.metric_value
             )
             this.form.decision_rule.redundancy = Number(
-                this.form.decision_rule.redundancy
+              this.form.decision_rule.redundancy
             )
             this.form.decision_rule.expand_size = Number(
-                this.form.decision_rule.expand_size
+              this.form.decision_rule.expand_size
             )
             const res = await serviceCreate(this.form)
             if (res.data.code === 200) {
@@ -307,7 +304,11 @@ export default {
     goTemplateCreate() {
       this.clearTimer()
       this.$router.push({
-        path: `/service/${this.form.service_info.service_name}/${this.serviceClusterId}/template-create`
+        name: 'templateCreate',
+        params: {
+          service_name: this.form.service_info.service_name,
+          service_cluster_id: this.serviceClusterId
+        }
       })
     },
     goServiceList() {

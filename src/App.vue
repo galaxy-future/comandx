@@ -29,4 +29,13 @@ export default {
 ::-webkit-scrollbar-thumb:window-inactive {
   background: rgb(202, 202, 203);
 }
+/* fix el-table for safari*/
+.el-table__body {
+  width: 100%;
+  table-layout: fixed !important;
+}
+
+.el-tooltip__popper.is-light {
+  border-color: #d6d8da !important;
+}
 </style>

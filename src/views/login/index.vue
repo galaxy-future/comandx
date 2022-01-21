@@ -159,8 +159,9 @@ $cursor: #fff;
       caret-color: $cursor;
 
       &:-webkit-autofill {
-        box-shadow: 0 0 0px 1000px $bg inset !important;
         -webkit-text-fill-color: $cursor !important;
+        -webkit-transition-delay: 99999s;
+        -webkit-transition: color 99999s ease-out, background-color 99999s ease-out;
       }
     }
   }

@@ -23,7 +23,7 @@
             <el-row>
               <el-col
                 :span="5"
-              ><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>关联模板</div></el-col>
+              ><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>关联集群</div></el-col>
               <el-col :span="19">
                 <el-select v-model="form.tmpl_info.bridgx_clusname" size="medium" placeholder="请选择">
                   <el-option
@@ -45,7 +45,6 @@
                   size="medium"
                   placeholder="请输入模板名称"
                   maxlength="20"
-                  show-word-limit
                 />
               </el-col>
             </el-row>
@@ -53,9 +52,10 @@
               <el-col :span="5"><div style="height: 16px" /></el-col>
               <el-col
                 :span="19"
-              ><div class="note">
+              ><div class="note" :class="{ 'text-red': !tmplNameValidate }">
                 支持中文、英文、数字，限制20字符
-              </div></el-col>
+              </div>
+              </el-col>
             </el-row>
           </div>
           <div class="form-container">
@@ -67,10 +67,11 @@
                   type="textarea"
                   :rows="3"
                   size="medium"
-                  placeholder="请输入模板描述"
-                  maxlength="500"
-                  show-word-limit
+                  placeholder="请输入模板描述, 限制32字符(一个汉字占两字符)"
                 />
+                <div class="note text-red" v-show="templateDescNumUltraLimit">
+                  限制32字符(一个汉字占两字符)
+                </div>
               </el-col>
             </el-row>
           </div>
@@ -141,6 +142,17 @@
 
           <div class="form-container">
             <el-row>
+              <el-col :span="5"><div style="height: 16px" /></el-col>
+              <el-col
+                :span="19"
+              ><div class="note">
+                在拉取私有镜像或者上传镜像前，需要docker login输入您的凭证信息，请设置用户名和密码作为访问凭证
+              </div></el-col>
+            </el-row>
+          </div>
+
+          <div class="form-container">
+            <el-row>
               <el-col :span="5"><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>用户名</div></el-col>
               <el-col :span="19">
                 <el-input
@@ -186,6 +198,7 @@
                 </div></el-col>
             </el-row>
           </div>
+
           <div class="form-container">
             <el-row>
               <el-col :span="5"><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>服务端口</div></el-col>
@@ -245,50 +258,54 @@
         </div>
       </div>
       <div class="buttons">
-        <div class="step-buttons"><el-button
-                                    v-if="step !== 0"
-                                    type="primary"
-                                    style="margin-top: 12px"
-                                    size="medium"
-                                    @click="previous"
-                                  >上一步</el-button>
+        <div class="step-buttons">
+          <el-button
+            v-if="step !== 0"
+            type="primary"
+            style="margin-top: 12px"
+            size="medium"
+            @click="previous"
+          >上一步</el-button>
           <el-button
             v-if="step !== 3"
             type="primary"
             style="margin-top: 12px"
             size="medium"
             @click="next"
-          >下一步</el-button></div>
-        <div class="submit-buttons"><el-button
-                                      type="primary"
-                                      style="margin-top: 12px"
-                                      size="medium"
-                                      @click="submit"
-                                    >完成</el-button>
+            :disabled="templateDescNumUltraLimit"
+          >下一步</el-button>
+        </div>
+        <div class="submit-buttons">
+          <el-button
+            type="primary"
+            style="margin-top: 12px"
+            size="medium"
+            @click="submit"
+          >完成</el-button>
           <el-button
             style="margin-top: 12px"
             size="medium"
             type="info"
             plain
             @click="cancel"
-          >取消</el-button></div>
-
+          >取消</el-button>
+        </div>
       </div>
     </div>
-
   </div>
 </template>
 
 <script>
-import { getBridgXClusterList, getTemplateInfo, templateUpdate
+import {
+  templateCreate, getBridgXClusterList, getTemplateInfo, templateUpdate
 } from '@/api/service'
+import { validInput, validInputCount } from '@/utils/validate'
 
 export default {
   name: 'Create',
   data() {
     return {
       form: {
-        tmpl_expand_id: '',
         service_name: '',
         tmpl_info: {
           tmpl_name: '',
@@ -317,6 +334,18 @@ export default {
       bridgXCluster: []
     }
   },
+  computed: {
+    tmplNameValidate() {
+      if (this.form.tmpl_info.tmpl_name === '') {
+        return true
+      }
+      const res = validInput(this.form.tmpl_info.tmpl_name)
+      return res.type && res.count <= 20
+    },
+    templateDescNumUltraLimit() {
+      return this.step === 0 && validInputCount(this.form.tmpl_info.describe) > 32
+    }
+  },
   created() {
     this.step = 0
     this.loadData()
@@ -332,35 +361,6 @@ export default {
       if (this.step++ > 3) this.step = 0
     },
     validate() {
-      if (this.form.tmpl_info === null) {
-        this.form.tmpl_info = {
-          tmpl_name: '',
-          describe: '',
-          service_cluster_id: '',
-          bridgx_clusname: ''
-        }
-      }
-      if (this.form.base_env === null) {
-        this.form.base_env = {
-          is_container: true
-        }
-      }
-      if (this.form.service_env === null) {
-        this.form.service_env = {
-          image_storage_type: 'acr',
-          image_url: '',
-          port: '',
-          cmd: '',
-          account: '',
-          password: ''
-        }
-      }
-      if (this.form.mount === null) {
-        this.form.mount = {
-          mount_type: 'SLB',
-          mount_value: ''
-        }
-      }
       if (this.step === 0) {
         if (this.form.tmpl_info.bridgx_clusname === '') {
           this.$message.warning('请选择关联模板')
@@ -368,6 +368,14 @@ export default {
         }
         if (this.form.tmpl_info.tmpl_name === '') {
           this.$message.warning('请输入模板名称')
+          return false
+        }
+        if (!this.tmplNameValidate) {
+          this.$message.warning('模板名称不合规')
+          return false
+        }
+        if (this.templateDescNumUltraLimit) {
+          this.$message.warning('模板描述字符超限')
           return false
         }
       }
@@ -402,16 +410,27 @@ export default {
       return true
     },
     loadData() {
-      this.form.tmpl_expand_id = this.$route.params.tmpl_expand_id
+      if (this.$route.name === 'templateCreate') {
+        this.form.service_name = this.$route.params.service_name
+        this.form.tmpl_info.service_cluster_id = this.$route.params.service_cluster_id
+        if (this.form.service_name === '' || this.form.tmpl_info.service_cluster_id === '') {
+          this.$message.error('路由参数错误')
+        }
+      } else {
+        this.form.tmpl_expand_id = this.$route.params.tmpl_expand_id
+        this.loadTemplateInfo()
+      }
       this.loadBridgXCluster()
-      this.loadTemplateInfo()
     },
     async loadTemplateInfo() {
       const params = {
         tmpl_expand_id: this.form.tmpl_expand_id
       }
       const res = await getTemplateInfo(params)
-      this.form = res
+      this.form.tmpl_info = res.tmpl_info || this.form.tmpl_info
+      this.form.base_env = res.base_env || this.form.base_env
+      this.form.service_env = res.service_env || this.form.service_env
+      this.form.mount = res.mount || this.form.mount
       this.form.service_name = this.$route.params.service_name
     },
     async loadBridgXCluster() {
@@ -440,15 +459,26 @@ export default {
       if (this.step === 3) {
         this.form.end_step = 'mount'
       }
-      this.form.tmpl_expand_id = Number(this.$route.params.tmpl_expand_id)
       this.form.tmpl_info.service_cluster_id = Number(this.form.tmpl_info.service_cluster_id)
       this.form.service_env.port = Number(this.form.service_env.port)
-      const res = await templateUpdate(this.form)
-      if (res.data.code === 200) {
-        this.$message.success('编辑成功')
-        this.$router.push({ path: `/service/${this.form.service_name}/${this.form.tmpl_info.service_cluster_id}/template` })
-      } else {
-        this.$message.error('编辑失败')
+      if (this.$route.name === 'templateEdit') {
+        this.form.tmpl_expand_id = Number(this.$route.params.tmpl_expand_id)
+        const res = await templateUpdate(this.form)
+        if (res.data.code === 200) {
+          this.$message.success('编辑成功')
+          this.$router.push({ path: `/service/${this.form.service_name}/${this.form.tmpl_info.service_cluster_id}/template` })
+        } else {
+          this.$message.error('编辑失败')
+        }
+      }
+      if (this.$route.name === 'templateCreate') {
+        const res = await templateCreate(this.form)
+        if (res.data.code === 200) {
+          this.$message.success('创建成功')
+          this.$router.push({ path: `/service/${this.form.service_name}/${this.form.tmpl_info.service_cluster_id}/template` })
+        } else {
+          this.$message.error('创建失败')
+        }
       }
     },
     cancel() {
@@ -511,6 +541,9 @@ export default {
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
+  }
+  .text-red {
+    color: red !important;
   }
 }
 </style>

@@ -1,7 +1,7 @@
 <template>
   <div>
     <div>
-      <el-button size="medium" type="primary" @click="createRule" :disabled="list.length > 0">+创建规则</el-button>
+      <el-button size="medium" type="primary" :disabled="list.length > 0 || tmplExpandId === 0" @click="createRule">+创建规则</el-button>
       <el-button size="medium" :disabled="selection.length !== 1" @click="editRule">编辑</el-button>
       <el-button size="medium" :disabled="selection.length < 1" @click="deleteRules" >删除</el-button>
     </div>
@@ -46,6 +46,12 @@ import { serviceClusterList } from '@/api/service'
 export default {
   name: 'RuleList',
   components: {},
+  props: {
+    tmplExpandId: {
+      type: Number,
+      required: true
+    }
+  },
   data() {
     return {
       list: [],

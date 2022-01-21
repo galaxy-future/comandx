@@ -101,7 +101,7 @@
           </el-table-column> -->
           <el-table-column label="操作" align="center">
             <template slot-scope="{ row }">
-              <el-button type="text" @click="transferTo('serviceMonitor', row)" :disabled="row.tmpl_expand_id === '' || row.tmpl_expand_id === 0">
+              <el-button type="text" :disabled="row.tmpl_expand_id === '' || row.tmpl_expand_id === 0" @click="transferTo('serviceMonitor', row)">
                 服务监控
               </el-button>
               <el-button
@@ -167,38 +167,38 @@
           <span style="display: inline-block; margin-left: 15px">{{ dialogForm.cluster.provider | filterCloudProvider }}-{{ dialogForm.cluster.charge_type | parsePaidType }}-{{ dialogForm.cluster.computing_power_type }}</span>
           <span style="display: inline-block; margin-left: 15px">运行中<span style="color: red">{{ dialogForm.cluster.instance_count }}</span>台</span>
         </el-form-item>
-<!--        <el-form-item label="自动扩缩容">-->
-<!--          停用-->
-<!--        </el-form-item>-->
+        <!--        <el-form-item label="自动扩缩容">-->
+        <!--          停用-->
+        <!--        </el-form-item>-->
         <el-form-item label="扩容方式">
           <el-radio-group v-model="dialogForm.expandType">
             <el-radio label="instanceNum">按机器数</el-radio>
             <el-radio label="redundancy" disabled>按冗余度</el-radio>
           </el-radio-group>
         </el-form-item>
-        <el-form-item label="冗余度" v-show="dialogForm.expandType === 'redundancy'">
+        <el-form-item v-show="dialogForm.expandType === 'redundancy'" label="冗余度">
           <el-slider
-              style="width: 80%"
-              :format-tooltip="format"
-              v-model="dialogForm.redundancy"
-              :min="100"
-              :max="300"
-              :marks="marks">
-          </el-slider>
+            v-model="dialogForm.redundancy"
+            style="width: 80%"
+            :format-tooltip="format"
+            :min="100"
+            :max="300"
+            :marks="marks"
+          />
         </el-form-item>
-        <el-form-item label="操作台数" v-show="dialogForm.expandType === 'instanceNum'">
+        <el-form-item v-show="dialogForm.expandType === 'instanceNum'" label="操作台数">
           <el-radio-group v-if="dialogForm.operateType === 'expand'" v-model="dialogForm.operateCount" size="mini">
             <el-radio-button
-                v-for="item in numRadios"
-                :key="item.label"
-                :label="item.label"
+              v-for="item in numRadios"
+              :key="item.label"
+              :label="item.label"
             >{{ item.name }}</el-radio-button>
           </el-radio-group>
           <el-radio-group v-else v-model="dialogForm.operateCount" size="mini">
             <el-radio-button
-                v-for="item in shrinkNumRadios"
-                :key="item.label"
-                :label="item.label"
+              v-for="item in shrinkNumRadios"
+              :key="item.label"
+              :label="item.label"
             >{{ item.name }}</el-radio-button>
           </el-radio-group>
           <div>
@@ -241,7 +241,7 @@ import {
   getServiceList,
   serviceExpand,
   serviceShrink,
-  serviceDelete,
+  // serviceDelete,
   serviceEdit,
   getTemplateList,
   serviceClusterList
@@ -337,7 +337,7 @@ export default {
         otherNum: '',
         operateCount: 0,
         expandType: 'instanceNum',
-        redundancy: 200,
+        redundancy: 200
       },
       format: (val) => `${val}%`,
       editServiceDialogForm: {
@@ -345,7 +345,7 @@ export default {
       },
       currentRowServiceClusterId: '',
       currentRowServiceName: '',
-      shrinkNums: [1, 5, 10, 50, 100, 200],
+      shrinkNums: [1, 5, 10, 50, 100, 200]
     }
   },
   computed: {

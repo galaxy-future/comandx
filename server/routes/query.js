@@ -7,13 +7,13 @@ const routerApi = new Router({
   prefix
 })
 
-routerApi.get('/redundancy/qps_average', async(ctx) => {
+routerApi.get('/metric/redundancy/:metric_name', async(ctx) => {
   try {
     ctx.body = await request({
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `${host.getCudgxHost()}${prefix}/redundancy/qps_average`,
+      url: `${host.getCudgxHost()}${prefix}/metric/redundancy/${ctx.params.metric_name}`,
       qs: ctx.query,
       json: true
     })
@@ -22,13 +22,13 @@ routerApi.get('/redundancy/qps_average', async(ctx) => {
   }
 })
 
-routerApi.get('/redundancy/instance_count', async(ctx) => {
+routerApi.get('/metric/instance_count/:metric_name', async(ctx) => {
   try {
     ctx.body = await request({
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `${host.getCudgxHost()}${prefix}/redundancy/instance_count`,
+      url: `${host.getCudgxHost()}${prefix}/metric/instance_count/${ctx.params.metric_name}`,
       qs: ctx.query,
       json: true
     })
@@ -37,13 +37,13 @@ routerApi.get('/redundancy/instance_count', async(ctx) => {
   }
 })
 
-routerApi.get('/redundancy/qps_total', async(ctx) => {
+routerApi.get('/metric/load/:metric_name', async(ctx) => {
   try {
     ctx.body = await request({
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `${host.getCudgxHost()}${prefix}/redundancy/qps_total`,
+      url: `${host.getCudgxHost()}${prefix}/metric/load/${ctx.params.metric_name}`,
       qs: ctx.query,
       json: true
     })

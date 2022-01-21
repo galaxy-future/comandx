@@ -79,13 +79,16 @@
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="{row}">
-              <el-button type="text" @click="transfer(row)">扩缩容</el-button>
+              <el-button type="text" @click="elastic(row)">扩缩容</el-button>
             </template>
           </el-table-column>
         </el-table>
         <pagination v-show="total>0" :total="total" :page.sync="listQuery.page_number" :limit.sync="listQuery.page_size" @pagination="fetchData" />
       </div>
     </div>
+    <el-dialog title="扩缩容" :visible="elasticDialogVisible" @close="closeElastic">
+      <create-once-task :cluster-name="elasticCluster" @close="closeElastic" />
+    </el-dialog>
   </div>
 </template>
 
@@ -143,11 +146,12 @@ import { cloudAccountList } from '@/api/cloud'
 import { cloudProviders } from '@/config/cloud'
 import Pagination from '@/components/Pagination'
 import loadMore from '@/directive/el-select-load-more'
+import CreateOnceTask from '@/views/elasticTask/component/createOnceTaskTemplate'
 import _ from 'lodash'
 
 export default {
   name: 'Cluster',
-  components: { Pagination },
+  components: { Pagination, CreateOnceTask },
   filters: {
     statusFilter(status) {
       const statusMap = {
@@ -203,7 +207,9 @@ export default {
       accountQuery: {
         page_number: 1,
         page_size: 50
-      }
+      },
+      elasticDialogVisible: false,
+      elasticCluster: ''
     }
   },
   created() {
@@ -255,8 +261,12 @@ export default {
     gotoInfo(name) {
       this.$router.push({ name: 'clusterInfo', params: { name }})
     },
-    transfer(cluster) {
-      this.$router.push({ name: 'createOnceTask', query: { cluster: cluster.cluster_name } })
+    elastic(cluster) {
+      this.elasticCluster = cluster.cluster_name
+      this.elasticDialogVisible = true
+    },
+    closeElastic() {
+      this.elasticDialogVisible = false
     },
     async handleDelete() {
       try {
