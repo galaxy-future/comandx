@@ -9,6 +9,7 @@ const getDefaultState = () => {
     avatar: '',
     account: '',
     userType: 'COMMON',
+    orgId: null
   }
 }
 
@@ -32,6 +33,9 @@ const mutations = {
   },
   SET_USER_TYPE: (state, type) => {
     state.userType = type
+  },
+  SET_ORG_ID: (state, orgId) => {
+    state.orgId = orgId
   }
 }
 
@@ -41,7 +45,10 @@ const actions = {
     const { username, password } = userInfo
     return new Promise((resolve, reject) => {
       login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
+        const { data, code, msg } = response
+        if (code !== 200) {
+          reject(msg)
+        }
         commit('SET_TOKEN', data)
         setToken(data)
         resolve()
@@ -60,12 +67,12 @@ const actions = {
         if (!data) {
           return reject('Verification failed, please Login again.')
         }
-
-        const { username, user_type } = data
+        const { username, user_type, org_id } = data
         commit('SET_NAME', username)
         // commit('SET_AVATAR', 'https://wpimg.wallstcn.com/f778738c-e4f8-4870-b634-56703b4acafe.gif')
         commit('SET_AVATAR', 'http://mms0.baidu.com/it/u=3585539889,839097986&fm=253&app=138&f=JPEG?w=100&h=100')
         commit('SET_USER_TYPE', user_type)
+        commit('SET_ORG_ID', org_id)
         resolve(data)
       }).catch(error => {
         reject(error)

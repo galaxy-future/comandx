@@ -29,7 +29,7 @@
             <el-row>
               <el-col :span="5"><div class="center-text"><div class="asterisk">*</div>云厂商账户 </div></el-col>
               <el-col :span="19">
-                <el-select v-model="cluster.account_key" v-load-more="loadMore" size="medium" @change="loadZoneAndVpc">
+                <el-select v-model="cluster.account_key" v-load-more="loadMore" size="medium" @change="loadRegion">
                   <el-option v-for="(p, idx) in accounts" :key="idx" :label="p.account_name" :value="p.account">
                     <span>{{ p.account_name }}({{ p.account }})</span>
                   </el-option>

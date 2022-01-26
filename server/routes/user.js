@@ -70,19 +70,19 @@ userRouter.get('/api/v1/user/list', async(ctx) => {
   }
 })
 
-userRouter.post('/api/v1/user/create_ram_user', async(ctx) => {
+userRouter.post('/api/v1/user/create_user', async(ctx) => {
   try {
     ctx.body = await request({
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `${host.getHost()}/api/v1/user/create_ram_user`,
+      url: `${host.getHost()}/api/v1/user/create_user`,
       method: 'POST',
       body: ctx.request.body,
       json: true
     })
   } catch (e) {
-    ctx.bodu = e.error
+    ctx.body = e.error
   }
 })
 
@@ -102,19 +102,64 @@ userRouter.post('/api/v1/user/modify_password', async(ctx) => {
   }
 })
 
-userRouter.post('/api/v1/user/enable_ram_user', async(ctx) => {
+userRouter.post('/api/v1/user/enable_user', async(ctx) => {
   try {
     ctx.body = await request({
       headers: {
         authorization: ctx.header.authorization
       },
-      url: `${host.getHost()}/api/v1/user/enable_ram_user`,
+      url: `${host.getHost()}/api/v1/user/enable_user`,
       method: 'POST',
       body: ctx.request.body,
       json: true
     })
   } catch (e) {
-    ctx.bodu = e.error
+    ctx.body = e.error
+  }
+})
+
+userRouter.get('/api/v1/org/id/:id', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getHost()}/api/v1/org/id/${ctx.params.id}`
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+userRouter.post('/api/v1/org/edit', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getHost()}/api/v1/org/edit`,
+      method: 'POST',
+      body: ctx.request.body,
+      json: true
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+userRouter.post('/api/v1/user/modify_user_type', async(ctx) => {
+  try {
+    ctx.body = await request({
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      url: `${host.getHost()}/api/v1/user/modify_user_type`,
+      method: 'POST',
+      body: ctx.request.body,
+      json: true
+    })
+  } catch (e) {
+    ctx.body = e.error
   }
 })
 

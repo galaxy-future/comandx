@@ -157,3 +157,12 @@ export function formatStorage(storage) {
   }
   return `${storage.toFixed(2)}G`
 }
+
+const userTypes = {
+  ADMIN: '管理员',
+  COMMON: '普通用户',
+  SYSTEM: '未知'
+}
+export function formatUserType(type) {
+  return _.get(userTypes, type, '未知')
+}

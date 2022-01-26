@@ -45,3 +45,19 @@ export function validInput(str) {
     type
   }
 }
+
+export function validInputEnglishAndNumberCount(str) {
+  let count = 0
+  let type = true
+  str.split('').forEach((i) => {
+    if (/[0-9a-zA-Z]/.test(i)) {
+      count++
+    } else {
+      type = false
+    }
+  })
+  return {
+    count,
+    type
+  }
+}

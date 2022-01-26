@@ -268,8 +268,9 @@ export const constantRoutes = [
       path: 'provider',
       name: 'provider',
       component: () => import('@/views/cloudAccount/index'),
-      meta: { title: '云厂商账户', icon: 'cloudAccount' }
-    }]
+      meta: { title: '云厂商账户', icon: 'cloudAccount', isAdmin: true }
+    }],
+    isAdmin: true
   },
   {
     path: '/billing',

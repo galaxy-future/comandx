@@ -37,9 +37,13 @@ export default {
   },
   computed: {
     ...mapGetters([
-      'sidebar'
+      'sidebar',
+      'userType'
     ]),
     routes() {
+      if (this.userType !== 'ADMIN') {
+        return this.$router.options.routes.filter(i => !i.isAdmin)
+      }
       return this.$router.options.routes
     },
     activeMenu() {

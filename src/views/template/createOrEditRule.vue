@@ -45,7 +45,7 @@
               <div slot="content">
                 <div style="width: 330px">
                   MetricQPS度量指标，把不同QPS请求对服务器资源占用时长纳入了考量。该方法将QPS按时长进行分段，每个分段确定与之对应的权重值，进而计算单机最大承载能力<br><br>
-                  <strong>单机metricQPS =（wi权重值 * 分段请求数）/ num机器数</strong>
+                  <strong>单机metricQPS = ∑(wi权重值 * 分段请求数) / num机器数</strong>
                 </div>
               </div>
               <i class="el-icon-question" style="color: green; font-size: 16px; margin-left: 5px; cursor: pointer" />

@@ -52,12 +52,10 @@ router.beforeEach(async(to, from, next) => {
         try {
           // get user info
           await store.dispatch('user/getInfo')
-
           next()
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')
-          Message.error(error || 'Has Error')
           next(`/login?redirect=${to.path}`)
           NProgress.done()
         }
@@ -73,6 +71,12 @@ router.beforeEach(async(to, from, next) => {
       next(`/login?redirect=${to.path}`)
       NProgress.done()
     }
+  }
+
+  // check right
+  if (store.getters.userType !== 'ADMIN' && to.meta.isAdmin) {
+    Message.error('无权限查看页面!')
+    next(from)
   }
 })
 
