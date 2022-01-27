@@ -50,7 +50,7 @@
       <el-row>
         <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>用户名</div></el-col>
         <el-col :span="16">
-          <el-input v-model="userForm.username" placeholder="请输入用户名" style="width: 400px" size="medium" />
+          <el-input v-model="userForm.username" placeholder="请输入用户名" style="width: 80%" size="medium" />
         </el-col>
       </el-row>
       <el-row>
@@ -64,7 +64,7 @@
       <el-row style="margin-top: 10px">
         <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>密码</div></el-col>
         <el-col :span="16">
-          <el-input v-model="userForm.pass" placeholder="请输入密码" style="width: 400px" size="medium" show-password />
+          <el-input v-model="userForm.pass" placeholder="请输入密码" style="width: 80%" size="medium" show-password />
         </el-col>
       </el-row>
       <el-row>
@@ -78,7 +78,7 @@
       <el-row style="margin-top: 10px">
         <el-col :span="8"><div class="center-text"><div class="asterisk">*</div>确认密码</div></el-col>
         <el-col :span="16">
-          <el-input v-model="userForm.checkPass" placeholder="请确认密码" style="width: 400px" size="medium" show-password />
+          <el-input v-model="userForm.checkPass" placeholder="请确认密码" style="width: 80%" size="medium" show-password />
         </el-col>
       </el-row>
       <el-row>
