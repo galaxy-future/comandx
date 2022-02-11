@@ -182,7 +182,6 @@ routerApi.get('/cluster/bridgx/available_clusters', async(ctx) => {
 
 routerApi.post('/cluster', async(ctx) => {
   try {
-    console.log(ctx.request.body)
     ctx.body = await request({
       headers: {
         authorization: ctx.header.authorization

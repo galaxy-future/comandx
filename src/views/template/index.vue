@@ -3,7 +3,7 @@
     <div class="content">
       <div>
         <el-tabs v-model="activeName">
-          <el-tab-pane label="关联集群" name="clusters">
+          <el-tab-pane label="算力资源" name="clusters">
             <el-table
               :data="clusters"
               border
@@ -28,7 +28,8 @@
               <el-table-column label="操作" align="center">
                 <template slot-scope="{ row }">
                   <el-button type="text" @click="goToMonitor(row)">集群监控</el-button>
-                  <el-button type="text" @click="elastic(row)">扩缩容</el-button>
+                  <el-button type="text" :disabled="deploys === null || deploys.length < 1" @click="publishService(row)">发布</el-button>
+                  <el-button type="text" :disabled="templateList === null || templateList.length < 1" @click="elastic(row)">扩缩容</el-button>
                 </template>
               </el-table-column>
             </el-table>
@@ -39,18 +40,18 @@
                 <el-button
                   size="medium"
                   type="primary"
-                  :disabled="total>0"
-                  @click="createTemplate"
-                >+新建</el-button>
+                  @click="createTemplate('expand')"
+                  :disabled="clusters.length > 0"
+                >+创建模板</el-button>
                 <el-button
                   size="medium"
                   :disabled="selectTemplates.length !== 1"
-                  @click="editTemplate"
+                  @click="editTemplate('expand')"
                 >编辑</el-button>
                 <el-button
                   size="medium"
                   :disabled="selectTemplates.length < 1"
-                  @click="confirmDeleteTemplate"
+                  @click="confirmDeleteTemplate('expand')"
                 >删除</el-button>
               </div>
               <div class="table">
@@ -108,8 +109,86 @@
               </div>
             </div>
           </el-tab-pane>
+          <el-tab-pane label="部署模板" name="deploy">
+            <div class="buttons">
+              <el-button
+                size="medium"
+                type="primary"
+                :disabled="clusters.length > 0"
+                @click="createTemplate('deploy')"
+              >+创建模板</el-button>
+              <el-button
+                size="medium"
+                :disabled="selectDeployTemplates.length !== 1"
+                @click="editTemplate('deploy')"
+              >编辑</el-button>
+              <el-button
+                size="medium"
+                :disabled="selectDeployTemplates.length < 1"
+                @click="confirmDeleteTemplate('deploy')"
+              >删除</el-button>
+            </div>
+            <div class="table">
+              <el-table
+                v-loading="listLoading"
+                :data="deploys"
+                border
+                fit
+                highlight-current-row
+                size="medium"
+                @selection-change="handleDeploySelectionChange"
+              >
+                <el-table-column type="selection" width="50" align="center" />
+                <el-table-column
+                  label="ID"
+                  width="100px"
+                  align="center"
+                >
+                  <template slot-scope="{ row }">
+                    <span>{{ row.tmpl_deploy_id }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="模板名称" min-width="100px" align="center">
+                  <template slot-scope="{ row }">
+                    <span>{{ row.tmpl_deploy_name }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column label="部署资源类型" min-width="100px" align="center">
+                  <template slot-scope="{ row }">
+                    <span>{{ row.deploy_resource_type }}</span>
+                  </template>
+                </el-table-column>
+                <el-table-column
+                  label="部署资源名称"
+                  width="150px"
+                  align="center"
+                >
+                  <template slot-scope="{ row }">
+                    {{ row.inst_cluster_name }}
+                  </template>
+                </el-table-column>
+                <el-table-column label="部署方式" min-width="100px" align="center">
+                  <template slot-scope="{ row }">
+                    {{ row.deploy_mode | parseDeployMode }}
+                  </template>
+                </el-table-column>
+                <el-table-column label="模板描述" min-width="100px" align="center">
+                  <template slot-scope="{ row }">
+                    {{ row.tmpl_desc }}
+                  </template>
+                </el-table-column>
+              </el-table>
+              <pagination
+                v-show="deployQuery.total > 0"
+                :total="deployQuery.total"
+                :page.sync="deployQuery.page_num"
+                :limit.sync="deployQuery.page_size"
+                @pagination="getList"
+              />
+            </div>
+          </el-tab-pane>
           <el-tab-pane label="扩缩容规则" name="rule">
-            <rule-list :tmplExpandId="tmpl_expand_id" />
+            <rule-list :tmpl-expand-id="tmpl_expand_id" />
           </el-tab-pane>
           <el-tab-pane label="扩缩容历史" name="history">
             <history />
@@ -203,17 +282,36 @@
         >取消</el-button>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="publishVis" title="服务发布" width="30%">
+      <el-form label-width="100px">
+        <el-form-item label="发布集群">
+          {{ publishForm.cluster }}
+        </el-form-item>
+        <el-form-item label="发布产物" required>
+          <el-input v-model="publishForm.download_file_url" size="medium" />
+        </el-form-item>
+        <el-form-item label="发布方式">
+          <el-radio v-model="publishForm.type" label="oneByOne">全量发布</el-radio>
+        </el-form-item>
+      </el-form>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="medium" @click="publishVis = false">取消</el-button>
+        <el-button size="medium" type="primary" :disabled="checkPublish" @click="doPublish">发布</el-button>
+      </span>
+    </el-dialog>
     <elastic :cluster="dialog.cluster" :dialog-visible="dialog.visible" @close="closeDialog" />
   </div>
 </template>
 
 <script>
 import {
+  deployList,
   getTemplateList,
   serviceClusterList,
   // decisionUpdate,
   // getDecisionRule,
-  templateDeletes
+  templateDeletes,
+  serviceDeploy
 } from '@/api/service'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination'
@@ -234,6 +332,12 @@ export default {
         deleted: 'danger'
       }
       return statusMap[status]
+    },
+    parseDeployMode(mode) {
+      const map = {
+        instance: '云服务器部署'
+      }
+      return _.get(map, mode, '未知')
     }
   },
   data() {
@@ -259,10 +363,19 @@ export default {
         page_size: 20
       },
       selectTemplates: [],
+      selectDeployTemplates: [],
       templateList: [],
       service_name: '',
       service_cluster_id: '',
       confirmDeleteTemplateDiglogVis: false,
+      deleteType: '',
+      publishVis: false,
+      publishForm: {
+        cluster: '',
+        download_file_url: '',
+        type: 'oneByOne',
+        count: 0
+      },
       rules: {
         'tmpl_decision_rule.metric_value': [
           { required: true, message: '请输入QPS值', trigger: 'blur' }
@@ -275,7 +388,18 @@ export default {
         ]
       },
       clusters: [],
+      deploys: [],
+      deployQuery: {
+        page_num: 1,
+        page_size: 20,
+        total: 0
+      },
       tmpl_expand_id: 0
+    }
+  },
+  computed: {
+    checkPublish() {
+      return this.publishForm.download_file_url === ''
     }
   },
   created() {
@@ -299,6 +423,14 @@ export default {
       this.templateList = _.get(res, 'tmpl_expand_list', [])
       this.tmpl_expand_id = _.get(this.templateList, '0.tmpl_expand_id') || 0
       this.total = res.pager.total
+
+      const dRes = await deployList(this.$route.params.service_name, this.$route.params.service_cluster_id, 1, 20)
+      this.deploys = _.get(dRes, 'deploy_expand_list', [])
+      this.deployQuery = {
+        page_size: _.get(dRes, 'pager.page_size', 20),
+        page_num: _.get(dRes, 'pager.page_num', 1),
+        total: _.get(dRes, 'pager.total', 0)
+      }
       this.listLoading = false
       this.service_name = serviceName
       this.service_cluster_id = serviceClusterId
@@ -313,6 +445,27 @@ export default {
           cluster: cluster.bridgx_cluster
         }
       })
+    },
+    publishService(cluster) {
+      this.publishForm.cluster = cluster.bridgx_cluster
+      this.publishForm.count = cluster.instance_count
+      this.publishVis = true
+    },
+    async doPublish() {
+      const res = await serviceDeploy(this.$route.params.service_cluster_id, '', 'manual', this.publishForm.download_file_url, false)
+      if (res.code === 200) {
+        this.$message.success('发布成功')
+        this.$router.push({
+          name: 'publishService',
+          params: {
+            id: res.data.task_id,
+            service_cluster_id: this.$route.params.service_cluster_id
+          }
+        })
+      } else {
+        this.$message.error('发布失败')
+        this.publishVis = false
+      }
     },
     elastic(cluster) {
       this.dialog.visible = true
@@ -343,25 +496,30 @@ export default {
     handleSelectionChange(val) {
       this.selectTemplates = val
     },
-    createTemplate() {
+    handleDeploySelectionChange(val) {
+      this.selectDeployTemplates = val
+    },
+    createTemplate(type) {
       this.$router.push({
-        path: `/service/${this.service_name}/${this.service_cluster_id}/template-create`
+        path: `/service/${this.service_name}/${this.service_cluster_id}/template-create?type=${type}`
       })
     },
-    editTemplate() {
+    editTemplate(type) {
+      const id = type === 'deploy' ? this.selectDeployTemplates[0].tmpl_deploy_id : this.selectTemplates[0].tmpl_expand_id
       this.$router.push({
-        path: `/service/template-edit/${this.service_name}/${this.selectTemplates[0].tmpl_expand_id}`
+        path: `/service/template-edit/${this.service_name}/${id}`
       })
     },
-    confirmDeleteTemplate() {
+    confirmDeleteTemplate(type) {
       this.confirmDeleteTemplateDiglogVis = true
+      this.deleteType = type
     },
     cancelDeleteTemplate() {
       this.confirmDeleteTemplateDiglogVis = false
     },
     async deleteTemplates() {
       const data = {
-        'tmpl_expand_id': this.selectTemplates.map(i => i.tmpl_expand_id)
+        'tmpl_expand_id': this.deleteType === 'deploy' ? this.selectDeployTemplates.map(i => i.tmpl_deploy_id) : this.selectTemplates.map(i => i.tmpl_expand_id)
       }
       const res = await templateDeletes(data)
       if (res.data.code === 200) {

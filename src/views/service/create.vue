@@ -45,6 +45,23 @@
           />
         </el-select>
       </el-form-item>
+      <el-form-item label="访问域名/端口">
+        <el-row style="width: 400px;">
+          <el-col :span="17">
+            <el-form-item prop="service_info.domain">
+              <el-input v-model="form.service_info.domain" size="medium" placeholder="请输入访问域名" />
+            </el-form-item>
+          </el-col>
+          <el-col :span="1" style="display: flex; justify-content: center">
+            /
+          </el-col>
+          <el-col :span="6">
+            <el-form-item prop="service_info.port">
+              <el-input v-model="form.service_info.port" size="medium" placeholder="服务端口" />
+            </el-form-item>
+          </el-col>
+        </el-row>
+      </el-form-item>
 
       <!-- <el-form-item label="自动扩缩容">
         <el-switch
@@ -165,7 +182,9 @@ export default {
         service_info: {
           service_name: '',
           language: 'Go',
-          description: ''
+          description: '',
+          domain: '',
+          port: ''
         },
         auto_decision: 'off',
         decision_rule: {
@@ -184,6 +203,21 @@ export default {
       timer: '',
       seconds: 5,
       rules: {
+        // 'service_info.domain': [
+        //   {
+        //     required: true,
+        //     message: '请输入域名',
+        //     trigger: ['blur', 'change']
+        //   }
+        // ],
+        // 'service_info.port': [
+        //   {
+        //     required: true,
+        //     message: '请正确输入端口',
+        //     trigger: ['blur', 'change'],
+        //     pattern: /^[0-9.]{1,5}$/
+        //   }
+        // ],
         'service_info.service_name': [
           {
             required: true,
