@@ -272,7 +272,12 @@ export default {
       }
     },
     gotoAuthc() {
-      window.open('https://account.console.aliyun.com/v2/#/authc/home')
+      const map = {
+        AlibabaCloud: 'https://account.console.aliyun.com/v2/#/authc/home',
+        HuaweiCloud: 'https://account.huaweicloud.com/usercenter/?region=cn-north-4#/accountindex/realNameAuth',
+        TencentCloud: 'https://console.cloud.tencent.com/developer/auth'
+      }
+      window.open(_.get(map, this.addForm.provider))
     }
   }
 }

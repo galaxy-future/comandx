@@ -64,19 +64,6 @@
               {{ row.charge_type | parsePaidType }}
             </template>
           </el-table-column>
-          <el-table-column label="云账号Key" min-width="160px" align="center">
-            <template slot-scope="{row}">
-              <span>{{ row.account }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="最后编辑人" prop="update_by" align="center" />
-          <el-table-column label="最后编辑时间" class-name="status-col" width="160" align="center">
-            <template slot-scope="{row}">
-              <span>
-                {{ row.update_at | formatMomentZone('YYYY-MM-DD HH:mm:ss') }}
-              </span>
-            </template>
-          </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="{row}">
               <el-button type="text" @click="elastic(row)">扩缩容</el-button>

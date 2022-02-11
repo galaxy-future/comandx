@@ -16,7 +16,7 @@ export default {
   data() {
     return {
       levelList: null,
-      serverNameList: ['serviceMonitor', 'templateList', 'createRule', 'updateRule']
+      serverNameList: ['serviceMonitor', 'templateList', 'createRule', 'updateRule', 'templateCreate', 'templateEdit', 'publishService']
     }
   },
   watch: {

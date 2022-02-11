@@ -107,6 +107,7 @@
               <el-button
                 type="text"
                 @click="process(row)"
+                :disabled="row.deploy_mode === 'instance'"
               >扩缩容</el-button>
             </template>
           </el-table-column>
@@ -241,7 +242,7 @@ import {
   getServiceList,
   serviceExpand,
   serviceShrink,
-  // serviceDelete,
+  serviceDelete,
   serviceEdit,
   getTemplateList,
   serviceClusterList
