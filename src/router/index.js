@@ -206,6 +206,12 @@ export const constantRoutes = [
       component: () => import('@/views/service/list'),
       meta: { title: '服务列表', icon: '' }
     }, {
+      path: '/service/:service_name/source',
+      name: 'serviceSource',
+      component: () => import('@/views/service/source'),
+      meta: { title: '服务列表', icon: '' },
+      hidden: true
+    }, {
       path: '/service/:service_name/monitor',
       name: 'serviceMonitor',
       component: () => import('@/views/service/monitor'),

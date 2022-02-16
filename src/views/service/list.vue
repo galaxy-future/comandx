@@ -101,6 +101,9 @@
           </el-table-column> -->
           <el-table-column label="操作" align="center">
             <template slot-scope="{ row }">
+              <el-button type="text" :disabled="row.tmpl_expand_id === '' || row.tmpl_expand_id === 0" @click="transferTo('serviceSource', row)">
+                资源监控
+              </el-button>
               <el-button type="text" :disabled="row.tmpl_expand_id === '' || row.tmpl_expand_id === 0" @click="transferTo('serviceMonitor', row)">
                 服务监控
               </el-button>
