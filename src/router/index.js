@@ -301,6 +301,18 @@ export const constantRoutes = [
     }]
   },
   {
+    path: '/integration',
+    component: Layout,
+    redirect: '/integration',
+    children: [{
+      path: 'integration',
+      name: 'integration',
+      component: () => import('@/views/integration/list'),
+      meta: { title: '集成管理', icon: 'tree', isAdmin: true }
+    }],
+    isAdmin: true
+  },
+  {
     path: '/help',
     component: () => import('@/views/help'),
     hidden: true

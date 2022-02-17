@@ -51,6 +51,11 @@
           :disabled="selectServices.length !== 1"
           @click="handleEdit"
         >编辑</el-button>
+        <el-button
+          size="medium"
+          :disabled="selectServices.length < 1"
+          @click="handleDelete"
+        >删除</el-button>
         <el-button size="medium" type="primary" style="float: right" @click="getList">刷新</el-button>
       </div>
       <div class="table">
@@ -496,11 +501,22 @@ export default {
       this.editServiceDialogVisible = true
     },
     async handleDelete() {
-      const res = await serviceDelete(this.selectServices.map(0))
-      if (res.code === 200) {
-        this.$message.success('删除成功')
+      try {
+        await this.$confirm('确定删除吗?', '警告', {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        const res = await serviceDelete(this.selectServices.map(i => i.service_id))
+        if (res.code === 200) {
+          this.$message.success('删除成功')
+          await this.getList()
+        } else {
+          this.$message.error('删除失败')
+        }
+      } catch (e) {
+        // nothing
       }
-      await this.getList()
     },
     goTemplateIndex(row) {
       this.$router.push({ path: `/service/${row.service_name}/${row.service_cluster_id}/template` })
@@ -556,11 +572,6 @@ export default {
     background-color: #ffffff;
     padding: 20px;
     box-shadow: 4px 4px 5px rgba(0, 0, 0, 0.08);
-    .buttons {
-      button {
-        margin-right: 40px;
-      }
-    }
     .table {
       margin-top: 10px;
     }
