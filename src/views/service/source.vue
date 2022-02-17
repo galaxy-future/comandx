@@ -11,7 +11,7 @@ export default {
   name: 'Monitor',
   data() {
     return {
-      href: 'http://10.16.23.95:3000/d/-DgXCgf7z/system-metrics-for-the-linux-hosts?orgId=1&var-ident=All&var-psm='
+      href: '/d/-DgXCgf7z/system-metrics-for-the-linux-hosts?orgId=1&var-ident=All&var-psm='
     }
   },
   methods: {}
