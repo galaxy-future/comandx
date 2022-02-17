@@ -15,12 +15,15 @@ const getUrl = [
   '/service/breathrecord',
   '/service/cluster_list',
   '/service/deploy',
+  '/service/zadig/workflow/list',
+  '/service/zadig/artifact/list',
   '/template/expand/list',
   '/template/expand/info',
   '/template/deploy/list',
   '/decision/rule/info',
   '/task/info',
-  '/task/deploy/detail'
+  '/task/deploy/detail',
+  '/integration/list'
 ]
 
 const postUrl = [
@@ -29,7 +32,9 @@ const postUrl = [
   '/template/expand/create',
   '/template/expand/update',
   '/template/expand/delete',
-  '/decision/rule/update'
+  '/decision/rule/update',
+  '/integration/create',
+  '/integration/delete'
 ]
 
 common.generateRouter(getUrl, postUrl, routerApi, host.getSchedulxHost(), prefix)

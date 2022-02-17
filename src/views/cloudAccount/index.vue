@@ -37,15 +37,16 @@
               {{ row.provider | filterCloudProvider }}
             </template>
           </el-table-column>
-          <el-table-column label="账户信息" prop="account" align="center">
-            <template slot-scope="{ row }">
-              {{ row.account }}<span style="margin-left: 5px; color: #0061e0">({{ aksk[row.provider].key }})</span>
-            </template>
-          </el-table-column>
           <el-table-column label="创建人" prop="create_by" align="center" />
           <el-table-column label="创建时间" align="center">
             <template slot-scope="{row}">
               {{ row.create_at | formatMomentZone('YYYY-MM-DD HH:mm:ss') }}
+            </template>
+          </el-table-column>
+          <el-table-column label="账户信息" prop="account" align="center">
+            <template slot-scope="{ row }">
+              {{ row.account }}
+              <el-button type="text" @click="showDetail(row)">查看</el-button>
             </template>
           </el-table-column>
         </el-table>
@@ -129,6 +130,34 @@
         </div>
       </div>
     </el-dialog>
+    <el-dialog :visible.sync="showDetailVisible" title="账户信息" width="40%">
+    </el-dialog>
+    <el-dialog :visible.sync="detailLoginVisible" title="输入密码" width="40%">
+      <div class="form">
+        <div class="form-container">
+          <el-row>
+            <el-col :span="6"><div class="center-text">用户名 </div></el-col>
+            <el-col :span="18" style="height: 36px; display: flex; align-items: center">
+              {{ name }}
+            </el-col>
+          </el-row>
+        </div>
+        <div class="form-container">
+          <el-row>
+            <el-col :span="6"><div class="center-text">密码 </div></el-col>
+            <el-col :span="18">
+              <el-input v-model="password" show-password />
+            </el-col>
+          </el-row>
+        </div>
+        <div class="form-container">
+          <div class="buttons">
+            <el-button size="medium" type="info" @click="detailLoginVisible = false">取消</el-button>
+            <el-button size="medium" type="primary" @click="detailLogin">保存</el-button>
+          </div>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -137,6 +166,7 @@ import _ from 'lodash'
 import { cloudProviders, aksk, ramUrl } from '@/config/cloud'
 import { cloudAccountList, cloudAccountEdit, cloudAccountAdd, cloudAccountDelete } from '@/api/cloud'
 import Pagination from '@/components/Pagination'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'Index',
@@ -148,6 +178,8 @@ export default {
       loading: false,
       editVisible: false,
       addVisible: false,
+      detailLoginVisible: false,
+      showDetailVisible: false,
       accounts: [],
       providers: [{
         value: '',
@@ -172,7 +204,13 @@ export default {
       editItem: {
         account_name: ''
       },
-      selectAccounts: []
+      selectAccounts: [],
+      password: '',
+      showAccount: {
+        id: 0,
+        ak: '',
+        sk: ''
+      }
     }
   },
   computed: {
@@ -181,7 +219,10 @@ export default {
     },
     secretLabel() {
       return _.get(aksk, `${this.addForm.provider}.secret`, 'secret')
-    }
+    },
+    ...mapGetters([
+      'name'
+    ])
   },
   mounted() {
     this.fetchData()
@@ -278,6 +319,12 @@ export default {
         TencentCloud: 'https://console.cloud.tencent.com/developer/auth'
       }
       window.open(_.get(map, this.addForm.provider))
+    },
+    showDetail(row) {
+      this.showAccount.id = row.id
+      this.detailLoginVisible = true
+    },
+    detailLogin() {
     }
   }
 }

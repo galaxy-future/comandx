@@ -134,6 +134,16 @@
           <div v-else style="width: 100%" class="form">
             <div class="form-container">
               <el-row>
+                <el-col :span="5"><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>产物仓库类型</div></el-col>
+                <el-col :span="19" style="height: 36px; display: flex; align-items: center">
+                  <el-radio v-model="deploy_info.repo_type" label="Zadig" />
+                  <el-radio v-model="deploy_info.repo_type" label="FTP" />
+                  <el-radio v-model="deploy_info.repo_type" label="HTTP" />
+                </el-col>
+              </el-row>
+            </div>
+            <div class="form-container">
+              <el-row>
                 <el-col :span="5"><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>产物仓库路径</div></el-col>
                 <el-col :span="19">
                   <el-input v-model="deploy_info.repo_path" size="medium" placeholder="请输入产物仓库路径" style="width: 80%" />
@@ -496,6 +506,7 @@ export default {
         in_place: true,
         max_surge: 0,
         repo_path: '',
+        repo_type: 'Zadig',
         repo_user: '',
         repo_password: '',
         before_download_cmd: '',
@@ -696,6 +707,15 @@ export default {
       this.deploy_mode = res.tmpl_info.deploy_mode
       this.deploy_info = {
         ...res.deploy_info
+      }
+      if (this.deploy_info.after_deploy_cmd !== '') {
+        this.startAdvance = true
+      }
+      if (this.deploy_info.before_download_cmd !== '') {
+        this.compilerAdvance = true
+      }
+      if (this.before_deploy_cmd !== '') {
+        this.publishAdvance = true
       }
     },
     async loadBridgXCluster() {
