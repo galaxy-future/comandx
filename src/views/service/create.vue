@@ -21,6 +21,9 @@
         />
         <div class="note" :class="{'text-red': !serviceNameValidate}">仅支持英文大小写、数字、下划线“_”、“.”,限制32字符</div>
       </el-form-item>
+      <el-form-item label="Git仓库">
+        <el-input v-model="form.service_info.git_repo" size="medium" style="width: 400px" />
+      </el-form-item>
       <el-form-item label="服务描述" prop="service_info.description">
         <el-input
           v-model="form.service_info.description"
@@ -184,7 +187,8 @@ export default {
           language: 'Go',
           description: '',
           domain: '',
-          port: ''
+          port: '',
+          git_repo: ''
         },
         auto_decision: 'off',
         decision_rule: {

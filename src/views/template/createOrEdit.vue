@@ -41,7 +41,7 @@
                 <div class="deploy-mode">
                   <el-radio v-model="deploy_mode" label="instance" :disabled="instanceDisabled">云服务器部署</el-radio>
                   <i class="el-icon-warning" style="color: #B8741A; font-size: 14px" />
-                  <span style="color: rgb(170, 170, 170); font-size: 14px">拉取镜像仓库中的编辑镜像，然后将集群容器化后部署</span>
+                  <span style="color: rgb(170, 170, 170); font-size: 14px">拉取编译制品库中的编译包，然后在集群机器上部署</span>
                 </div>
               </el-col>
             </el-row>
@@ -53,7 +53,7 @@
                 <div class="deploy-mode">
                   <el-radio v-model="deploy_mode" label="container" :disabled="containerDisabled">容器镜像部署</el-radio>
                   <i class="el-icon-warning" style="color: #B8741A; font-size: 14px" />
-                  <span style="color: rgb(170, 170, 170); font-size: 14px">拉取编译制品库中的编译包，然后在集群机器上部署</span>
+                  <span style="color: rgb(170, 170, 170); font-size: 14px">拉取镜像仓库中的镜像，然后将集群容器化后部署</span>
                 </div>
               </el-col>
             </el-row>
@@ -134,13 +134,23 @@
           <div v-else style="width: 100%" class="form">
             <div class="form-container">
               <el-row>
+                <el-col :span="5"><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>产物仓库类型</div></el-col>
+                <el-col :span="19" style="height: 36px; display: flex; align-items: center">
+                  <el-radio v-model="deploy_info.repo_type" label="HTTP" />
+                  <el-radio v-model="deploy_info.repo_type" label="Zadig" />
+<!--                  <el-radio v-model="deploy_info.repo_type" label="FTP" />-->
+                </el-col>
+              </el-row>
+            </div>
+            <div v-show="deploy_info.repo_type === 'HTTP'" class="form-container">
+              <el-row>
                 <el-col :span="5"><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>产物仓库路径</div></el-col>
                 <el-col :span="19">
                   <el-input v-model="deploy_info.repo_path" size="medium" placeholder="请输入产物仓库路径" style="width: 80%" />
                 </el-col>
               </el-row>
             </div>
-            <div class="form-container">
+            <div v-show="deploy_info.repo_type === 'HTTP'" class="form-container">
               <el-row>
                 <el-col :span="5"><div class="center-text">路径访问账户</div></el-col>
                 <el-col :span="19">
@@ -148,7 +158,7 @@
                 </el-col>
               </el-row>
             </div>
-            <div class="form-container">
+            <div v-show="deploy_info.repo_type === 'HTTP'" class="form-container">
               <el-row>
                 <el-col :span="5"><div class="center-text">路径访问密码</div></el-col>
                 <el-col :span="19">
@@ -366,7 +376,7 @@
                 </el-col>
                 <el-col :span="19" style="height: 36px; display: flex; align-items: center">
                   <i class="el-icon-warning" style="color: #B8741A; font-size: 16px" />
-                  <span>可添加机器环境初始化执行脚本，如安装程序组件等，</span><span style="color: red">在安装程序前执行</span>
+                  <span>可添加程序运行环境初始化脚本，如解压程序包等，</span><span style="color: red">在安装程序前执行</span>
                 </el-col>
               </el-row>
               <el-row>
@@ -429,7 +439,7 @@
                 <el-col :span="5"><div class="center-text">执行脚本</div></el-col>
                 <el-col :span="19" style="height: 36px; display: flex; align-items: center">
                   <i class="el-icon-warning" style="color: #B8741A; font-size: 16px" />
-                  <span>可添加在服务启动前需要执行的脚本，如配置负载均衡等，</span><span style="color: red">在服务启动前执行</span>
+                  <span>可添加在服务启动前需要执行的脚本，如配置负载均衡等，</span><span style="color: red">在服务启动后执行</span>
                 </el-col>
               </el-row>
               <el-row>
@@ -496,6 +506,7 @@ export default {
         in_place: true,
         max_surge: 0,
         repo_path: '',
+        repo_type: 'HTTP',
         repo_user: '',
         repo_password: '',
         before_download_cmd: '',
@@ -615,7 +626,7 @@ export default {
         }
       }
       if (this.step === 1 && this.deploy_mode === 'instance') {
-        if (this.deploy_info.repo_path === '') {
+        if (this.deploy_info.repo_type === 'HTTP' && this.deploy_info.repo_path === '') {
           this.$message.warning('请输入产物仓库路径')
           return false
         }
@@ -696,6 +707,15 @@ export default {
       this.deploy_mode = res.tmpl_info.deploy_mode
       this.deploy_info = {
         ...res.deploy_info
+      }
+      if (this.deploy_info.after_deploy_cmd !== '') {
+        this.startAdvance = true
+      }
+      if (this.deploy_info.before_download_cmd !== '') {
+        this.compilerAdvance = true
+      }
+      if (this.before_deploy_cmd !== '') {
+        this.publishAdvance = true
       }
     },
     async loadBridgXCluster() {

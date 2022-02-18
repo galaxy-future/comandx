@@ -127,6 +127,12 @@ export function formatMomentZone(date, format) {
   return str === 'Invalid date' ? '--' : str
 }
 
+export function formatServiceMoment(date, format) {
+  const dateFormat = date ? date.split('+08:00')[0].replaceAll('T', ' ') : date
+  const str = moment(new Date(dateFormat)).format(format)
+  return str === 'Invalid date' ? '--' : str
+}
+
 export function formatInstanceStatuses(status) {
   return _.get(instanceStatuses, status, '未知')
 }
