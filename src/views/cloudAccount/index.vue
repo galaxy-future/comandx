@@ -1,3 +1,10 @@
+<style lang="less">
+ .cloud-account-dialog {
+   .el-dialog__footer {
+     text-align: center;
+   }
+ }
+</style>
 <template>
   <div class="container">
     <div class="header">
@@ -29,7 +36,7 @@
         <el-button size="medium" :disabled="selectAccounts.length < 1" @click="deleteAccounts">删除</el-button>
       </div>
       <div class="table">
-        <el-table v-loading="loading" :data="accounts" border @selection-change="handleSelectionChange" >
+        <el-table v-loading="loading" :data="accounts" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="账户名" prop="account_name" align="center" />
           <el-table-column label="云厂商" align="center">
@@ -45,7 +52,7 @@
           </el-table-column>
           <el-table-column label="账户信息" prop="account" align="center">
             <template slot-scope="{ row }">
-              {{ row.account }}
+              {{ obscureAk(row.account) }}
               <el-button type="text" @click="showDetail(row)">查看</el-button>
             </template>
           </el-table-column>
@@ -130,30 +137,53 @@
         </div>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="showDetailVisible" title="账户信息" width="40%">
+    <el-dialog :visible.sync="showDetailVisible" custom-class="cloud-account-dialog" title="账户信息" width="40%">
+      <el-row style="font-weight: bolder; font-size: 16px">
+        <el-col :span="8" style="display: flex; justify-content: center;">
+          {{ aksk[account.provider].key }}
+        </el-col>
+        <el-col :span="12">
+          {{ account.account }}
+        </el-col>
+        <el-col :span="4">
+          <span
+            v-clipboard:copy="account.account"
+            v-clipboard:success="clipboardSuccess"
+            style="display: inline-block; margin-left: 10px;cursor: pointer; font-size: 16px; color: #A8AAA9"
+          >
+            复制
+          </span>
+        </el-col>
+      </el-row>
+      <span slot="footer" class="dialog-footer">
+        <el-button size="mediun" type="primary" @click="showDetailVisible = false">关 闭</el-button>
+      </span>
     </el-dialog>
-    <el-dialog :visible.sync="detailLoginVisible" title="输入密码" width="40%">
+    <el-dialog :visible.sync="detailLoginVisible" title="输入密码" width="40%" @close="clearPassword">
       <div class="form">
         <div class="form-container">
-          <el-row>
-            <el-col :span="6"><div class="center-text">用户名 </div></el-col>
-            <el-col :span="18" style="height: 36px; display: flex; align-items: center">
-              {{ name }}
-            </el-col>
-          </el-row>
+          <div>
+            <span style="background-color: #F1F2F2; color: #A7A9A8; font-size: 16px; display: inline-block; padding: 2px 5px">
+              提示： 输入密码查看AK
+            </span>
+          </div>
         </div>
         <div class="form-container">
-          <el-row>
-            <el-col :span="6"><div class="center-text">密码 </div></el-col>
-            <el-col :span="18">
-              <el-input v-model="password" show-password />
-            </el-col>
-          </el-row>
+          <div style="display: flex; flex-direction: row">
+            <div class="center-text" style="justify-content: flex-start; width: 100px">用户名: </div>
+            <div style="height: 36px; display: flex; align-items: center; font-size: 16px">{{ name }}</div>
+          </div>
+        </div>
+        <div class="form-container">
+          <div style="display: flex; flex-direction: row">
+            <div class="center-text" style="justify-content: flex-start; width: 100px">密码: </div>
+            <el-input v-model="password" autocomplete="off" style="width: 80%" show-password />
+          </div>
         </div>
         <div class="form-container">
           <div class="buttons">
             <el-button size="medium" type="info" @click="detailLoginVisible = false">取消</el-button>
-            <el-button size="medium" type="primary" @click="detailLogin">保存</el-button>
+            <el-button size="medium" type="primary" @click="detailLogin">确认</el-button>
           </div>
         </div>
       </div>
@@ -164,13 +194,18 @@
 <script>
 import _ from 'lodash'
 import { cloudProviders, aksk, ramUrl } from '@/config/cloud'
-import { cloudAccountList, cloudAccountEdit, cloudAccountAdd, cloudAccountDelete } from '@/api/cloud'
-import Pagination from '@/components/Pagination'
 import { mapGetters } from 'vuex'
+import { cloudAccountList, cloudAccountEdit, cloudAccountAdd, cloudAccountDelete } from '@/api/cloud'
+import { login } from '@/api/user'
+import Pagination from '@/components/Pagination'
+import clipboard from '@/directive/clipboard/index'
 
 export default {
   name: 'Index',
   components: { Pagination },
+  directives: {
+    clipboard
+  },
   data() {
     return {
       cloudProviders,
@@ -180,6 +215,9 @@ export default {
       addVisible: false,
       detailLoginVisible: false,
       showDetailVisible: false,
+      account: {
+        provider: 'AlibabaCloud'
+      },
       accounts: [],
       providers: [{
         value: '',
@@ -205,12 +243,7 @@ export default {
         account_name: ''
       },
       selectAccounts: [],
-      password: '',
-      showAccount: {
-        id: 0,
-        ak: '',
-        sk: ''
-      }
+      password: ''
     }
   },
   computed: {
@@ -321,10 +354,30 @@ export default {
       window.open(_.get(map, this.addForm.provider))
     },
     showDetail(row) {
-      this.showAccount.id = row.id
+      this.account = row
       this.detailLoginVisible = true
     },
-    detailLogin() {
+    async detailLogin() {
+      const res = await login({
+        username: this.name.trim(),
+        password: this.password
+      })
+      if (res.code === 200) {
+        this.$store.commit('user/SET_TOKEN', res.data)
+        this.showDetailVisible = true
+      } else {
+        this.$message.error('密码错误')
+      }
+      this.detailLoginVisible = false
+    },
+    obscureAk(str) {
+      return `${str.slice(0, 4)}******${str.slice(-4)}`
+    },
+    clipboardSuccess() {
+      this.$message.success('已复制到剪切板')
+    },
+    clearPassword() {
+      this.password = ''
     }
   }
 }

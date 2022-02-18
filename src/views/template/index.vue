@@ -10,43 +10,72 @@
     <div class="content">
       <div>
         <el-tabs v-model="activeName">
-          <el-tab-pane label="运行环境" name="clusters">
-            <el-tabs v-model="activeEnv" type="border-card" :before-leave="handActive">
-              <el-tab-pane label="prod" name="prod">
-                <el-table
-                    :data="clusters"
-                    border
-                    fit
-                    highlight-current-row
-                    size="medium"
-                >
-                  <el-table-column label="ID" prop="service_cluster_id" align="center" />
-                  <el-table-column label="集群名称" prop="bridgx_cluster" align="center" />
-                  <el-table-column label="在线机器数" prop="instance_count" align="center" />
-                  <el-table-column label="集群机型" prop="instance_type_desc" align="center" />
-                  <el-table-column label="云厂商" align="center">
-                    <template slot-scope="{ row }">
-                      {{ row.provider | filterCloudProvider }}
-                    </template>
-                  </el-table-column>
-                  <el-table-column label="付费方式" align="center">
-                    <template slot-scope="{ row }">
-                      {{ row.charge_type | parsePaidType }}
-                    </template>
-                  </el-table-column>
-                  <el-table-column label="操作" align="center">
-                    <template slot-scope="{ row }">
-                      <el-button type="text" @click="goToMonitor(row)">集群监控</el-button>
-                      <el-button type="text" :disabled="deploys === null || deploys.length < 1" @click="publishService(row)">发布</el-button>
-                      <el-button type="text" :disabled="templateList === null || templateList.length < 1" @click="elastic(row)">扩缩容</el-button>
-                    </template>
-                  </el-table-column>
-                </el-table>
-              </el-tab-pane>
-              <el-tab-pane name="add">
-                <div slot="label">+添加环境</div>
-              </el-tab-pane>
-            </el-tabs>
+          <el-tab-pane label="算力资源" name="clusters">
+<!--            <el-tabs v-model="activeEnv" type="border-card" :before-leave="handActive">-->
+<!--              <el-tab-pane label="prod" name="prod">-->
+<!--                <el-table-->
+<!--                  :data="clusters"-->
+<!--                  border-->
+<!--                  fit-->
+<!--                  highlight-current-row-->
+<!--                  size="medium"-->
+<!--                >-->
+<!--                  <el-table-column label="ID" prop="service_cluster_id" align="center" />-->
+<!--                  <el-table-column label="集群名称" prop="bridgx_cluster" align="center" />-->
+<!--                  <el-table-column label="在线机器数" prop="instance_count" align="center" />-->
+<!--                  <el-table-column label="集群机型" prop="instance_type_desc" align="center" />-->
+<!--                  <el-table-column label="云厂商" align="center">-->
+<!--                    <template slot-scope="{ row }">-->
+<!--                      {{ row.provider | filterCloudProvider }}-->
+<!--                    </template>-->
+<!--                  </el-table-column>-->
+<!--                  <el-table-column label="付费方式" align="center">-->
+<!--                    <template slot-scope="{ row }">-->
+<!--                      {{ row.charge_type | parsePaidType }}-->
+<!--                    </template>-->
+<!--                  </el-table-column>-->
+<!--                  <el-table-column label="操作" align="center">-->
+<!--                    <template slot-scope="{ row }">-->
+<!--                      <el-button type="text" @click="goToMonitor(row)">集群监控</el-button>-->
+<!--                      <el-button type="text" :disabled="deploys === null || deploys.length < 1" @click="publishService(row)">发布</el-button>-->
+<!--                      <el-button type="text" :disabled="templateList === null || templateList.length < 1" @click="elastic(row)">扩缩容</el-button>-->
+<!--                    </template>-->
+<!--                  </el-table-column>-->
+<!--                </el-table>-->
+<!--              </el-tab-pane>-->
+<!--              <el-tab-pane name="add">-->
+<!--                <div slot="label">+添加环境</div>-->
+<!--              </el-tab-pane>-->
+<!--            </el-tabs>-->
+            <el-table
+                :data="clusters"
+                border
+                fit
+                highlight-current-row
+                size="medium"
+            >
+              <el-table-column label="ID" prop="service_cluster_id" align="center" />
+              <el-table-column label="集群名称" prop="bridgx_cluster" align="center" />
+              <el-table-column label="在线机器数" prop="instance_count" align="center" />
+              <el-table-column label="集群机型" prop="instance_type_desc" align="center" />
+              <el-table-column label="云厂商" align="center">
+                <template slot-scope="{ row }">
+                  {{ row.provider | filterCloudProvider }}
+                </template>
+              </el-table-column>
+              <el-table-column label="付费方式" align="center">
+                <template slot-scope="{ row }">
+                  {{ row.charge_type | parsePaidType }}
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" align="center">
+                <template slot-scope="{ row }">
+                  <el-button type="text" @click="goToMonitor(row)">集群监控</el-button>
+                  <el-button type="text" :disabled="deploys === null || deploys.length < 1" @click="publishService(row)">发布</el-button>
+                  <el-button type="text" :disabled="templateList === null || templateList.length < 1" @click="elastic(row)">扩缩容</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
           </el-tab-pane>
           <el-tab-pane label="发布模板" name="deploy">
             <div class="buttons">
@@ -234,9 +263,9 @@
         <el-col :span="8">
           服务: {{ serviceName }}
         </el-col>
-        <el-col :span="8">
-          环境: prod
-        </el-col>
+<!--        <el-col :span="8">-->
+<!--          环境: prod-->
+<!--        </el-col>-->
         <el-col :span="8">
           集群: {{ publishForm.cluster }}
         </el-col>
@@ -250,11 +279,11 @@
           <el-input v-model="publishForm.download_file_url" size="medium" />
         </el-form-item>
         <el-form-item v-if="publishForm.resource === 'Zadig'" label="工作流" required>
-          <el-select v-loading="loading.workflow" v-model="publishForm.workflow" size="medium" @change="afterSelectedWorkFlow">
+          <el-select v-model="publishForm.workflow" v-loading="loading.workflow" size="medium" @change="afterSelectedWorkFlow">
             <el-option v-for="(i, idx) in workflows" :key="idx" :label="i.workflow_name" :value="i.workflow_name" />
           </el-select>
         </el-form-item>
-        <el-form-item v-loading="loading.artifact" v-if="publishForm.resource === 'Zadig'" v-load-more="loadMore" label="构建产物" required>
+        <el-form-item v-if="publishForm.resource === 'Zadig'" v-loading="loading.artifact" v-load-more="loadMore" label="构建产物" required>
           <el-select v-model="publishForm.artifact" size="medium">
             <el-option v-for="(i, idx) in artifacts" :key="idx" :label="i.image_name" :value="i.image_name" />
           </el-select>
@@ -278,7 +307,7 @@ import {
   getTemplateList,
   serviceClusterList,
   templateDeletes,
-  serviceDeploy, workflowList, artifactList
+  serviceDeploy, workflowList, artifactList, integrationList
 } from '@/api/service'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination'
@@ -499,8 +528,16 @@ export default {
         path: `/service/template-edit/${this.service_name}/${id}`
       })
     },
-    addZadig() {
-      window.open('http://172.16.16.223:32019/v1/projects')
+    async addZadig() {
+      const res = await integrationList('zadig', 1, 20)
+      if (_.get(res, 'pager.total', 0) < 1) {
+        this.$message.error('没有zadig账户, 请添加账户')
+        this.$router.push({
+          name: 'integration'
+        })
+        return
+      }
+      window.open(_.get(res, 'integration_list.0.host', ''))
     },
     confirmDeleteTemplate(type) {
       this.confirmDeleteTemplateDiglogVis = true

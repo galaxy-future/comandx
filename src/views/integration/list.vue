@@ -3,10 +3,10 @@
     <el-tabs v-model="activeTab" class="content">
       <el-tab-pane label="zadig" name="zadig">
         <div class="buttons">
-          <el-button size="mini" type="primary" @click="addZadig">
+          <el-button size="medium" type="primary" :disabled="accounts.length > 0" @click="addZadig">
             +添加账户
           </el-button>
-          <el-button size="mini" type="danger" :disabled="selectAccounts.length < 1" @click="deleteZadig">
+          <el-button size="medium" type="danger" :disabled="selectAccounts.length < 1" @click="deleteZadig">
             删除账户
           </el-button>
         </div>
@@ -29,7 +29,12 @@
     <el-dialog :visible.sync="addZadigVis" title="添加账户" width="30%">
       <el-form label-width="80px">
         <el-form-item label="访问域名" required>
-          <el-input v-model="addZadigForm.domain" size="medium" />
+          <div style="display: flex; flex-direction: row">
+            <el-select v-model="protocol" size="medium" style="width: 180px" placeholder="请选择协议">
+              <el-option v-for="(p, idx) in protocols" :key="idx" :label="p" :value="p" />
+            </el-select>
+            <el-input v-model="hostPort" size="medium" placeholder="请输入访问地址，例如127.0.0.1:80" style="margin-left: 10px" />
+          </div>
         </el-form-item>
         <el-form-item label="账户名" required>
           <el-input v-model="addZadigForm.username" size="medium" />
@@ -59,6 +64,9 @@ export default {
       activeTab: 'zadig',
       accounts: [],
       addZadigVis: false,
+      protocol: '',
+      hostPort: '',
+      protocols: ['http', 'https', 'ftp', 'file'],
       addZadigForm: {
         domain: '',
         username: '',
@@ -74,7 +82,15 @@ export default {
   },
   computed: {
     addZadigDisabled() {
-      return this.addZadigForm.domain === '' || this.addZadigForm.username === '' || this.addZadigForm.password === ''
+      return this.protocol === '' ||
+          this.hostPort === '' ||
+          !this.hostPortIsLegal ||
+          this.addZadigForm.username === '' ||
+          this.addZadigForm.password === ''
+    },
+    hostPortIsLegal() {
+      return /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\:([0-9]|[1-9]\d{1,3}|[1-5]\d{4}|6[0-5]{2}[0-3][0-5])$/.test(this.hostPort) ||
+          /(www\.)?(([A-Za-z0-9-~]+)\.)+([A-Za-z0-9-~\/])+$/.test(this.hostPort)
     }
   },
   mounted() {
@@ -108,7 +124,7 @@ export default {
       }
     },
     async submitAddZadig() {
-      const res = await createIntegration(this.addZadigForm.domain, this.addZadigForm.username, this.addZadigForm.password, this.activeTab)
+      const res = await createIntegration(`${this.protocol}://${this.hostPort}`, this.addZadigForm.username, this.addZadigForm.password, this.activeTab)
       if (res.code === 200) {
         this.$message.success('创建成功')
       } else {

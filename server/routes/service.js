@@ -29,6 +29,7 @@ const getUrl = [
 const postUrl = [
   '/service/update',
   '/service/create',
+  '/service/delete',
   '/template/expand/create',
   '/template/expand/update',
   '/template/expand/delete',

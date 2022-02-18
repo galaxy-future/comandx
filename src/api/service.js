@@ -234,7 +234,19 @@ export async function taskInfo(task_id) {
   return _.get(res, 'data')
 }
 
-export function serviceDelete() {}
+export function serviceDelete(ids) {
+  const token = getToken()
+  return request({
+    url: '/api/v1/schedulx/service/delete',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    method: 'post',
+    data: {
+      ids
+    }
+  })
+}
 
 export async function deployList(service_name, service_cluster_id, page_num, page_size) {
   const token = getToken()

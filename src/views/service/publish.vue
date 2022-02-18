@@ -6,7 +6,7 @@
           {{ taskStatus | parseDeployTaskStatus }}
         </span>
         <span class="serial-number">
-          流水号：001243
+          流水号: {{ taskId }}
         </span>
         <div class="rollback" @click="rollback">
           回滚
@@ -160,6 +160,9 @@ export default {
         default:
           return '#67C23A'
       }
+    },
+    taskId() {
+      return this.$route.params.id
     }
   },
   mounted() {
