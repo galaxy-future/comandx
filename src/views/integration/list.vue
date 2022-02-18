@@ -64,7 +64,7 @@ export default {
       activeTab: 'zadig',
       accounts: [],
       addZadigVis: false,
-      protocol: '',
+      protocol: 'http',
       hostPort: '',
       protocols: ['http', 'https', 'ftp', 'file'],
       addZadigForm: {
