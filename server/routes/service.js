@@ -10,6 +10,7 @@ const routerApi = new Router({
 
 const getUrl = [
   '/service/list',
+  '/service/detail',
   '/service/expand',
   '/service/shrink',
   '/service/breathrecord',
@@ -35,7 +36,9 @@ const postUrl = [
   '/template/expand/delete',
   '/decision/rule/update',
   '/integration/create',
-  '/integration/delete'
+  '/integration/delete',
+  '/running_env/create',
+  '/running_env/update'
 ]
 
 common.generateRouter(getUrl, postUrl, routerApi, host.getSchedulxHost(), prefix)
@@ -44,6 +47,47 @@ routerApi.get('/ok', async(ctx) => {
   try {
     ctx.body = await request({
       url: host.getSchedulxHost()
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.delete('/running_env/:ids', async(ctx) => {
+  try {
+    ctx.body = await request({
+      url: `${host.getSchedulxHost()}${prefix}/running_env/${ctx.params.ids}`,
+      method: 'DELETE',
+      headers: {
+        authorization: ctx.header.authorization
+      },
+      json: true
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.get('/running_env/:id', async(ctx) => {
+  try {
+    ctx.body = await request({
+      url: `${host.getSchedulxHost()}${prefix}/running_env/${ctx.params.id}`,
+      headers: {
+        authorization: ctx.header.authorization
+      }
+    })
+  } catch (e) {
+    ctx.body = e.error
+  }
+})
+
+routerApi.get('/service/:id/running_env', async(ctx) => {
+  try {
+    ctx.body = await request({
+      url: `${host.getSchedulxHost()}${prefix}/service/${ctx.params.id}/running_env`,
+      headers: {
+        authorization: ctx.header.authorization
+      }
     })
   } catch (e) {
     ctx.body = e.error

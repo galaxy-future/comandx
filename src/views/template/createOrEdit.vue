@@ -74,14 +74,31 @@
             <el-row>
               <el-col
                 :span="5"
+              ><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>环境</div></el-col>
+              <el-col :span="19">
+                <el-select v-model="form.tmpl_info.running_env_id" size="medium" placeholder="请选择规则对应的环境" style="width: 80%" @change="afterSelectedEnv">
+                  <el-option
+                    v-for="item in envs"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"
+                  />
+                </el-select>
+              </el-col>
+            </el-row>
+          </div>
+          <div class="form-container">
+            <el-row>
+              <el-col
+                :span="5"
               ><div class="center-text"><span class="is-required" style="color: #FF4C4C;">*</span>关联集群</div></el-col>
               <el-col :span="19">
                 <el-select v-model="form.tmpl_info.bridgx_clusname" size="medium" placeholder="请选择规则对应的集群" style="width: 80%">
                   <el-option
                     v-for="item in bridgXCluster"
                     :key="item.cluster_id"
-                    :label="item.cluster_name"
-                    :value="item.cluster_name"
+                    :label="item.bridgx_cluster"
+                    :value="item.bridgx_cluster"
                   />
                 </el-select>
               </el-col>
@@ -138,7 +155,7 @@
                 <el-col :span="19" style="height: 36px; display: flex; align-items: center">
                   <el-radio v-model="deploy_info.repo_type" label="HTTP" />
                   <el-radio v-model="deploy_info.repo_type" label="Zadig" />
-<!--                  <el-radio v-model="deploy_info.repo_type" label="FTP" />-->
+                  <!--                  <el-radio v-model="deploy_info.repo_type" label="FTP" />-->
                 </el-col>
               </el-row>
             </div>
@@ -492,7 +509,7 @@
 
 <script>
 import {
-  templateCreate, getBridgXClusterList, getTemplateInfo, templateUpdate
+  templateCreate, getBridgXClusterList, getTemplateInfo, templateUpdate, getEnvByServiceId, serviceDetail, getEnvById
 } from '@/api/service'
 import { validInput, validInputCount } from '@/utils/validate'
 
@@ -522,6 +539,7 @@ export default {
         key: '',
         val: ''
       }],
+      envs: [],
       compilerAdvance: false,
       publishAdvance: false,
       startAdvance: false,
@@ -532,7 +550,9 @@ export default {
           describe: '',
           service_cluster_id: '',
           bridgx_clusname: '',
-          deploy_mode: ''
+          deploy_mode: '',
+          running_env_id: '',
+          computing_resource_id: ''
         },
         base_env: {
           is_container: true
@@ -719,6 +739,12 @@ export default {
       }
     },
     async loadBridgXCluster() {
+      const service = await serviceDetail(this.$route.params.service_name)
+      const eRes = await getEnvByServiceId(service.service_id)
+      this.envs = eRes.map(i => ({
+        id: i.env_id.toString(),
+        name: i.env_name
+      }))
       const params = {
         page_number: 1,
         page_size: 50
@@ -726,7 +752,12 @@ export default {
       const res = await getBridgXClusterList(params)
       this.bridgXCluster = res.cluster_list
     },
+    async afterSelectedEnv() {
+      const res = await getEnvById(this.form.tmpl_info.running_env_id)
+      this.bridgXCluster = res.computing_resources
+    },
     async submit() {
+      console.log(111)
       if (!this.validate()) {
         return
       }
@@ -746,6 +777,7 @@ export default {
       }
       this.form.tmpl_info.service_cluster_id = Number(this.form.tmpl_info.service_cluster_id)
       this.form.service_env.port = Number(this.form.service_env.port)
+      this.form.tmpl_info.running_env_id = Number(this.form.tmpl_info.running_env_id)
       this.form.tmpl_info.deploy_mode = this.deploy_mode
       const form = {
         ...this.form,
@@ -754,6 +786,7 @@ export default {
           env_variables: this.env_variables
         }
       }
+      console.log(form)
       if (this.$route.name === 'templateEdit') {
         form.tmpl_expand_id = Number(this.$route.params.tmpl_expand_id)
         const res = await templateUpdate(form)

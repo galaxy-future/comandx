@@ -10,72 +10,81 @@
     <div class="content">
       <div>
         <el-tabs v-model="activeName">
-          <el-tab-pane label="算力资源" name="clusters">
-<!--            <el-tabs v-model="activeEnv" type="border-card" :before-leave="handActive">-->
-<!--              <el-tab-pane label="prod" name="prod">-->
-<!--                <el-table-->
-<!--                  :data="clusters"-->
-<!--                  border-->
-<!--                  fit-->
-<!--                  highlight-current-row-->
-<!--                  size="medium"-->
-<!--                >-->
-<!--                  <el-table-column label="ID" prop="service_cluster_id" align="center" />-->
-<!--                  <el-table-column label="集群名称" prop="bridgx_cluster" align="center" />-->
-<!--                  <el-table-column label="在线机器数" prop="instance_count" align="center" />-->
-<!--                  <el-table-column label="集群机型" prop="instance_type_desc" align="center" />-->
-<!--                  <el-table-column label="云厂商" align="center">-->
-<!--                    <template slot-scope="{ row }">-->
-<!--                      {{ row.provider | filterCloudProvider }}-->
-<!--                    </template>-->
-<!--                  </el-table-column>-->
-<!--                  <el-table-column label="付费方式" align="center">-->
-<!--                    <template slot-scope="{ row }">-->
-<!--                      {{ row.charge_type | parsePaidType }}-->
-<!--                    </template>-->
-<!--                  </el-table-column>-->
-<!--                  <el-table-column label="操作" align="center">-->
-<!--                    <template slot-scope="{ row }">-->
-<!--                      <el-button type="text" @click="goToMonitor(row)">集群监控</el-button>-->
-<!--                      <el-button type="text" :disabled="deploys === null || deploys.length < 1" @click="publishService(row)">发布</el-button>-->
-<!--                      <el-button type="text" :disabled="templateList === null || templateList.length < 1" @click="elastic(row)">扩缩容</el-button>-->
-<!--                    </template>-->
-<!--                  </el-table-column>-->
-<!--                </el-table>-->
-<!--              </el-tab-pane>-->
-<!--              <el-tab-pane name="add">-->
-<!--                <div slot="label">+添加环境</div>-->
-<!--              </el-tab-pane>-->
-<!--            </el-tabs>-->
-            <el-table
-                :data="clusters"
-                border
-                fit
-                highlight-current-row
-                size="medium"
-            >
-              <el-table-column label="ID" prop="service_cluster_id" align="center" />
-              <el-table-column label="集群名称" prop="bridgx_cluster" align="center" />
-              <el-table-column label="在线机器数" prop="instance_count" align="center" />
-              <el-table-column label="集群机型" prop="instance_type_desc" align="center" />
-              <el-table-column label="云厂商" align="center">
-                <template slot-scope="{ row }">
-                  {{ row.provider | filterCloudProvider }}
-                </template>
-              </el-table-column>
-              <el-table-column label="付费方式" align="center">
-                <template slot-scope="{ row }">
-                  {{ row.charge_type | parsePaidType }}
-                </template>
-              </el-table-column>
-              <el-table-column label="操作" align="center">
-                <template slot-scope="{ row }">
-                  <el-button type="text" @click="goToMonitor(row)">集群监控</el-button>
-                  <el-button type="text" :disabled="deploys === null || deploys.length < 1" @click="publishService(row)">发布</el-button>
-                  <el-button type="text" :disabled="templateList === null || templateList.length < 1" @click="elastic(row)">扩缩容</el-button>
-                </template>
-              </el-table-column>
-            </el-table>
+          <el-tab-pane label="运行环境" name="clusters">
+            <el-tabs v-model="activeEnv" type="border-card" :before-leave="handActive">
+              <el-tab-pane v-for="(env, idx) in activeEnvs" :key="idx" :label="env.name" :name="env.id">
+                <el-button size="mini" type="primary" @click="editEnv">编辑环境</el-button>
+                <el-button size="mini" type="danger" @click="delEnv">删除环境</el-button>
+                <el-table
+                  ref="resourceTable"
+                  :data="resources"
+                  :show-header="false"
+                  fit
+                  highlight-current-row
+                  size="medium"
+                >
+                  <el-table-column type="expand">
+                    <template slot-scope="{ row }">
+                      <el-table :data="row.computing_resources" :show-header="false" size="mini">
+                        <el-table-column>
+                          <template slot-scope="resource">
+                            <span class="text-grey">ID: </span>{{ resource.row.cluster_id }}
+                          </template>
+                        </el-table-column>
+                        <el-table-column>
+                          <template slot-scope="resource">
+                            <span class="text-grey">集群: </span>{{ resource.row.bridgx_cluster }}
+                          </template>
+                        </el-table-column>
+                        <el-table-column>
+                          <template slot-scope="resource">
+                            <span class="text-grey">在线机器数: </span>{{ resource.row.instance_count }}
+                          </template>
+                        </el-table-column>
+                        <el-table-column width="400">
+                          <template slot-scope="resource">
+                            <span class="text-grey">信息: </span>{{ getClusterInfo(resource.row.instance_type_desc) }}/{{ resource.row.computing_power_type }}/{{ resource.row.provider | filterCloudProvider }}/{{ resource.row.charge_type | parsePaidType }}
+                          </template>
+                        </el-table-column>
+                        <el-table-column>
+                          <template slot-scope="{ row }">
+                            <el-button type="text" @click="goToMonitor(row)">集群监控</el-button>
+                            <el-button type="text" :disabled="deploys === null || deploys.length < 1" @click="publishService(row)">发布</el-button>
+                            <el-button type="text" :disabled="templateList === null || templateList.length < 1" @click="elastic(row)">扩缩容</el-button>
+                          </template>
+                        </el-table-column>
+                      </el-table>
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="ID" prop="env_id"/>
+                  <el-table-column label="名称" prop="env_name"/>
+                  <el-table-column label="关联集群">
+                    <template slot-scope="{ row }">
+                      <span class="text-grey">关联集群: </span>{{ getClusterCount(row.computing_resources) }}
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="在线机器数">
+                    <template slot-scope="{ row }">
+                      <span class="text-grey">机器数: </span>{{ getInstanceCount(row.computing_resources) }}
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="Pod数">
+                    <template>
+                      <span class="text-grey">Pod数: </span>--
+                    </template>
+                  </el-table-column>
+                  <el-table-column label="操作" align="center">
+                    <template slot-scope="{ row }">
+                      <el-button type="text" @click="toogleExpand(row)">{{ row.expansion ? '展开' : '收起' }}</el-button>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </el-tab-pane>
+              <el-tab-pane name="add">
+                <div slot="label">+添加环境</div>
+                <create-env :service-name="serviceName" @gotoList="afterEnvCreated" />
+              </el-tab-pane>
+            </el-tabs>
           </el-tab-pane>
           <el-tab-pane label="发布模板" name="deploy">
             <div class="buttons">
@@ -258,14 +267,14 @@
         >取消</el-button>
       </div>
     </el-dialog>
-    <el-dialog :visible.sync="publishVis" title="服务发布" width="30%" custom-class="template-dialog">
+    <el-dialog :visible.sync="publishVis" title="服务发布" width="50%" custom-class="template-dialog">
       <el-row style="margin-bottom: 20px">
         <el-col :span="8">
           服务: {{ serviceName }}
         </el-col>
-<!--        <el-col :span="8">-->
-<!--          环境: prod-->
-<!--        </el-col>-->
+        <el-col :span="8">
+          环境: {{ getEnvName(activeEnv) }}
+        </el-col>
         <el-col :span="8">
           集群: {{ publishForm.cluster }}
         </el-col>
@@ -289,7 +298,39 @@
           </el-select>
         </el-form-item>
         <el-form-item label="发布方式">
-          <el-radio v-model="publishForm.type" label="oneByOne">全量发布</el-radio>
+          <el-radio v-model="publishForm.deploy_type" label="all">全量发布</el-radio>
+          <el-radio v-model="publishForm.deploy_type" label="scroll">滚动发布</el-radio>
+          <div v-if="publishForm.deploy_type === 'scroll'">
+            <div style="display: flex; flex-direction: row; align-items: center">
+              <div style="width: 4rem">失败比例</div><el-input v-model="publishForm.fail_surge" size="mini" style="width: 3rem" /> %
+              <i class="el-icon-warning" style="color: #B8741A; font-size: 16px; margin-left: 10px" />如异常实例超出失败比例则发布终止执行回滚
+            </div>
+            <div>
+              <el-table :data="publishForm.max_surge" size="mini" border>
+                <el-table-column align="center">
+                  <template slot="header">
+                    <el-button size="mini" type="text" @click="addRow">添加轮次</el-button>
+                  </template>
+                  <template slot-scope="scope">
+                    <el-button size="mini" type="text" style="color: #F56C6C" @click="delRow(scope.$index)">删除</el-button>
+                  </template>
+                </el-table-column>
+                <el-table-column label="轮次" align="center">
+                  <template slot-scope="scope">{{ scope.$index + 1 }}</template>
+                </el-table-column>
+                <el-table-column label="本轮发布比例" align="center">
+                  <template slot-scope="scope">
+                    <el-input v-model="publishForm.max_surge[scope.$index]" size="mini" style="width: 3rem" />%
+                  </template>
+                </el-table-column>
+                <el-table-column label="累计发布比例" align="center">
+                  <template slot-scope="scope">
+                    {{ getPercent(scope.$index) }}%
+                  </template>
+                </el-table-column>
+              </el-table>
+            </div>
+          </div>
         </el-form-item>
       </el-form>
       <span slot="footer" class="dialog-footer">
@@ -307,19 +348,20 @@ import {
   getTemplateList,
   serviceClusterList,
   templateDeletes,
-  serviceDeploy, workflowList, artifactList, integrationList
+  serviceDeploy, workflowList, artifactList, integrationList, getEnvByServiceId, serviceDetail, getEnvById, deleteEnv
 } from '@/api/service'
 import waves from '@/directive/waves' // waves directive
 import Pagination from '@/components/Pagination'
 import History from '@/views/template/history'
 import Elastic from '@/views/template/components/elastic'
 import RuleList from '@/views/template/ruleList'
+import CreateEnv from '@/views/template/components/createOrEditEnv'
 import loadMore from '@/directive/el-select-load-more'
 import _ from 'lodash'
 
 export default {
   name: 'Template',
-  components: { Pagination, History, RuleList, Elastic },
+  components: { Pagination, History, RuleList, Elastic, CreateEnv },
   directives: { waves, loadMore },
   filters: {
     statusFilter(status) {
@@ -352,7 +394,8 @@ export default {
           is_valid: 1
         }
       },
-      activeEnv: 'prod',
+      activeEnv: '',
+      activeEnvs: [],
       activeName: 'clusters',
       listLoading: false,
       total: 0,
@@ -366,6 +409,7 @@ export default {
       service_name: '',
       service_cluster_id: '',
       confirmDeleteTemplateDiglogVis: false,
+      handleEnvName: '添加环境',
       deleteType: '',
       publishVis: false,
       loading: {
@@ -380,8 +424,10 @@ export default {
         workflow: '',
         artifact: '',
         download_file_url: '',
-        type: 'oneByOne',
-        count: 0
+        deploy_type: 'all',
+        count: 0,
+        fail_surge: '',
+        max_surge: [10]
       },
       artifactsQuery: {
         page_size: 20,
@@ -400,6 +446,7 @@ export default {
         ]
       },
       clusters: [],
+      resources: [],
       deploys: [],
       deployQuery: {
         page_num: 1,
@@ -418,6 +465,15 @@ export default {
     },
     serviceName() {
       return this.$route.params.service_name
+    },
+    envIdx() {
+      let index = 0
+      this.activeEnvs.forEach((e, idx) => {
+        if (+this.activeEnv === +e.id) {
+          index = idx
+        }
+      })
+      return index
     }
   },
   created() {
@@ -426,6 +482,18 @@ export default {
   methods: {
     async getList() {
       this.listLoading = true
+      const service = await serviceDetail(this.serviceName)
+      const eRes = await getEnvByServiceId(service.service_id)
+      this.activeEnvs = eRes.map(i => ({
+        id: i.env_id.toString(),
+        name: i.env_name
+      }))
+      if (this.activeEnvs.length > 0) {
+        this.activeEnv = _.get(this.activeEnvs, '0.id')
+        await this.loadComputedResource()
+      } else {
+        this.activeEnv = 'add'
+      }
       const cRes = await serviceClusterList(this.$route.params.service_name)
       this.clusters = _.get(cRes, 'cluster_list', [])
       const serviceName = this.$route.params.service_name
@@ -451,6 +519,31 @@ export default {
       this.listLoading = false
       this.service_name = serviceName
       this.service_cluster_id = serviceClusterId
+    },
+    async loadComputedResource() {
+      if (_.isEmpty(this.activeEnv) || this.activeEnv === 'add') {
+        return
+      }
+      const res = await getEnvById(+this.activeEnv)
+      this.resources = [{ ...res, expansion: true }]
+    },
+    toogleExpand(row) {
+      if (_.isEmpty(this.$refs.resourceTable)) {
+        return
+      }
+      const $table = this.$refs.resourceTable[this.envIdx]
+      this.resources.map((i) => {
+        if (row.env_id !== i.env_id) {
+          $table.toggleRowExpansion(i, false)
+          i.expansion = false
+        } else {
+          i.expansion = !i.expansion
+        }
+      })
+      $table.toggleRowExpansion(row)
+    },
+    getClusterInfo(cluster_name) {
+      return cluster_name.replace(/\(.*?\)/g, '')
     },
     goToMonitor(cluster) {
       this.$router.push({
@@ -487,9 +580,13 @@ export default {
       const res = await artifactList(this.service_name, this.publishForm.workflow, 'file', this.artifactsQuery.page_num, this.artifactsQuery.page_size)
       this.artifacts = _.concat(this.artifacts, ..._.get(res, 'artifact_list', []))
     },
+    getEnvName(id) {
+      return _.get(this.activeEnvs.find(i => i.id === id), 'name', '')
+    },
     async doPublish() {
       const file = this.publishForm.resource === 'Zadig' ? this.publishForm.artifact : this.publishForm.download_file_url
-      const res = await serviceDeploy(this.$route.params.service_cluster_id, '', 'manual', file, false)
+      const res = await serviceDeploy(this.$route.params.service_cluster_id, '', 'manual', file, false,
+          this.publishForm.deploy_type, this.publishForm.max_surge.join(','), this.publishForm.fail_surge, this.activeEnv)
       if (res.code === 200) {
         this.$message.success('发布成功')
         this.$router.push({
@@ -559,11 +656,57 @@ export default {
         this.$message.error('删除失败')
       }
     },
-    handActive(name) {
-      if (name === 'add') {
-        return false
+    async handActive(targetName) {
+      this.activeEnv = targetName
+      await this.loadComputedResource()
+      if (this.resources && this.resources.length > 0) {
+        this.toogleExpand(this.resources[0])
       }
-    }
+    },
+    getInstanceCount(resources) {
+      if (_.isEmpty(resources)) {
+        return 0
+      }
+      return _.sum(resources.map(i => i.instance_count))
+    },
+    getClusterCount(resources) {
+      return resources ? resources.length : 0
+    },
+    addRow() {
+      this.publishForm.max_surge.push('')
+    },
+    delRow(idx) {
+      this.publishForm.max_surge = this.publishForm.max_surge.filter((_, i) => i !== idx)
+    },
+    getPercent(idx) {
+      let res = 0
+      for (let i = 0; i <= idx; i++) {
+        res += +this.publishForm.max_surge[i]
+      }
+      return res
+    },
+    afterEnvCreated() {
+      this.getList()
+    },
+    async delEnv() {
+      try {
+        await this.$confirm('确定删除吗?', '警告', {
+          confirmButtonText: '删除',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+        const res = await deleteEnv([this.activeEnv])
+        if (res.code === 200) {
+          this.$message.success('删除成功')
+          await this.getList()
+        } else {
+          this.$message.error('删除失败')
+        }
+      } catch (e) {
+        // do nothing
+      }
+    },
+    editEnv() {}
   }
 }
 </script>
@@ -606,6 +749,9 @@ export default {
     .table {
       margin-top: 10px;
     }
+  }
+  .text-grey {
+    color: #8c939d;
   }
 }
 </style>
