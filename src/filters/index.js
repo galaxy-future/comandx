@@ -127,6 +127,12 @@ export function formatMomentZone(date, format) {
   return str === 'Invalid date' ? '--' : str
 }
 
+export function formatServiceMoment(date, format) {
+  const dateFormat = date ? date.split('+08:00')[0].replaceAll('T', ' ') : date
+  const str = moment(new Date(dateFormat)).format(format)
+  return str === 'Invalid date' ? '--' : str
+}
+
 export function formatInstanceStatuses(status) {
   return _.get(instanceStatuses, status, '未知')
 }
@@ -149,6 +155,18 @@ export function formatPrecision(value, precision) {
     return value.toFixed(precision)
   }
   return '--'
+}
+
+const taskMap = {
+  INIT: '待执行',
+  RUNNING: '执行中',
+  ROLLING_BACK: '回滚中',
+  FAIL: '执行失败',
+  SUCC: '执行成功'
+}
+
+export function parseDeployTaskStatus(status) {
+  return _.get(taskMap, status, '')
 }
 
 export function formatStorage(storage) {

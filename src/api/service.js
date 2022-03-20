@@ -48,9 +48,9 @@ export async function serviceCreate(data) {
   return res
 }
 
-export async function serviceExpand(params) {
+export function serviceExpand(params) {
   const token = getToken()
-  return await request({
+  return request({
     url: '/api/v1/schedulx/service/expand',
     method: 'get',
     params: params,
@@ -60,9 +60,9 @@ export async function serviceExpand(params) {
   })
 }
 
-export async function serviceShrink(params) {
+export function serviceShrink(params) {
   const token = getToken()
-  return await request({
+  return request({
     url: '/api/v1/schedulx/service/shrink',
     method: 'get',
     params: params,
@@ -198,6 +198,164 @@ export async function serviceClusterList(service_name) {
     },
     params: {
       service_name
+    }
+  })
+  return _.get(res, 'data', [])
+}
+
+export function serviceDeploy(service_cluster_id, count, exec_type, download_file_url, rollback) {
+  const token = getToken()
+  return request({
+    url: '/api/v1/schedulx/service/deploy',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    params: {
+      service_cluster_id,
+      count,
+      exec_type,
+      download_file_url,
+      rollback
+    }
+  })
+}
+
+export async function taskInfo(task_id) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/task/info',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    params: {
+      task_id
+    }
+  })
+  return _.get(res, 'data')
+}
+
+export function serviceDelete(ids) {
+  const token = getToken()
+  return request({
+    url: '/api/v1/schedulx/service/delete',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    method: 'post',
+    data: {
+      ids
+    }
+  })
+}
+
+export async function deployList(service_name, service_cluster_id, page_num, page_size) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/template/deploy/list',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    params: {
+      service_name,
+      service_cluster_id,
+      page_num,
+      page_size
+    }
+  })
+  return _.get(res, 'data', [])
+}
+
+export async function deployTaskDetail(service_cluster_id, task_id) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/task/deploy/detail',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    params: {
+      service_cluster_id,
+      task_id
+    }
+  })
+  return _.get(res, 'data')
+}
+
+export async function workflowList(service_name) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/service/zadig/workflow/list',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    params: {
+      service_name
+    }
+  })
+  return _.get(res, 'data.workflow_list', [])
+}
+
+export async function artifactList(service_name, workflow_name, file_type, page_num, page_size) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/service/zadig/artifact/list',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    params: {
+      service_name,
+      workflow_name,
+      file_type,
+      page_num,
+      page_size
+    }
+  })
+  return _.get(res, 'data', [])
+}
+
+export async function createIntegration(host, account, password, type) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/integration/create',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    method: 'post',
+    data: {
+      host,
+      account,
+      password,
+      type
+    }
+  })
+  return res
+}
+
+export async function deleteIntegration(ids) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/integration/delete',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    method: 'post',
+    data: {
+      ids
+    }
+  })
+  return res
+}
+
+export async function integrationList(type, page_num, page_size) {
+  const token = getToken()
+  const res = await request({
+    url: '/api/v1/schedulx/integration/list',
+    headers: {
+      Authorization: ` Bearer ${token}`
+    },
+    params: {
+      type,
+      page_num,
+      page_size
     }
   })
   return _.get(res, 'data', [])

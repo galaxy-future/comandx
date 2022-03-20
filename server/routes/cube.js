@@ -1,58 +1,24 @@
 const host = require('../config/host')
 const request = require('request-promise')
 const Router = require('koa-router')
+const common = require('../util/common')
 
 const prefix = '/api/v1/cudgx'
 const routerApi = new Router({
   prefix
 })
 
-routerApi.post('/predict/rule/create', async(ctx) => {
-  try {
-    ctx.body = await request({
-      headers: {
-        authorization: ctx.header.authorization
-      },
-      url: `${host.getCudgxHost()}${prefix}/predict/rule/create`,
-      method: 'POST',
-      body: ctx.request.body,
-      json: true
-    })
-  } catch (e) {
-    ctx.body = e.error
-  }
-})
+const getUrl = [
+  '/predict/rule/list'
+]
 
-routerApi.post('/predict/rule/update', async(ctx) => {
-  try {
-    ctx.body = await request({
-      headers: {
-        authorization: ctx.header.authorization
-      },
-      url: `${host.getCudgxHost()}${prefix}/predict/rule/update`,
-      method: 'POST',
-      body: ctx.request.body,
-      json: true
-    })
-  } catch (e) {
-    ctx.body = e.error
-  }
-})
+const postUrl = [
+  '/predict/rule/create',
+  '/predict/rule/update',
+  '/predict/rule/batch/delete'
+]
 
-routerApi.get('/predict/rule/list', async(ctx) => {
-  try {
-    ctx.body = await request({
-      headers: {
-        authorization: ctx.header.authorization
-      },
-      url: `${host.getCudgxHost()}${prefix}/predict/rule/list`,
-      qs: ctx.query,
-      json: true
-    })
-  } catch (e) {
-    ctx.body = e.error
-  }
-})
+common.generateRouter(getUrl, postUrl, routerApi, host.getCudgxHost(), prefix)
 
 routerApi.get('/predict/rule/:id', async(ctx) => {
   try {
@@ -61,22 +27,6 @@ routerApi.get('/predict/rule/:id', async(ctx) => {
         authorization: ctx.header.authorization
       },
       url: `${host.getCudgxHost()}${prefix}/predict/rule/${ctx.params.id}`,
-      json: true
-    })
-  } catch (e) {
-    ctx.body = e.error
-  }
-})
-
-routerApi.post('/predict/rule/batch/delete', async(ctx) => {
-  try {
-    ctx.body = await request({
-      headers: {
-        authorization: ctx.header.authorization
-      },
-      url: `${host.getCudgxHost()}${prefix}/predict/rule/batch/delete`,
-      method: 'POST',
-      body: ctx.request.body,
       json: true
     })
   } catch (e) {

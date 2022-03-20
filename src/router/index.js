@@ -212,6 +212,12 @@ export const constantRoutes = [
       meta: { title: '服务列表', icon: '' },
       hidden: true
     }, {
+      path: '/service/:service_cluster_id/publish/:id',
+      name: 'publishService',
+      component: () => import('@/views/service/publish'),
+      meta: { title: '服务列表', icon: '' },
+      hidden: true
+    }, {
       path: '/service/:service_name/:service_cluster_id/template',
       name: 'templateList',
       component: () => import('@/views/template/index'),
@@ -233,13 +239,13 @@ export const constantRoutes = [
       path: '/service/:service_name/:service_cluster_id/template-create',
       name: 'templateCreate',
       component: () => import('@/views/template/createOrEdit'),
-      meta: { title: '创建扩缩容流程', icon: '' },
+      meta: { title: '服务列表', icon: '' },
       hidden: true
     }, {
       path: '/service/template-edit/:service_name/:tmpl_expand_id',
       name: 'templateEdit',
       component: () => import('@/views/template/createOrEdit'),
-      meta: { title: '编辑扩缩容流程', icon: '' },
+      meta: { title: '服务列表', icon: '' },
       hidden: true
     }, {
       path: '/service/help',
@@ -293,6 +299,18 @@ export const constantRoutes = [
       component: () => import('@/views/account/index'),
       meta: { title: '账户管理', icon: 'account' }
     }]
+  },
+  {
+    path: '/integration',
+    component: Layout,
+    redirect: '/integration',
+    children: [{
+      path: 'integration',
+      name: 'integration',
+      component: () => import('@/views/integration/list'),
+      meta: { title: '集成管理', icon: 'tree', isAdmin: true }
+    }],
+    isAdmin: true
   },
   {
     path: '/help',
